@@ -2368,7 +2368,8 @@ body.about-view .page::before {
   transition: none;
   pointer-events: none;
   z-index: var(--chapter-z, 1);
-  contain: layout paint;
+  contain: layout;
+  backdrop-filter: blur(28px) saturate(1.14);
 }
 
 .home-pin .chapter::before {
@@ -2428,7 +2429,7 @@ body.about-view .page::before {
   border-radius: clamp(22px, 3vw, 34px);
   background: linear-gradient(135deg, oklch(100% 0 0 / .10), oklch(3% 0.012 250 / .74) 44%, oklch(2% 0.012 250 / .84));
   border: 1px solid oklch(100% 0 0 / .09);
-  backdrop-filter: blur(8px) saturate(1.08);
+  backdrop-filter: blur(22px) saturate(1.24);
   box-shadow: 0 22px 58px oklch(0% 0 0 / .38), inset 0 1px 0 oklch(100% 0 0 / .10);
 }
 

@@ -21,7 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <aside className="sidebar">
           <div>
             <Link href="/">
-              <Image className="brand-mark" src="/logo.png" alt="wtfilm" width={132} height={40} priority />
+              <Image className="brand-mark" src="/logo.png" alt="wtfilm" width={132} height={30} priority />
             </Link>
             <nav className="nav" aria-label="Principal">
               <Link href="/" data-icon="01">início</Link>
@@ -51,7 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         <header className="mobile-bar">
           <Link href="/">
-            <Image className="brand-mark" src="/logo.png" alt="wtfilm" width={132} height={40} />
+            <Image className="brand-mark" src="/logo.png" alt="wtfilm" width={132} height={30} />
           </Link>
           <button className="menu-toggle" data-menu-toggle aria-label="Abrir menu">
             <span></span><span></span>

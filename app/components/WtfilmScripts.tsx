@@ -344,10 +344,30 @@ export default function WtfilmScripts() {
         })
       }
       const requestUpdate = () => { if (raf) return; raf = requestAnimationFrame(() => { raf = null; render(readAmount()) }) }
+
+      // Snap to the nearest chapter when the user stops scrolling
+      let snapTimer: number | null = null
+      const snapToNearest = () => {
+        if (!sequence.isConnected) return
+        const amount = readAmount()
+        // Only snap while inside the chapter sequence zone
+        if (amount < revealStart + 0.018 || amount > revealEnd - 0.018) return
+        const targets = chapters.map((_, i) => targetAmountFor(i))
+        const nearest = targets.reduce((best, t) => Math.abs(t - amount) < Math.abs(best - amount) ? t : best)
+        if (Math.abs(nearest - amount) > 0.012) scrollToAmount(nearest)
+      }
+      // Clear the snap timer when the effect is cleaned up
+      sig.addEventListener('abort', () => { if (snapTimer !== null) { clearTimeout(snapTimer); snapTimer = null } })
+
       // Defer initial render to ensure the browser has laid out the sequence element
       rafInit = requestAnimationFrame(() => { rafInit = null; render(readAmount()) })
       if (revealButton) revealButton.addEventListener('click', () => { scrollToAmount(targetAmountFor(0)); window.setTimeout(() => render(readAmount()), 560) }, { signal: sig })
-      window.addEventListener('scroll', requestUpdate, { passive: true, signal: sig } as AddEventListenerOptions)
+      window.addEventListener('scroll', () => {
+        requestUpdate()
+        // Debounce: snap 320 ms after the last scroll event
+        if (snapTimer !== null) clearTimeout(snapTimer)
+        snapTimer = window.setTimeout(snapToNearest, 320)
+      }, { passive: true, signal: sig } as AddEventListenerOptions)
       window.addEventListener('resize', () => render(readAmount()), { signal: sig })
     }
 
