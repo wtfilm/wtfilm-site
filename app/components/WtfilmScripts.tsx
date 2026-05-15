@@ -468,6 +468,18 @@ export default function WtfilmScripts() {
 
       if (revealButton) revealButton.addEventListener('click', () => { commitTo(0) }, { signal: sig })
 
+      // Back-to-top: animates scroll to 0 (hero) with ease-out-quart
+      const returnButton = sequence.querySelector<HTMLElement>('[data-chapter-return]')
+      if (returnButton) {
+        returnButton.addEventListener('click', () => {
+          if (isTransitioning) return
+          currentChapterIndex = 0
+          wheelAccum = 0
+          isTransitioning = true
+          animateTo(0, () => { isTransitioning = false })
+        }, { signal: sig })
+      }
+
       // scroll: only keeps visuals in sync during native scroll (enter/exit zone)
       window.addEventListener('scroll', requestUpdate, { passive: true, signal: sig } as AddEventListenerOptions)
       // wheel: non-passive — needed to call preventDefault inside the sequence zone

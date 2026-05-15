@@ -124,6 +124,21 @@ export default function HomePage() {
           </section>
 
           <div className="sequence-progress" aria-hidden="true"><span /></div>
+
+          {/* Floating back-to-top button — appears when chapters are visible */}
+          <button
+            className="chapter-return"
+            type="button"
+            data-chapter-return
+            aria-label="Voltar ao início"
+          >
+            <span className="chapter-return-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <path d="M12 19V5M6 11l6-6 6 6" />
+              </svg>
+            </span>
+            <span className="chapter-return-text">início</span>
+          </button>
         </div>
       </section>
     </main>
