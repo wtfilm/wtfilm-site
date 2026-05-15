@@ -1,10 +1,16 @@
 'use client'
 
 import { useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import Script from 'next/script'
 
 export default function WtfilmScripts() {
+  const pathname = usePathname()
+
   useEffect(() => {
+    const ac = new AbortController()
+    const sig = ac.signal
+
     const categoryToneMap: Record<string, string> = {
       campanhas: 'oklch(61% 0.25 18 / .28)',
       ia: 'oklch(61% 0.25 18 / .26)',
@@ -37,7 +43,7 @@ export default function WtfilmScripts() {
             if (href) category = new URL(href, window.location.href).searchParams.get('f') ?? undefined
           }
           if (category && category !== 'todos') applyRouteTone(category, item.tagName === 'A')
-        })
+        }, { signal: sig })
       })
     }
 
@@ -61,13 +67,13 @@ export default function WtfilmScripts() {
         const isOpen = menu.classList.toggle('open')
         toggle.classList.toggle('is-open', isOpen)
         toggle.setAttribute('aria-expanded', String(isOpen))
-      })
+      }, { signal: sig })
       menu.querySelectorAll('a').forEach((link) => {
         link.addEventListener('click', () => {
           menu.classList.remove('open')
           toggle.classList.remove('is-open')
           toggle.setAttribute('aria-expanded', 'false')
-        })
+        }, { signal: sig })
       })
     }
 
@@ -78,18 +84,26 @@ export default function WtfilmScripts() {
         const cards: HTMLElement[] = grid
           ? [...grid.querySelectorAll<HTMLElement>('[data-category]')]
           : [...document.querySelectorAll<HTMLElement>('[data-category]')]
+
+        // Save the original DOM order so "todos" can restore the mosaic nth-child positions
+        const originalOrder = [...cards]
+
         const requested = new URLSearchParams(window.location.search).get('f')
         const categoryOrder = ['campanhas', 'ia', 'conteudo', 'videoclipes', 'cinema', 'animacao']
         const categoryBuckets = categoryOrder.map((cat) => cards.filter((c) => c.dataset.category === cat))
-        const mixedCards: HTMLElement[] = []
-        const maxBucketSize = Math.max(...categoryBuckets.map((b) => b.length), 0)
-        for (let i = 0; i < maxBucketSize; i++) categoryBuckets.forEach((b) => { if (b[i]) mixedCards.push(b[i]) })
         const orderedCards = new Map<string, HTMLElement[]>()
-        orderedCards.set('todos', mixedCards)
         categoryOrder.forEach((cat) => orderedCards.set(cat, cards.filter((c) => c.dataset.category === cat)))
+
         const applyFilter = (filter: string) => {
-          const nextCards = orderedCards.get(filter) || cards
-          if (grid) nextCards.forEach((c) => grid.appendChild(c))
+          if (grid) {
+            if (filter === 'todos') {
+              // Restore original DOM order to preserve nth-child mosaic CSS positions
+              originalOrder.forEach((c) => grid.appendChild(c))
+            } else {
+              const nextCards = orderedCards.get(filter) || cards
+              nextCards.forEach((c) => grid.appendChild(c))
+            }
+          }
           if (grid) grid.classList.toggle('is-filtered', filter !== 'todos')
           buttons.forEach((b) => b.classList.toggle('active', b.dataset.filter === filter))
           cards.forEach((c) => {
@@ -99,7 +113,7 @@ export default function WtfilmScripts() {
           })
           if (grid) (grid as HTMLElement).scrollTo({ left: 0, behavior: 'smooth' })
         }
-        buttons.forEach((btn) => btn.addEventListener('click', () => applyFilter(btn.dataset.filter!)))
+        buttons.forEach((btn) => btn.addEventListener('click', () => applyFilter(btn.dataset.filter!), { signal: sig }))
         if (requested && [...buttons].some((b) => b.dataset.filter === requested)) applyFilter(requested)
       })
     }
@@ -179,8 +193,8 @@ export default function WtfilmScripts() {
         overlay!.scrollTo({ top: 0, behavior: 'auto' })
       }
       cards.forEach((card, i) => {
-        card.addEventListener('click', (e) => { e.preventDefault(); openOverlay(card, i) })
-        card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openOverlay(card, i) } })
+        card.addEventListener('click', (e) => { e.preventDefault(); openOverlay(card, i) }, { signal: sig })
+        card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openOverlay(card, i) } }, { signal: sig })
       })
       reelButtons.forEach((btn) => {
         btn.addEventListener('click', (e) => {
@@ -194,20 +208,20 @@ export default function WtfilmScripts() {
           overlay!.classList.remove('info-open', 'mode-moodboard')
           overlay!.setAttribute('aria-hidden', 'false')
           if (more) { more.setAttribute('aria-expanded', 'false'); more.hidden = false }
-        })
+        }, { signal: sig })
       })
-      if (close) close.addEventListener('click', closeOverlay)
+      if (close) close.addEventListener('click', closeOverlay, { signal: sig })
       if (more) {
         more.addEventListener('click', () => {
           const isOpen = overlay!.classList.toggle('info-open')
           more.setAttribute('aria-expanded', String(isOpen))
-        })
+        }, { signal: sig })
       }
       if (infoClose && more) {
-        infoClose.addEventListener('click', () => { overlay!.classList.remove('info-open'); more.setAttribute('aria-expanded', 'false') })
+        infoClose.addEventListener('click', () => { overlay!.classList.remove('info-open'); more.setAttribute('aria-expanded', 'false') }, { signal: sig })
       }
-      overlay.addEventListener('click', (e) => { if (e.target === overlay) closeOverlay() })
-      window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeOverlay() })
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) closeOverlay() }, { signal: sig })
+      window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeOverlay() }, { signal: sig })
     }
 
     function initContactForm() {
@@ -219,7 +233,7 @@ export default function WtfilmScripts() {
         const invalid = [...form.querySelectorAll<HTMLInputElement>('[required]')].some((f) => !f.value.trim())
         status.textContent = invalid ? 'Preencha os campos essenciais.' : 'Briefing recebido. A wtfilm responde em breve.'
         status.style.color = invalid ? 'oklch(72% 0.18 55)' : 'oklch(72% 0.18 145)'
-      })
+      }, { signal: sig })
     }
 
     function initCinematicMouse() {
@@ -266,12 +280,12 @@ export default function WtfilmScripts() {
         root.style.setProperty('--hero-kicker-color', dot.color)
       }
       const requestApply = () => { if (!rafFrame) rafFrame = requestAnimationFrame(apply) }
-      window.addEventListener('pointermove', (e) => { next = { x: e.clientX, y: e.clientY }; requestApply() })
+      window.addEventListener('pointermove', (e) => { next = { x: e.clientX, y: e.clientY }; requestApply() }, { signal: sig })
       document.querySelectorAll<HTMLElement>('.sidebar .nav a').forEach((item, i) => {
-        item.addEventListener('pointerenter', () => { forcedDot = [dotColors[0], dotColors[1], dotColors[2], dotColors[0]][i] || dotColors[0]; requestApply() })
+        item.addEventListener('pointerenter', () => { forcedDot = [dotColors[0], dotColors[1], dotColors[2], dotColors[0]][i] || dotColors[0]; requestApply() }, { signal: sig })
       })
       const sidebar = document.querySelector('.sidebar')
-      if (sidebar) sidebar.addEventListener('pointerleave', () => { forcedDot = null; requestApply() })
+      if (sidebar) sidebar.addEventListener('pointerleave', () => { forcedDot = null; requestApply() }, { signal: sig })
     }
 
     function initHomeSequence() {
@@ -330,9 +344,9 @@ export default function WtfilmScripts() {
       }
       const requestUpdate = () => { if (raf) return; raf = requestAnimationFrame(() => { raf = null; render(readAmount()) }) }
       render(readAmount())
-      if (revealButton) revealButton.addEventListener('click', () => { scrollToAmount(targetAmountFor(0)); window.setTimeout(() => render(readAmount()), 560) })
-      window.addEventListener('scroll', requestUpdate, { passive: true })
-      window.addEventListener('resize', () => render(readAmount()))
+      if (revealButton) revealButton.addEventListener('click', () => { scrollToAmount(targetAmountFor(0)); window.setTimeout(() => render(readAmount()), 560) }, { signal: sig })
+      window.addEventListener('scroll', requestUpdate, { passive: true, signal: sig } as AddEventListenerOptions)
+      window.addEventListener('resize', () => render(readAmount()), { signal: sig })
     }
 
     function initGlassHover() {
@@ -342,14 +356,14 @@ export default function WtfilmScripts() {
           const rect = target.getBoundingClientRect()
           target.style.setProperty('--local-x', `${((e.clientX - rect.left) / rect.width * 100).toFixed(2)}%`)
           target.style.setProperty('--local-y', `${((e.clientY - rect.top) / rect.height * 100).toFixed(2)}%`)
-        })
+        }, { signal: sig })
       })
     }
 
     function initPlayFeedback() {
       document.querySelectorAll<HTMLElement>('.play-link').forEach((btn) => {
-        btn.addEventListener('pointerdown', () => { btn.classList.remove('clicked'); requestAnimationFrame(() => btn.classList.add('clicked')) })
-        btn.addEventListener('animationend', () => btn.classList.remove('clicked'))
+        btn.addEventListener('pointerdown', () => { btn.classList.remove('clicked'); requestAnimationFrame(() => btn.classList.add('clicked')) }, { signal: sig })
+        btn.addEventListener('animationend', () => btn.classList.remove('clicked'), { signal: sig })
       })
     }
 
@@ -363,7 +377,9 @@ export default function WtfilmScripts() {
     initHomeSequence()
     initPlayFeedback()
     initGlassHover()
-  }, [])
+
+    return () => ac.abort()
+  }, [pathname])
 
   return (
     <Script
