@@ -313,6 +313,7 @@ export default function WtfilmScripts() {
         window.scrollTo({ top: sequence.offsetTop + scrollable * clamp(amount), behavior: 'smooth' })
       }
       let raf: number | null = null
+      let rafInit: number | null = null
       const render = (amount: number) => {
         const chapterProgress = clamp((amount - revealStart) / (revealEnd - revealStart))
         const hasChapter = amount > revealStart + 0.006
@@ -343,7 +344,8 @@ export default function WtfilmScripts() {
         })
       }
       const requestUpdate = () => { if (raf) return; raf = requestAnimationFrame(() => { raf = null; render(readAmount()) }) }
-      render(readAmount())
+      // Defer initial render to ensure the browser has laid out the sequence element
+      rafInit = requestAnimationFrame(() => { rafInit = null; render(readAmount()) })
       if (revealButton) revealButton.addEventListener('click', () => { scrollToAmount(targetAmountFor(0)); window.setTimeout(() => render(readAmount()), 560) }, { signal: sig })
       window.addEventListener('scroll', requestUpdate, { passive: true, signal: sig } as AddEventListenerOptions)
       window.addEventListener('resize', () => render(readAmount()), { signal: sig })
