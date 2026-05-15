@@ -3,6 +3,7 @@ import './globals.css'
 import Link from 'next/link'
 import Image from 'next/image'
 import WtfilmScripts from './components/WtfilmScripts'
+import NavLinks from './components/NavLinks'
 
 export const metadata: Metadata = {
   title: 'wtfilm - Histórias que não passam',
@@ -23,12 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/">
               <Image className="brand-mark" src="/logo.png" alt="wtfilm" width={132} height={30} priority />
             </Link>
-            <nav className="nav" aria-label="Principal">
-              <Link href="/" data-icon="01">início</Link>
-              <Link href="/trabalhos" data-icon="02">trabalhos</Link>
-              <Link href="/sobre" data-icon="03">sobre</Link>
-              <Link href="/contato" data-icon="04">contato</Link>
-            </nav>
+            <NavLinks />
           </div>
           <div>
             <div className="social">
