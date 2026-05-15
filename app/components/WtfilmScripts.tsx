@@ -345,29 +345,98 @@ export default function WtfilmScripts() {
       }
       const requestUpdate = () => { if (raf) return; raf = requestAnimationFrame(() => { raf = null; render(readAmount()) }) }
 
-      // Snap to the nearest chapter when the user stops scrolling
+      // ── iOS-style paged snap ─────────────────────────────────────────────
+      // Tracks which chapter the user is currently "on"
+      let currentSnappedIndex = 0
+      // Prevents re-triggering snap logic while we're animating
+      let isAnimatingSnap = false
+      let snapScrollRAF: number | null = null
       let snapTimer: number | null = null
-      const snapToNearest = () => {
+      // Velocity tracking (px/ms) for flick detection
+      let lastScrollY = window.scrollY
+      let scrollVelocity = 0
+      let lastScrollTs = performance.now()
+
+      // Convert a scroll amount (0–1) to an absolute scrollY position
+      const getTargetScrollY = (amount: number) => {
+        const scrollable = Math.max(1, sequence.offsetHeight - window.innerHeight)
+        return sequence.offsetTop + scrollable * clamp(amount)
+      }
+
+      // Custom ease-out quart animation — fast start, smooth iOS-like deceleration
+      const animateSnapTo = (targetY: number) => {
+        if (snapScrollRAF) cancelAnimationFrame(snapScrollRAF)
+        isAnimatingSnap = true
+        const startY = window.scrollY
+        const dist = targetY - startY
+        if (Math.abs(dist) < 2) { isAnimatingSnap = false; return }
+        // Duration 380–680 ms proportional to distance
+        const duration = Math.max(380, Math.min(680, Math.abs(dist) * 0.55))
+        const t0 = performance.now()
+        const ease = (t: number) => 1 - Math.pow(1 - t, 4) // ease-out quart
+        const step = () => {
+          const t = Math.min(1, (performance.now() - t0) / duration)
+          window.scrollTo(0, startY + dist * ease(t))
+          if (t < 1) { snapScrollRAF = requestAnimationFrame(step) }
+          else { isAnimatingSnap = false; snapScrollRAF = null }
+        }
+        snapScrollRAF = requestAnimationFrame(step)
+      }
+
+      const doSnap = () => {
         if (!sequence.isConnected) return
         const amount = readAmount()
-        // Only snap while inside the chapter sequence zone
-        if (amount < revealStart + 0.018 || amount > revealEnd - 0.018) return
+        if (amount < revealStart + 0.01 || amount > revealEnd - 0.01) return
         const targets = chapters.map((_, i) => targetAmountFor(i))
-        const nearest = targets.reduce((best, t) => Math.abs(t - amount) < Math.abs(best - amount) ? t : best)
-        if (Math.abs(nearest - amount) > 0.012) scrollToAmount(nearest)
+        const step = targets.length > 1 ? targets[1] - targets[0] : 0.1
+        const displacement = amount - targets[currentSnappedIndex]
+        const ratio = Math.abs(displacement) / step
+        // Commit if crossed 30% of chapter distance OR a quick flick (≥ 0.22 px/ms)
+        const THRESHOLD = 0.30
+        const VEL_COMMIT = 0.22
+        let next = currentSnappedIndex
+        if (displacement > 0 && (ratio > THRESHOLD || scrollVelocity > VEL_COMMIT)) {
+          next = Math.min(currentSnappedIndex + 1, targets.length - 1)
+        } else if (displacement < 0 && (ratio > THRESHOLD || scrollVelocity < -VEL_COMMIT)) {
+          next = Math.max(currentSnappedIndex - 1, 0)
+        }
+        // If threshold not met → springs back to current chapter
+        currentSnappedIndex = next
+        animateSnapTo(getTargetScrollY(targets[next]))
       }
-      // Clear the snap timer when the effect is cleaned up
-      sig.addEventListener('abort', () => { if (snapTimer !== null) { clearTimeout(snapTimer); snapTimer = null } })
 
-      // Defer initial render to ensure the browser has laid out the sequence element
+      // Cleanup: cancel any in-flight animation and pending timers
+      sig.addEventListener('abort', () => {
+        if (snapTimer !== null) { clearTimeout(snapTimer); snapTimer = null }
+        if (snapScrollRAF !== null) { cancelAnimationFrame(snapScrollRAF); snapScrollRAF = null }
+      })
+
+      // Defer initial render so layout is computed before reading dimensions
       rafInit = requestAnimationFrame(() => { rafInit = null; render(readAmount()) })
-      if (revealButton) revealButton.addEventListener('click', () => { scrollToAmount(targetAmountFor(0)); window.setTimeout(() => render(readAmount()), 560) }, { signal: sig })
+
+      if (revealButton) revealButton.addEventListener('click', () => {
+        currentSnappedIndex = 0
+        animateSnapTo(getTargetScrollY(targetAmountFor(0)))
+        window.setTimeout(() => render(readAmount()), 560)
+      }, { signal: sig })
+
       window.addEventListener('scroll', () => {
+        // Track velocity for flick detection
+        if (!isAnimatingSnap) {
+          const now = performance.now()
+          const dt = now - lastScrollTs
+          if (dt > 0) scrollVelocity = (window.scrollY - lastScrollY) / dt
+          lastScrollY = window.scrollY
+          lastScrollTs = now
+        }
         requestUpdate()
-        // Debounce: snap 320 ms after the last scroll event
-        if (snapTimer !== null) clearTimeout(snapTimer)
-        snapTimer = window.setTimeout(snapToNearest, 320)
+        // Short debounce (90 ms) — responsive feel without premature firing
+        if (!isAnimatingSnap) {
+          if (snapTimer !== null) clearTimeout(snapTimer)
+          snapTimer = window.setTimeout(doSnap, 90)
+        }
       }, { passive: true, signal: sig } as AddEventListenerOptions)
+
       window.addEventListener('resize', () => render(readAmount()), { signal: sig })
     }
 
