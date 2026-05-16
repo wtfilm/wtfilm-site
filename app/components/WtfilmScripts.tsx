@@ -436,6 +436,23 @@ export default function WtfilmScripts() {
       iframes.forEach(iframe => observer.observe(iframe))
     }
 
+    function initVisualViewportOffset() {
+      // Detecta quando a barra do browser aparece em landscape e encurta o viewport.
+      // Rastreia o máximo de innerHeight visto — a diferença é a altura da barra.
+      // Atualiza --vv-top para que o CSS empurre conteúdo abaixo da barra dinamicamente.
+      let maxH = window.innerHeight
+      const update = () => {
+        maxH = Math.max(maxH, window.innerHeight)
+        const offset = Math.max(0, maxH - window.innerHeight)
+        document.documentElement.style.setProperty('--vv-top', `${Math.round(offset)}px`)
+      }
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', update, { signal: sig })
+      }
+      window.addEventListener('resize', update, { signal: sig })
+      update()
+    }
+
     function initPlayFeedback() {
       document.querySelectorAll<HTMLElement>('.play-link').forEach((btn) => {
         btn.addEventListener('pointerdown', () => { btn.classList.remove('clicked'); requestAnimationFrame(() => btn.classList.add('clicked')) }, { signal: sig })
@@ -454,6 +471,7 @@ export default function WtfilmScripts() {
     initLazyVideos()
     initPlayFeedback()
     initGlassHover()
+    initVisualViewportOffset()
 
     return () => ac.abort()
   }, [pathname])
