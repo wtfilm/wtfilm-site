@@ -8,6 +8,9 @@ const chapters = [
     number: '01',
     title: 'Campanhas',
     desc: 'Imagem de marca com desejo, presença e precisão.',
+    vimeoId: '804424468',
+    vimeoHash: '',
+    vimeoStart: 0,
   },
   {
     slug: 'ia',
@@ -16,6 +19,9 @@ const chapters = [
     number: '02',
     title: 'IA / Experimentos',
     desc: 'Novas linguagens sem perder direção.',
+    vimeoId: '1192826549',
+    vimeoHash: 'a4dd577f3a',
+    vimeoStart: 0,
   },
   {
     slug: 'conteudo',
@@ -24,6 +30,9 @@ const chapters = [
     number: '03',
     title: 'Conteúdo',
     desc: 'Presença humana, ritmo social e intenção visual.',
+    vimeoId: '806033496',
+    vimeoHash: '',
+    vimeoStart: 0,
   },
   {
     slug: 'videoclipes',
@@ -32,6 +41,9 @@ const chapters = [
     number: '04',
     title: 'Videoclipes',
     desc: 'Cor, corpo e movimento como narrativa.',
+    vimeoId: '302965213',
+    vimeoHash: '',
+    vimeoStart: 0,
   },
   {
     slug: 'cinema',
@@ -40,6 +52,9 @@ const chapters = [
     number: '05',
     title: 'Cinema',
     desc: 'Atmosfera, silêncio e personagem.',
+    vimeoId: '831215945',
+    vimeoHash: '',
+    vimeoStart: 88, // 1 min 28 seg
   },
   {
     slug: 'animacao',
@@ -48,8 +63,17 @@ const chapters = [
     number: '06',
     title: 'Animação',
     desc: 'Mundos imaginados com textura de filme.',
+    vimeoId: '804416179',
+    vimeoHash: '',
+    vimeoStart: 11,
   },
 ]
+
+function vimeoSrc(id: string, hash: string, startSec: number) {
+  const h = hash ? `&h=${hash}` : ''
+  const t = startSec > 0 ? `#t=${startSec}` : ''
+  return `https://player.vimeo.com/video/${id}?badge=0&autopause=0&autoplay=1&muted=1&loop=1&background=1${h}${t}`
+}
 
 export default function HomePage() {
   return (
@@ -85,7 +109,16 @@ export default function HomePage() {
               className={`chapter-slide chapter ${ch.className}`}
               data-step={ch.step}
             >
-              <div className="chapter-visual" />
+              <div className="chapter-visual">
+                <div className="chapter-visual-video" aria-hidden="true">
+                  <iframe
+                    src={vimeoSrc(ch.vimeoId, ch.vimeoHash, ch.vimeoStart)}
+                    frameBorder="0"
+                    allow="autoplay; fullscreen; picture-in-picture"
+                    title={ch.title}
+                  />
+                </div>
+              </div>
               <div className="chapter-info">
                 <span className="chapter-number">{ch.number}</span>
                 <h2>

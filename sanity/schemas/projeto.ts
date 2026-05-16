@@ -29,6 +29,8 @@ export const projetoSchema = defineType({
     defineField({ name: 'ordem', title: 'Ordem de exibição', type: 'number' }),
     defineField({ name: 'vimeoId', title: 'ID do Vimeo', type: 'string', description: 'Só o número. Ex: 699221144' }),
     defineField({ name: 'vimeoHash', title: 'Hash do Vimeo (se privado)', type: 'string' }),
+    defineField({ name: 'vimeoInicio', title: 'Player: Início (segundos)', type: 'number', description: 'Ponto de entrada quando o vídeo abre. Deixe vazio para o início.' }),
+    defineField({ name: 'vimeoFim', title: 'Player: Fim do loop no card (segundos)', type: 'number', description: 'Fim do loop do preview no card. Deixe vazio para loop completo.' }),
     defineField({ name: 'duracao', title: 'Duração (ex: "02:18")', type: 'string' }),
     defineField({ name: 'cliente', title: 'Cliente', type: 'string' }),
     defineField({ name: 'agencia', title: 'Agência', type: 'string' }),

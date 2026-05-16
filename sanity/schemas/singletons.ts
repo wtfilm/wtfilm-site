@@ -6,10 +6,36 @@ export const paginaHomeSchema = defineType({
   type: 'document',
   fields: [
     defineField({ name: 'heroVimeoId', title: 'Hero: ID do Vimeo', type: 'string' }),
-    defineField({ name: 'heroVimeoHash', title: 'Hero: Hash do Vimeo', type: 'string' }),
+    defineField({ name: 'heroVimeoHash', title: 'Hero: Hash do Vimeo (se privado)', type: 'string' }),
+    defineField({ name: 'heroVimeoInicio', title: 'Hero: Início do loop (segundos)', type: 'number', description: 'Ex: 88 para começar em 1m28s. Deixe vazio para início do vídeo.' }),
+    defineField({ name: 'heroVimeoFim', title: 'Hero: Fim do loop (segundos)', type: 'number', description: 'Ex: 120 para parar em 2min. Deixe vazio para loop completo.' }),
     defineField({ name: 'heroKicker', title: 'Hero: Kicker', type: 'string', initialValue: 'Produzimos filmes que conectam.' }),
     defineField({ name: 'heroTitulo', title: 'Hero: Título', type: 'string', initialValue: 'Histórias que não passam' }),
     defineField({ name: 'heroCtaLabel', title: 'Hero: Texto do botão', type: 'string', initialValue: 'Assista ao reel' }),
+    defineField({
+      name: 'laminasVideo',
+      title: 'Lâminas: Vídeos por categoria',
+      type: 'array',
+      description: 'Controla o vídeo de fundo de cada lâmina na home.',
+      of: [{
+        type: 'object',
+        fields: [
+          defineField({ name: 'categoria', title: 'Categoria', type: 'string', options: { list: [
+            { title: 'Campanhas', value: 'campanhas' },
+            { title: 'IA / Experimentos', value: 'ia' },
+            { title: 'Conteúdo', value: 'conteudo' },
+            { title: 'Videoclipes', value: 'videoclipes' },
+            { title: 'Cinema', value: 'cinema' },
+            { title: 'Animação', value: 'animacao' },
+          ]}}),
+          defineField({ name: 'vimeoId', title: 'ID do Vimeo', type: 'string' }),
+          defineField({ name: 'vimeoHash', title: 'Hash do Vimeo (se privado)', type: 'string' }),
+          defineField({ name: 'vimeoInicio', title: 'Início do loop (segundos)', type: 'number' }),
+          defineField({ name: 'vimeoFim', title: 'Fim do loop (segundos)', type: 'number' }),
+        ],
+        preview: { select: { title: 'categoria', subtitle: 'vimeoId' } }
+      }]
+    }),
   ]
 })
 
