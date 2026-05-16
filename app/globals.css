@@ -2425,16 +2425,7 @@ body.about-view .page::before {
   opacity: .56;
 }
 
-/* Z-index crescente — wrappers determinam quem pinta por cima */
-.chapter-slide:nth-child(2) { z-index: 2; }
-.chapter-slide:nth-child(3) { z-index: 3; }
-.chapter-slide:nth-child(4) { z-index: 4; }
-.chapter-slide:nth-child(5) { z-index: 5; }
-.chapter-slide:nth-child(6) { z-index: 6; }
-.chapter-slide:nth-child(7) { z-index: 7; }
-
-/* Chapter card — sticky dentro do wrapper; overflow:hidden aqui não bloqueia
-   porque o wrapper acima não tem overflow restritivo */
+/* Chapter card */
 .chapter-scroller .chapter {
   display: grid;
   grid-template-columns: minmax(280px, .82fr) minmax(0, 1.18fr);
@@ -2445,8 +2436,6 @@ body.about-view .page::before {
   outline: 0;
   border-radius: 56px 56px 0 0;
   box-shadow: 0 -40px 100px oklch(0% 0 0 / .72);
-  position: sticky;
-  top: 0;
   z-index: 1;
   background:
     linear-gradient(180deg, transparent 0%, oklch(3% 0.012 250) 26%),
@@ -2780,6 +2769,7 @@ body.about-view .page::before {
   transform-origin: left center;
   transform: scaleX(var(--sequence-progress, 0));
   background: linear-gradient(90deg, var(--accent), var(--wt-blue), var(--wt-orange));
+  transition: transform .55s cubic-bezier(.2,.8,.2,1);
 }
 
 .home-experience.has-chapter .scroll-cue {
