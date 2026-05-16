@@ -294,7 +294,7 @@ export default function WtfilmScripts() {
       if (!scroller || !experience) return
 
       const slides = [...scroller.querySelectorAll<HTMLElement>('.chapter-slide')]
-      const chapters = [...scroller.querySelectorAll<HTMLElement>('.chapter-slide.chapter')]
+      const chapters = [...scroller.querySelectorAll<HTMLElement>('.chapter-scroller .chapter')]
       const progress = experience.querySelector<HTMLElement>('.sequence-progress')
       const revealButton = experience.querySelector<HTMLElement>('[data-scroll-reveal]')
       const returnButton = experience.querySelector<HTMLElement>('[data-chapter-return]')

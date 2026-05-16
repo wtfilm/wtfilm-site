@@ -102,44 +102,45 @@ export default function HomePage() {
           {/* Slide 0 — spacer transparente (hero aparece por baixo) */}
           <div className="chapter-slide hero-spacer" aria-hidden="true" />
 
-          {/* Slides 1–6 — Chapters */}
+          {/* Slides 1–6 — wrapper recebe snap-align; article recebe sticky */}
           {chapters.map((ch) => (
-            <article
-              key={ch.slug}
-              className={`chapter-slide chapter ${ch.className}`}
-              data-step={ch.step}
-            >
-              <div className="chapter-visual">
-                <div className="chapter-visual-video" aria-hidden="true">
-                  <iframe
-                    src={vimeoSrc(ch.vimeoId, ch.vimeoHash, ch.vimeoStart)}
-                    frameBorder="0"
-                    allow="autoplay; fullscreen; picture-in-picture"
-                    title={ch.title}
-                  />
+            <div key={ch.slug} className="chapter-slide">
+              <article
+                className={`chapter ${ch.className}`}
+                data-step={ch.step}
+              >
+                <div className="chapter-visual">
+                  <div className="chapter-visual-video" aria-hidden="true">
+                    <iframe
+                      src={vimeoSrc(ch.vimeoId, ch.vimeoHash, ch.vimeoStart)}
+                      frameBorder="0"
+                      allow="autoplay; fullscreen; picture-in-picture"
+                      title={ch.title}
+                    />
+                  </div>
+                  <div className="ch-glass ch-glass-a" aria-hidden="true" />
+                  <div className="ch-glass ch-glass-b" aria-hidden="true" />
                 </div>
-                <div className="ch-glass ch-glass-a" aria-hidden="true" />
-                <div className="ch-glass ch-glass-b" aria-hidden="true" />
-              </div>
-              <div className="chapter-info">
-                <span className="chapter-number">{ch.number}</span>
-                <h2>
-                  <Link className="chapter-title-link" href={`/trabalhos?f=${ch.slug}`}>
-                    {ch.title}
+                <div className="chapter-info">
+                  <span className="chapter-number">{ch.number}</span>
+                  <h2>
+                    <Link className="chapter-title-link" href={`/trabalhos?f=${ch.slug}`}>
+                      {ch.title}
+                    </Link>
+                  </h2>
+                  <Link
+                    className="chapter-arrow-link"
+                    href={`/trabalhos?f=${ch.slug}`}
+                    aria-label={`Ver ${ch.title.toLowerCase()}`}
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M5 12h14M13 6l6 6-6 6" />
+                    </svg>
                   </Link>
-                </h2>
-                <Link
-                  className="chapter-arrow-link"
-                  href={`/trabalhos?f=${ch.slug}`}
-                  aria-label={`Ver ${ch.title.toLowerCase()}`}
-                >
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M5 12h14M13 6l6 6-6 6" />
-                  </svg>
-                </Link>
-                <p>{ch.desc}</p>
-              </div>
-            </article>
+                  <p>{ch.desc}</p>
+                </div>
+              </article>
+            </div>
           ))}
 
         </div>

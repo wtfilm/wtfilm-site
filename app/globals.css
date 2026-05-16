@@ -2321,14 +2321,14 @@ body.about-view .page::before {
 }
 .chapter-scroller::-webkit-scrollbar { display: none; }
 
-/* Every slide fills the viewport and snaps */
+/* Wrapper de snap — só define snap-align, sem overflow restritivo
+   (overflow:hidden num ancestral bloqueia position:sticky nos filhos) */
 .chapter-slide {
   height: 100svh;
   min-height: 680px;
   scroll-snap-align: start;
   scroll-snap-stop: always;
   position: relative;
-  overflow: clip;
 }
 
 /* Hero backdrop — camada visual fixa por baixo do scroller */
@@ -2425,21 +2425,22 @@ body.about-view .page::before {
   opacity: .56;
 }
 
-/* Z-index crescente — cada lâmina pinta sobre a anterior ao empilhar */
-.chapter-scroller .chapter:nth-child(2) { z-index: 2; }
-.chapter-scroller .chapter:nth-child(3) { z-index: 3; }
-.chapter-scroller .chapter:nth-child(4) { z-index: 4; }
-.chapter-scroller .chapter:nth-child(5) { z-index: 5; }
-.chapter-scroller .chapter:nth-child(6) { z-index: 6; }
-.chapter-scroller .chapter:nth-child(7) { z-index: 7; }
+/* Z-index crescente — wrappers determinam quem pinta por cima */
+.chapter-slide:nth-child(2) { z-index: 2; }
+.chapter-slide:nth-child(3) { z-index: 3; }
+.chapter-slide:nth-child(4) { z-index: 4; }
+.chapter-slide:nth-child(5) { z-index: 5; }
+.chapter-slide:nth-child(6) { z-index: 6; }
+.chapter-slide:nth-child(7) { z-index: 7; }
 
-/* Chapter slides — overflow:clip (≠ hidden) não cria scroll container,
-   então position:sticky funciona dentro do scroll-snap */
+/* Chapter card — sticky dentro do wrapper; overflow:hidden aqui não bloqueia
+   porque o wrapper acima não tem overflow restritivo */
 .chapter-scroller .chapter {
   display: grid;
   grid-template-columns: minmax(280px, .82fr) minmax(0, 1.18fr);
-  min-height: 0;
-  overflow: clip;
+  height: 100svh;
+  min-height: 680px;
+  overflow: hidden;
   border: 0;
   outline: 0;
   border-radius: 56px 56px 0 0;
@@ -2657,7 +2658,7 @@ body.about-view .page::before {
   transition: opacity .52s cubic-bezier(.2,.8,.2,1) .06s, transform .52s cubic-bezier(.2,.8,.2,1) .06s;
 }
 
-.chapter-scroller .chapter.is-snap-target .chapter-info {
+.chapter-slide.is-snap-target .chapter .chapter-info {
   opacity: 1;
   transform: none;
 }
@@ -3043,7 +3044,7 @@ body.about-view .page::before {
 
 @media (min-width: 761px) and (max-width: 1023px) {
   .chapter-scroller .chapter { grid-template-columns: minmax(230px, .9fr) minmax(0, 1.1fr); }
-  .chapter-scroller .chapter-visual { inset: 12px 12px 12px 34%; border-radius: 30px; }
+  .chapter-scroller .chapter-visual { inset: 0; border-radius: inherit; }
   .chapter-scroller .chapter-info { margin: 0 0 28px 24px; width: min(88%, 410px); }
   .chapter-scroller .chapter h2 { font-size: clamp(38px, 6.2vw, 68px); }
   .chapter-scroller .animation h2 { max-width: 360px; font-size: clamp(34px, 5.4vw, 60px); }
@@ -3125,7 +3126,6 @@ body.about-view .page::before {
   .glass-rail-a { width: 78vw; right: -28vw; top: 4svh; height: 38svh; }
   .glass-rail-b { display: none; }
   .chapter-scroller .chapter { grid-template-columns: 1fr; }
-  .chapter-scroller .chapter::after { display: none; }
   .chapter-scroller .chapter-visual { inset: 0; border-radius: inherit; background: oklch(2% 0.012 250); }
   .chapter-scroller .chapter-info { align-self: end; justify-self: stretch; width: auto; margin: 0 16px 18px; padding: 20px; border-radius: 24px; }
   .chapter-scroller .chapter-number { font-size: 17px; margin-bottom: 12px; }
@@ -3198,7 +3198,7 @@ body.about-view .page::before {
   transform: translateY(36px);
 }
 
-.chapter-scroller .chapter.is-snap-target .chapter-info {
+.chapter-slide.is-snap-target .chapter .chapter-info {
   transform: none;
 }
 
