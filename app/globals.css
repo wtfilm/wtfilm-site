@@ -391,7 +391,8 @@ body::after {
   max-width: 720px;
   animation: revealUp .9s cubic-bezier(.2,.8,.2,1) both;
 }
-.hero .kicker {
+.hero .kicker,
+.hero-content-overlay .kicker {
   margin-bottom: 28px;
   color: var(--hero-kicker-color, oklch(88% 0.006 250));
   text-shadow: 0 0 24px var(--hero-dot-glow, transparent);
