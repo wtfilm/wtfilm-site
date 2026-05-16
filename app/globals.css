@@ -2556,9 +2556,22 @@ body.about-view .page::before {
   opacity: .40;
 }
 
-/* Mobile: painéis de vidro ocultos */
+/* Mobile: painéis de vidro ocultos + animações simplificadas */
 @media (max-width: 760px) {
   .ch-glass { display: none; }
+
+  /* Animação de entrada do card de info: só opacity (sem transform) — mais leve */
+  .chapter-scroller .chapter-info {
+    transform: none;
+    transition: opacity .38s ease;
+  }
+  .chapter-scroller .chapter.is-snap-target .chapter-info { transform: none; }
+
+  /* chapter-visual sem will-change e sem transition no mobile */
+  .chapter-scroller .chapter-visual {
+    will-change: auto;
+    transition: none;
+  }
 
   /* Cinema e Videoclipes têm vídeos que não carregam no iOS —
      usamos imagem estática como fallback só para esses dois */

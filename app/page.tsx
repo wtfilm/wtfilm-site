@@ -112,7 +112,7 @@ export default function HomePage() {
               <div className="chapter-visual">
                 <div className="chapter-visual-video" aria-hidden="true">
                   <iframe
-                    src={vimeoSrc(ch.vimeoId, ch.vimeoHash, ch.vimeoStart)}
+                    data-src={vimeoSrc(ch.vimeoId, ch.vimeoHash, ch.vimeoStart)}
                     frameBorder="0"
                     allow="autoplay; fullscreen; picture-in-picture"
                     title={ch.title}

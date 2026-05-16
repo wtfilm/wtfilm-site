@@ -409,6 +409,25 @@ export default function WtfilmScripts() {
       })
     }
 
+    function initLazyVideos() {
+      const scroller = document.querySelector<HTMLElement>('[data-chapter-scroller]')
+      const iframes = [...document.querySelectorAll<HTMLIFrameElement>('.chapter-visual-video iframe[data-src]')]
+      if (!iframes.length) return
+
+      const load = (iframe: HTMLIFrameElement) => {
+        if (!iframe.src && iframe.dataset.src) iframe.src = iframe.dataset.src
+      }
+
+      // Usa o chapter-scroller como root e pré-carrega 1 slide à frente/atrás
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) load(entry.target as HTMLIFrameElement)
+        })
+      }, { root: scroller || null, rootMargin: '100% 0px' })
+
+      iframes.forEach(iframe => observer.observe(iframe))
+    }
+
     function initPlayFeedback() {
       document.querySelectorAll<HTMLElement>('.play-link').forEach((btn) => {
         btn.addEventListener('pointerdown', () => { btn.classList.remove('clicked'); requestAnimationFrame(() => btn.classList.add('clicked')) }, { signal: sig })
@@ -424,6 +443,7 @@ export default function WtfilmScripts() {
     initContactForm()
     initCinematicMouse()
     initHomeSequence()
+    initLazyVideos()
     initPlayFeedback()
     initGlassHover()
 
