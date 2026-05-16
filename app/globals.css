@@ -3322,11 +3322,11 @@ body.about-view .page::before {
   .home-experience { min-height: 0; height: 100dvh; }
   .chapter-slide { min-height: 0; }
 
-  /* Hero landscape: padding-top dinâmico via --vv-top (Visual Viewport API).
-     align-items:center (padrão) centraliza verticalmente — sem override aqui.
-     Base 52px = mobile-bar; --vv-top empurra quando a barra do browser aparece. */
+  /* Hero landscape: position:fixed ancora ao visual viewport — imune à barra do browser.
+     O conteúdo fica sempre visível e centralizado abaixo da mobile-bar. */
   .hero-content-overlay {
-    padding: calc(52px + var(--vv-top)) 22px 8px;
+    position: fixed;
+    padding: 60px 22px 0;
   }
   .hero-content-overlay .kicker { margin-bottom: 8px; font-size: 10px; }
   .mega-title { font-size: clamp(26px, 10vh, 44px); line-height: .88; }
@@ -3346,7 +3346,7 @@ body.about-view .page::before {
   .chapter-scroller .chapter-info {
     align-self: center;
     width: auto;
-    margin: calc(var(--vv-top)) 12px 0;
+    margin: 0 12px;
     padding: 14px 16px;
     border-radius: 18px;
     transform: none;
