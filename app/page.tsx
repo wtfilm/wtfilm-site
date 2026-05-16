@@ -118,6 +118,8 @@ export default function HomePage() {
                     title={ch.title}
                   />
                 </div>
+                <div className="ch-glass ch-glass-a" aria-hidden="true" />
+                <div className="ch-glass ch-glass-b" aria-hidden="true" />
               </div>
               <div className="chapter-info">
                 <span className="chapter-number">{ch.number}</span>

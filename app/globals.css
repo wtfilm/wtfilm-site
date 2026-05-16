@@ -949,15 +949,16 @@ body::after {
 
 .work-player-shell {
   position: relative;
-  width: min(900px, 72vw);
+  width: fit-content;
+  min-width: 320px;
+  max-width: min(92vw, 1440px);
   min-height: auto;
-  height: min(920px, calc(100svh - clamp(32px, 6vw, 84px)));
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: stretch;
-  padding-top: clamp(62px, 7vh, 86px);
+  align-items: center;
+  padding-top: clamp(56px, 7vh, 80px);
   transform: translateY(24px) scale(.985);
   opacity: 0;
   transition:
@@ -1013,11 +1014,12 @@ body::after {
 
 .work-player-video {
   position: relative;
-  width: 100%;
+  /* Largura = mínimo entre 90vw e o que cabe na altura disponível em 16:9 */
+  width: min(90vw, calc((100svh - 180px) * 16 / 9), 1400px);
   aspect-ratio: 16 / 9;
-  max-height: calc(100svh - clamp(150px, 16vw, 210px));
-  min-height: min(50svh, 540px);
-  border-radius: clamp(24px, 3vw, 48px);
+  height: auto;
+  min-height: 0;
+  border-radius: clamp(20px, 2.4vw, 40px);
   overflow: hidden;
   background:
     linear-gradient(#09090a, #09090a) padding-box,
@@ -1235,11 +1237,12 @@ body::after {
   }
 
   .work-player-shell {
-    width: 100%;
-    height: calc(100svh - 36px - env(safe-area-inset-top));
+    width: fit-content;
+    max-width: calc(100vw - 28px);
+    min-width: 280px;
     padding-top: 58px;
-    justify-content: flex-start;
-    padding-bottom: 80px;
+    padding-bottom: 72px;
+    justify-content: center;
   }
 
   .work-player-back {
@@ -1250,15 +1253,14 @@ body::after {
   }
 
   .work-player-video {
-    width: 100%;
+    width: min(calc(100vw - 28px), calc((100svh - 180px) * 16 / 9));
     aspect-ratio: 16 / 9;
+    height: auto;
     min-height: 0;
-    max-height: calc(100svh - 200px);
-    border-radius: 18px;
-    /* glow mais suave no mobile para não vazar */
+    border-radius: 16px;
     box-shadow:
       0 24px 80px oklch(0% 0 0 / .68),
-      0 0 32px color-mix(in oklch, var(--player-accent, var(--accent)) 22%, transparent),
+      0 0 28px color-mix(in oklch, var(--player-accent, var(--accent)) 22%, transparent),
       inset 0 1px 0 oklch(100% 0 0 / .14);
   }
 
@@ -1286,6 +1288,51 @@ body::after {
 
   .work-tech-sheet {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Player mobile em modo paisagem (landscape) — vídeo ocupa a altura total */
+@media (orientation: landscape) and (max-height: 500px) {
+  .work-player-overlay {
+    padding: 6px 12px;
+  }
+  .work-player-shell {
+    width: 100%;
+    height: 100svh;
+    flex-direction: row;
+    padding-top: 0;
+    padding-bottom: 0;
+    align-items: center;
+    gap: 12px;
+  }
+  .work-player-back {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 36px;
+    height: 36px;
+  }
+  .work-player-video {
+    /* largura = altura disponível × 16/9 */
+    width: calc(100svh * (16 / 9));
+    max-width: 82vw;
+    flex-shrink: 0;
+    aspect-ratio: 16 / 9;
+    min-height: 0;
+    max-height: 100svh;
+    border-radius: 12px;
+  }
+  .work-player-more {
+    font-size: 8px;
+    padding: 0 12px;
+    min-height: 34px;
+    margin-top: 0;
+  }
+  .work-player-info {
+    bottom: 8px;
+    width: calc(100vw - 24px);
+    max-height: 55svh;
+    overflow-y: auto;
   }
 }
 
@@ -2377,7 +2424,7 @@ body.about-view .page::before {
   opacity: .56;
 }
 
-/* Z-index crescente — cada lâmina pinta sobre a anterior */
+/* Z-index crescente — cada lâmina pinta sobre a anterior ao empilhar */
 .chapter-scroller .chapter:nth-child(2) { z-index: 2; }
 .chapter-scroller .chapter:nth-child(3) { z-index: 3; }
 .chapter-scroller .chapter:nth-child(4) { z-index: 4; }
@@ -2385,7 +2432,7 @@ body.about-view .page::before {
 .chapter-scroller .chapter:nth-child(6) { z-index: 6; }
 .chapter-scroller .chapter:nth-child(7) { z-index: 7; }
 
-/* Chapter slides — slide over sticky hero as rounded cards */
+/* Chapter slides — sticky para empilhar sobre a anterior como cartas */
 .chapter-scroller .chapter {
   display: grid;
   grid-template-columns: minmax(280px, .82fr) minmax(0, 1.18fr);
@@ -2399,7 +2446,6 @@ body.about-view .page::before {
   top: 0;
   z-index: 1;
   background:
-    /* topo transparente — hero aparece por baixo */
     linear-gradient(180deg, transparent 0%, oklch(3% 0.012 250) 26%),
     radial-gradient(circle at 18% 16%, color-mix(in oklch, var(--chapter-accent) 18%, transparent), transparent 28%),
     linear-gradient(125deg, oklch(5% 0.014 260 / .88), oklch(2% 0.012 250 / .68) 50%, oklch(2% 0.012 250 / .44));
@@ -2408,31 +2454,133 @@ body.about-view .page::before {
   isolation: isolate;
 }
 
-.chapter-scroller .chapter::before {
-  content: "";
+/* ::before e ::after removidos — substituídos pelos painéis .ch-glass no HTML */
+
+/* ── Painéis frosted-glass das lâminas ─────────────────────────────────────
+   ch-glass-a e ch-glass-b têm posições/rotações diferentes por categoria.
+   O parallax usa --chapter-visual-x/y e --chapter-info-x/y (setados pelo JS).
+   glass-a segue o cursor, glass-b vai no sentido oposto → ilusão de profundidade. */
+
+.ch-glass {
   position: absolute;
-  inset: 0;
-  z-index: 3;
+  z-index: 2;
   pointer-events: none;
-  background:
-    linear-gradient(108deg, transparent 0 23%, oklch(100% 0 0 / .045) 28%, transparent 34%),
-    radial-gradient(circle at var(--mx) var(--my), color-mix(in oklch, var(--chapter-accent) 12%, transparent), transparent 34vw);
-  opacity: .05;
-  mix-blend-mode: screen;
+  border: 1px solid oklch(100% 0 0 / .11);
+  background: linear-gradient(135deg, oklch(100% 0 0 / .07), oklch(100% 0 0 / .012));
+  backdrop-filter: blur(6px) saturate(1.1);
+  -webkit-backdrop-filter: blur(6px) saturate(1.1);
+  box-shadow: inset 0 1px 0 oklch(100% 0 0 / .13), 0 20px 50px oklch(0% 0 0 / .18);
+  transition: transform .9s cubic-bezier(.2,.8,.2,1);
+  will-change: transform;
+}
+.ch-glass-a {
+  transform:
+    translate3d(var(--chapter-visual-x, 0px), var(--chapter-visual-y, 0px), 0)
+    rotate(var(--ch-rot-a, -13deg));
+}
+.ch-glass-b {
+  transform:
+    translate3d(
+      calc(var(--chapter-info-x, 0px) * 0.7),
+      calc(var(--chapter-info-y, 0px) * 0.7),
+      0
+    )
+    rotate(var(--ch-rot-b, -13deg));
 }
 
-.chapter-scroller .chapter::after {
-  content: "";
-  position: absolute;
-  z-index: 3;
-  top: -9%;
-  bottom: -9%;
-  left: 34%;
-  width: clamp(170px, 18vw, 330px);
-  border-radius: 0 0 0 clamp(130px, 17vw, 300px);
-  background: linear-gradient(106deg, oklch(100% 0 0 / .075), oklch(100% 0 0 / .018) 52%, transparent 72%);
-  box-shadow: inset 22px 0 48px oklch(100% 0 0 / .036);
-  pointer-events: none;
+/* — Campanhas: painéis no canto superior-direito e inferior-direito */
+.chapter.campaign .ch-glass-a {
+  --ch-rot-a: -12deg;
+  width: min(30vw, 480px); height: 50svh;
+  right: 5%; top: -5svh;
+  clip-path: polygon(20% 0, 100% 0, 80% 100%, 0 100%);
+}
+.chapter.campaign .ch-glass-b {
+  --ch-rot-b: -12deg;
+  width: min(20vw, 320px); height: 34svh;
+  right: -3%; bottom: 8svh;
+  clip-path: polygon(0 0, 84% 0, 100% 100%, 16% 100%);
+  opacity: .50;
+}
+
+/* — IA / Experimentos: painéis verticais, mais estreitos, rotação positiva */
+.chapter.lab .ch-glass-a {
+  --ch-rot-a: 10deg;
+  width: min(18vw, 280px); height: 58svh;
+  right: 8%; top: 8svh;
+  clip-path: polygon(24% 0, 100% 0, 76% 100%, 0 100%);
+}
+.chapter.lab .ch-glass-b {
+  --ch-rot-b: 10deg;
+  width: min(28vw, 440px); height: 26svh;
+  right: 12%; bottom: 5svh;
+  clip-path: polygon(0 0, 80% 0, 100% 100%, 20% 100%);
+  opacity: .44;
+}
+
+/* — Conteúdo: painéis mais ao centro, um acima e um abaixo */
+.chapter.content .ch-glass-a {
+  --ch-rot-a: -16deg;
+  width: min(26vw, 400px); height: 44svh;
+  right: 10%; top: 4svh;
+  clip-path: polygon(14% 0, 100% 0, 86% 100%, 0 100%);
+}
+.chapter.content .ch-glass-b {
+  --ch-rot-b: -16deg;
+  width: min(16vw, 260px); height: 38svh;
+  right: 2%; bottom: 10svh;
+  clip-path: polygon(0 0, 78% 0, 100% 100%, 22% 100%);
+  opacity: .48;
+}
+
+/* — Videoclipes: painéis amplos, rotação mais pronunciada */
+.chapter.music .ch-glass-a {
+  --ch-rot-a: 14deg;
+  width: min(32vw, 520px); height: 46svh;
+  right: 4%; top: -2svh;
+  clip-path: polygon(18% 0, 100% 0, 82% 100%, 0 100%);
+}
+.chapter.music .ch-glass-b {
+  --ch-rot-b: 14deg;
+  width: min(14vw, 220px); height: 32svh;
+  right: 20%; bottom: 7svh;
+  clip-path: polygon(0 0, 88% 0, 100% 100%, 12% 100%);
+  opacity: .46;
+}
+
+/* — Cinema: composição mais assimétrica, um alto e fino */
+.chapter.cinema .ch-glass-a {
+  --ch-rot-a: -9deg;
+  width: min(22vw, 360px); height: 60svh;
+  right: 9%; top: -8svh;
+  clip-path: polygon(16% 0, 100% 0, 84% 100%, 0 100%);
+}
+.chapter.cinema .ch-glass-b {
+  --ch-rot-b: -9deg;
+  width: min(24vw, 380px); height: 30svh;
+  right: -2%; bottom: 12svh;
+  clip-path: polygon(0 0, 76% 0, 100% 100%, 24% 100%);
+  opacity: .42;
+}
+
+/* — Animação: painéis mais largos, rotação inversa, posição mais baixa */
+.chapter.animation .ch-glass-a {
+  --ch-rot-a: 16deg;
+  width: min(28vw, 440px); height: 40svh;
+  right: 6%; top: 10svh;
+  clip-path: polygon(22% 0, 100% 0, 78% 100%, 0 100%);
+}
+.chapter.animation .ch-glass-b {
+  --ch-rot-b: 16deg;
+  width: min(36vw, 560px); height: 24svh;
+  right: 8%; bottom: 4svh;
+  clip-path: polygon(0 0, 82% 0, 100% 100%, 18% 100%);
+  opacity: .40;
+}
+
+/* Mobile: esconde os painéis de vidro para não sobrecarregar a tela */
+@media (max-width: 760px) {
+  .ch-glass { display: none; }
 }
 
 .chapter-scroller .chapter-visual {
