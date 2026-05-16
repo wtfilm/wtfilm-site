@@ -361,11 +361,14 @@ export default function WtfilmScripts() {
       let wheelAccum = 0          // running Σ deltaY since last commit
       let touchStartY = 0
 
-      // Absolute scrollY that corresponds to chapter[i]
-      const chapterScrollY = (i: number) => {
+      // Convert scroll amount (0–1) → absolute scrollY
+      const amountToScrollY = (a: number) => {
         const scrollable = Math.max(1, sequence.offsetHeight - window.innerHeight)
-        return sequence.offsetTop + scrollable * clamp(targetAmountFor(i))
+        return sequence.offsetTop + scrollable * clamp(a)
       }
+
+      // Absolute scrollY that corresponds to chapter index i
+      const chapterScrollY = (i: number) => amountToScrollY(targetAmountFor(i))
 
       // Animate scroll to a target Y with ease-out-quart (cancel any in-flight)
       const animateTo = (targetY: number, onDone?: () => void) => {
@@ -374,13 +377,15 @@ export default function WtfilmScripts() {
         const dist = targetY - startY
         if (Math.abs(dist) < 1) { isTransitioning = false; onDone?.(); return }
         const duration = Math.max(380, Math.min(680, Math.abs(dist) * 0.50))
+        const scrollable = Math.max(1, sequence.offsetHeight - window.innerHeight)
         const t0 = performance.now()
         const easeOutQuart = (t: number) => 1 - Math.pow(1 - t, 4)
         const step = () => {
           const t = Math.min(1, (performance.now() - t0) / duration)
           const y = startY + dist * easeOutQuart(t)
           window.scrollTo(0, y)
-          render(readAmount())
+          // Derive amount directly from y (avoids async lag of readAmount)
+          render(clamp((y - sequence.offsetTop) / scrollable))
           if (t < 1) { snapRaf = requestAnimationFrame(step) }
           else { isTransitioning = false; snapRaf = null; onDone?.() }
         }
@@ -410,7 +415,6 @@ export default function WtfilmScripts() {
 
         e.preventDefault()
 
-        const prevAccum = wheelAccum
         wheelAccum += e.deltaY
 
         const targets = chapters.map((_, i) => targetAmountFor(i))
@@ -426,7 +430,7 @@ export default function WtfilmScripts() {
         const fromAmt = targets[currentChapterIndex]
         const toAmt = targets[peekIndex]
         const previewAmt = fromAmt + (toAmt - fromAmt) * previewEase(ratio)
-        window.scrollTo(0, chapterScrollY(previewAmt))
+        window.scrollTo(0, amountToScrollY(previewAmt))
         render(previewAmt)
 
         // ── COMMIT ───────────────────────────────────────────────────────────
