@@ -437,15 +437,24 @@ export default function WtfilmScripts() {
     }
 
     function initVisualViewportOffset() {
-      // Detecta quando a barra do browser aparece em landscape e encurta o viewport.
-      // Rastreia o máximo de innerHeight visto — a diferença é a altura da barra.
-      // Atualiza --vv-top para que o CSS empurre conteúdo abaixo da barra dinamicamente.
+      // Empurra conteúdo abaixo da barra do browser em landscape mobile.
+      // A media query restringe o comportamento a celulares deitados (max-height: 500px).
+      // maxH é resetado a cada mudança de orientação para não carregar altura do portrait.
+      const mq = window.matchMedia('(orientation: landscape) and (max-height: 500px)')
       let maxH = window.innerHeight
+
+      const setTop = (px: number) =>
+        document.documentElement.style.setProperty('--vv-top', `${px}px`)
+
       const update = () => {
+        if (!mq.matches) { setTop(0); return }
         maxH = Math.max(maxH, window.innerHeight)
-        const offset = Math.max(0, maxH - window.innerHeight)
-        document.documentElement.style.setProperty('--vv-top', `${Math.round(offset)}px`)
+        setTop(Math.max(0, maxH - window.innerHeight))
       }
+
+      // Ao mudar de orientação, reseta maxH com a nova altura atual
+      mq.addEventListener('change', () => { maxH = window.innerHeight; setTop(0) }, { signal: sig })
+
       if (window.visualViewport) {
         window.visualViewport.addEventListener('resize', update, { signal: sig })
       }
