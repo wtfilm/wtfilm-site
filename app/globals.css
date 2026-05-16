@@ -3323,12 +3323,10 @@ body.about-view .page::before {
   .chapter-slide { min-height: 0; }
 
   /* Hero landscape: padding-top dinâmico via --vv-top (Visual Viewport API).
-     Quando a barra do browser aparece, --vv-top aumenta (= quanto o viewport encolheu).
-     O calc empurra o conteúdo pra baixo exatamente na medida certa.
-     Base 68px = mobile-bar (52px) + 16px de respiro. */
+     align-items:center (padrão) centraliza verticalmente — sem override aqui.
+     Base 52px = mobile-bar; --vv-top empurra quando a barra do browser aparece. */
   .hero-content-overlay {
-    padding: calc(68px + var(--vv-top)) 22px 12px;
-    align-items: start;
+    padding: calc(52px + var(--vv-top)) 22px 8px;
   }
   .hero-content-overlay .kicker { margin-bottom: 8px; font-size: 10px; }
   .mega-title { font-size: clamp(26px, 10vh, 44px); line-height: .88; }
@@ -3346,10 +3344,9 @@ body.about-view .page::before {
   }
   .chapter-scroller .chapter-visual { inset: 0; border-radius: 0; }
   .chapter-scroller .chapter-info {
-    align-self: start;
+    align-self: center;
     width: auto;
-    /* margin-top dinâmico: base 68px + quanto a barra do browser encurtou o viewport */
-    margin: calc(68px + var(--vv-top)) 12px 0;
+    margin: calc(var(--vv-top)) 12px 0;
     padding: 14px 16px;
     border-radius: 18px;
     transform: none;
