@@ -345,151 +345,125 @@ export default function WtfilmScripts() {
       }
       const requestUpdate = () => { if (raf) return; raf = requestAnimationFrame(() => { raf = null; render(readAmount()) }) }
 
-      // ── iOS-style chapter pager with preview + commit ────────────────────
-      //
-      // Feel: scroll into a chapter → it "holds" you (rubber-band resistance).
-      // Push past the COMMIT threshold → commits to next chapter with ease-out
-      // deceleration. Let go before threshold → springs back to current chapter.
-      //
-      // Built on `wheel` events (not `scroll`) so OS momentum is intercepted
-      // before it fires, giving true per-frame control.
-
+      // ── Chapter snap ──────────────────────────────────────────────────────
       let currentChapterIndex = 0
-      let isTransitioning = false
+      let isSnapping = false
+      let hasSnappedOnce = false
       let snapRaf: number | null = null
-      let wheelIdleTimer: number | null = null
-      let wheelAccum = 0          // running Σ deltaY since last commit
-      let touchStartY = 0
+      let snapTimer: number | null = null
+      let wheelCooldown = false
+      let wheelTimer: number | null = null
 
-      // Convert scroll amount (0–1) → absolute scrollY
       const amountToScrollY = (a: number) => {
         const scrollable = Math.max(1, sequence.offsetHeight - window.innerHeight)
         return sequence.offsetTop + scrollable * clamp(a)
       }
 
-      // Absolute scrollY that corresponds to chapter index i
-      const chapterScrollY = (i: number) => amountToScrollY(targetAmountFor(i))
+      const syncIndex = () => {
+        const a = readAmount()
+        const t = chapters.map((_, j) => targetAmountFor(j))
+        currentChapterIndex = t.reduce((b, v, j) => Math.abs(v - a) < Math.abs(t[b] - a) ? j : b, 0)
+      }
 
-      // Animate scroll to a target Y with ease-out-quart (cancel any in-flight)
-      const animateTo = (targetY: number, onDone?: () => void) => {
+      // Snap to chapter i with ease-out-quart animation
+      const snapToChapter = (i: number) => {
+        const idx = clamp(i, 0, chapters.length - 1)
+        currentChapterIndex = idx
+        hasSnappedOnce = true
+        isSnapping = true
         if (snapRaf) cancelAnimationFrame(snapRaf)
         const startY = window.scrollY
+        const targetY = amountToScrollY(targetAmountFor(idx))
         const dist = targetY - startY
-        if (Math.abs(dist) < 1) { isTransitioning = false; onDone?.(); return }
-        const duration = Math.max(380, Math.min(680, Math.abs(dist) * 0.50))
-        const scrollable = Math.max(1, sequence.offsetHeight - window.innerHeight)
+        if (Math.abs(dist) < 2) { isSnapping = false; return }
+        const duration = Math.max(300, Math.min(560, Math.abs(dist) * 0.40))
         const t0 = performance.now()
-        const easeOutQuart = (t: number) => 1 - Math.pow(1 - t, 4)
+        const ease = (t: number) => 1 - Math.pow(1 - t, 4)
         const step = () => {
           const t = Math.min(1, (performance.now() - t0) / duration)
-          const y = startY + dist * easeOutQuart(t)
-          window.scrollTo(0, y)
-          // Derive amount directly from y (avoids async lag of readAmount)
-          render(clamp((y - sequence.offsetTop) / scrollable))
+          window.scrollTo(0, startY + dist * ease(t))
           if (t < 1) { snapRaf = requestAnimationFrame(step) }
-          else { isTransitioning = false; snapRaf = null; onDone?.() }
+          else { isSnapping = false; snapRaf = null }
         }
         snapRaf = requestAnimationFrame(step)
       }
 
-      // Commit to a chapter (or spring-back to current if same index)
-      const commitTo = (index: number) => {
-        const i = clamp(index, 0, chapters.length - 1)
-        currentChapterIndex = i
-        wheelAccum = 0
-        isTransitioning = true
-        animateTo(chapterScrollY(i), () => { isTransitioning = false })
+      // Scroll-based snap: fires 110ms after scroll settles
+      const doSnap = () => {
+        if (!sequence.isConnected || isSnapping) return
+        const amount = readAmount()
+        // Guard: only snap inside the chapter zone (use generous upper bound)
+        if (amount <= revealStart || amount >= revealEnd + 0.04) return
+        syncIndex()
+        const targets = chapters.map((_, j) => targetAmountFor(j))
+        const stepSize = targets.length > 1 ? Math.abs(targets[1] - targets[0]) : 0.1
+        const disp = amount - targets[currentChapterIndex]
+        let next = currentChapterIndex
+        if (disp > stepSize * 0.35) next = Math.min(currentChapterIndex + 1, chapters.length - 1)
+        else if (disp < -stepSize * 0.35) next = Math.max(currentChapterIndex - 1, 0)
+        snapToChapter(next)
       }
 
-      // COMMIT_PX: pixels of accumulated wheel input needed to change chapter.
-      // Higher = more resistance. 55 px ≈ a deliberate swipe on a MacBook trackpad.
-      const COMMIT_PX = 55
-
-      const onWheel = (e: WheelEvent) => {
+      // Wheel-based snap: intercepts wheel once user is settled on a chapter
+      // (hasSnappedOnce prevents zone-entry jump)
+      window.addEventListener('wheel', (e) => {
         const amount = readAmount()
-        // Outside sequence zone → native scroll, no interference
-        if (amount < revealStart - 0.06 || amount > revealEnd + 0.06) return
-
-        // During commit animation: eat events so chapters can't be skipped
-        if (isTransitioning) { e.preventDefault(); return }
-
+        if (amount <= revealStart || amount >= revealEnd + 0.04) return
+        if (!hasSnappedOnce) return // let scroll-based snap handle the first entry
+        const direction = e.deltaY > 0 ? 1 : e.deltaY < 0 ? -1 : 0
+        if (direction === 0) return
+        const targets = chapters.map((_, j) => targetAmountFor(j))
+        const stepSize = targets.length > 1 ? Math.abs(targets[1] - targets[0]) : 0.1
+        // Only intercept when close to current chapter target
+        const distToCurrent = Math.abs(amount - targets[currentChapterIndex])
+        if (distToCurrent > stepSize * 0.5) return
         e.preventDefault()
-
-        wheelAccum += e.deltaY
-
-        const targets = chapters.map((_, i) => targetAmountFor(i))
-        const dir = Math.sign(wheelAccum)
-        const peekIndex = clamp(currentChapterIndex + dir, 0, chapters.length - 1)
-
-        // ── PREVIEW ─────────────────────────────────────────────────────────
-        // As the user pushes, show the next chapter peeking in proportionally.
-        // Rubber-band: resistance grows → feels like you're "stretching" toward it.
-        const ratio = Math.min(1, Math.abs(wheelAccum) / COMMIT_PX)
-        // Ease-in-out on the preview rubber-band: slow at start and near commit
-        const previewEase = (r: number) => r < 0.5 ? 2 * r * r : 1 - Math.pow(-2 * r + 2, 2) / 2
-        const fromAmt = targets[currentChapterIndex]
-        const toAmt = targets[peekIndex]
-        const previewAmt = fromAmt + (toAmt - fromAmt) * previewEase(ratio)
-        window.scrollTo(0, amountToScrollY(previewAmt))
-        render(previewAmt)
-
-        // ── COMMIT ───────────────────────────────────────────────────────────
-        if (wheelAccum > COMMIT_PX) { commitTo(currentChapterIndex + 1); return }
-        if (wheelAccum < -COMMIT_PX) { commitTo(currentChapterIndex - 1); return }
-
-        // ── SPRING-BACK ──────────────────────────────────────────────────────
-        // If the user stops before threshold, spring back to current chapter.
-        if (wheelIdleTimer) clearTimeout(wheelIdleTimer)
-        wheelIdleTimer = window.setTimeout(() => {
-          if (!isTransitioning) {
-            wheelAccum = 0
-            isTransitioning = true
-            animateTo(chapterScrollY(currentChapterIndex), () => { isTransitioning = false })
-          }
-        }, 160)
-      }
-
-      // Touch support (iOS / Android)
-      const onTouchStart = (e: TouchEvent) => { touchStartY = e.touches[0].clientY }
-      const onTouchEnd = (e: TouchEvent) => {
-        const delta = touchStartY - e.changedTouches[0].clientY
-        const amount = readAmount()
-        if (amount < revealStart - 0.06 || amount > revealEnd + 0.06) return
-        if (Math.abs(delta) > 48) commitTo(currentChapterIndex + (delta > 0 ? 1 : -1))
-        else if (!isTransitioning) {
-          isTransitioning = true
-          animateTo(chapterScrollY(currentChapterIndex), () => { isTransitioning = false })
-        }
-      }
+        if (wheelCooldown || isSnapping) return
+        const next = clamp(currentChapterIndex + direction, 0, chapters.length - 1)
+        wheelCooldown = true
+        if (wheelTimer) clearTimeout(wheelTimer)
+        wheelTimer = window.setTimeout(() => { wheelCooldown = false }, 480)
+        snapToChapter(next)
+      }, { passive: false, signal: sig } as AddEventListenerOptions)
 
       sig.addEventListener('abort', () => {
         if (snapRaf) { cancelAnimationFrame(snapRaf); snapRaf = null }
-        if (wheelIdleTimer) { clearTimeout(wheelIdleTimer); wheelIdleTimer = null }
+        if (snapTimer) { clearTimeout(snapTimer); snapTimer = null }
+        if (wheelTimer) { clearTimeout(wheelTimer); wheelTimer = null }
       })
 
-      // Defer initial render so layout dimensions are computed
       rafInit = requestAnimationFrame(() => { rafInit = null; render(readAmount()) })
 
-      if (revealButton) revealButton.addEventListener('click', () => { commitTo(0) }, { signal: sig })
+      if (revealButton) revealButton.addEventListener('click', () => { snapToChapter(0) }, { signal: sig })
 
-      // Back-to-top: animates scroll to 0 (hero) with ease-out-quart
       const returnButton = sequence.querySelector<HTMLElement>('[data-chapter-return]')
       if (returnButton) {
         returnButton.addEventListener('click', () => {
-          if (isTransitioning) return
-          currentChapterIndex = 0
-          wheelAccum = 0
-          isTransitioning = true
-          animateTo(0, () => { isTransitioning = false })
+          if (isSnapping) return
+          isSnapping = true
+          if (snapRaf) cancelAnimationFrame(snapRaf)
+          const startY = window.scrollY
+          const t0 = performance.now()
+          const ease = (t: number) => 1 - Math.pow(1 - t, 4)
+          const duration = Math.max(340, Math.min(680, Math.abs(startY) * 0.46))
+          const step = () => {
+            const t = Math.min(1, (performance.now() - t0) / duration)
+            window.scrollTo(0, startY * (1 - ease(t)))
+            if (t < 1) { snapRaf = requestAnimationFrame(step) }
+            else { isSnapping = false; snapRaf = null; currentChapterIndex = 0; hasSnappedOnce = false }
+          }
+          snapRaf = requestAnimationFrame(step)
         }, { signal: sig })
       }
 
-      // scroll: only keeps visuals in sync during native scroll (enter/exit zone)
-      window.addEventListener('scroll', requestUpdate, { passive: true, signal: sig } as AddEventListenerOptions)
-      // wheel: non-passive — needed to call preventDefault inside the sequence zone
-      window.addEventListener('wheel', onWheel as EventListener, { passive: false, signal: sig } as AddEventListenerOptions)
-      window.addEventListener('touchstart', onTouchStart as EventListener, { passive: true, signal: sig } as AddEventListenerOptions)
-      window.addEventListener('touchend', onTouchEnd as EventListener, { passive: true, signal: sig } as AddEventListenerOptions)
+      window.addEventListener('scroll', () => {
+        if (isSnapping) { render(readAmount()); return }
+        syncIndex()
+        requestUpdate()
+        if (snapTimer) clearTimeout(snapTimer)
+        snapTimer = window.setTimeout(doSnap, 110)
+      }, { passive: true, signal: sig } as AddEventListenerOptions)
+
       window.addEventListener('resize', () => render(readAmount()), { signal: sig })
     }
 
