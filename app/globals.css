@@ -2327,7 +2327,7 @@ body.about-view .page::before {
   scroll-snap-align: start;
   scroll-snap-stop: always;
   position: relative;
-  overflow: hidden;
+  overflow: clip;
 }
 
 /* Hero backdrop — camada visual fixa por baixo do scroller */
@@ -2424,16 +2424,27 @@ body.about-view .page::before {
   opacity: .56;
 }
 
-/* Chapter slides */
+/* Z-index crescente — cada lâmina pinta sobre a anterior ao empilhar */
+.chapter-scroller .chapter:nth-child(2) { z-index: 2; }
+.chapter-scroller .chapter:nth-child(3) { z-index: 3; }
+.chapter-scroller .chapter:nth-child(4) { z-index: 4; }
+.chapter-scroller .chapter:nth-child(5) { z-index: 5; }
+.chapter-scroller .chapter:nth-child(6) { z-index: 6; }
+.chapter-scroller .chapter:nth-child(7) { z-index: 7; }
+
+/* Chapter slides — overflow:clip (≠ hidden) não cria scroll container,
+   então position:sticky funciona dentro do scroll-snap */
 .chapter-scroller .chapter {
   display: grid;
   grid-template-columns: minmax(280px, .82fr) minmax(0, 1.18fr);
   min-height: 0;
-  overflow: hidden;
+  overflow: clip;
   border: 0;
   outline: 0;
   border-radius: 56px 56px 0 0;
   box-shadow: 0 -40px 100px oklch(0% 0 0 / .72);
+  position: sticky;
+  top: 0;
   z-index: 1;
   background:
     linear-gradient(180deg, transparent 0%, oklch(3% 0.012 250) 26%),
