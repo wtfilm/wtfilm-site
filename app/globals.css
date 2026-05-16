@@ -1973,7 +1973,7 @@ body.about-view .page::before {
     border-bottom: 1px solid var(--border);
     backdrop-filter: blur(16px);
   }
-  .mobile-bar .brand-mark { width: 98px; }
+  .mobile-bar .brand-mark { width: 98px; height: auto; object-fit: contain; }
 .menu-toggle { width: 44px; height: 44px; border: 1px solid var(--border); color: var(--fg); background: transparent; }
   .menu-toggle {
     display: flex;
@@ -2301,14 +2301,21 @@ body.about-view .page::before {
 }
 .chapter-scroller::-webkit-scrollbar { display: none; }
 
-/* Every slide fills the viewport and snaps */
+/* Every slide fills the viewport and snaps.
+   height: 100% do scroller (não 100svh independente) evita desalinhamento
+   quando o browser bar do iOS aparece/some durante o scroll */
 .chapter-slide {
-  height: 100svh;
+  height: 100%;
   min-height: 680px;
   scroll-snap-align: start;
   scroll-snap-stop: always;
   position: relative;
   overflow: hidden;
+}
+
+/* No mobile scroll-snap-stop: always impede re-snap após pausar num slide */
+@media (max-width: 760px) {
+  .chapter-slide { scroll-snap-stop: normal; }
 }
 
 /* Hero backdrop — camada visual fixa por baixo do scroller */
@@ -2549,9 +2556,16 @@ body.about-view .page::before {
   opacity: .40;
 }
 
-/* Mobile: esconde os painéis de vidro para não sobrecarregar a tela */
+/* Mobile: painéis de vidro e iframes de background ocultos — usamos imagem estática */
 @media (max-width: 760px) {
   .ch-glass { display: none; }
+  /* Vimeo background=1 não é confiável no iOS — fallback para imagem estática */
+  .chapter-visual-video { display: none; }
+  .chapter-scroller .chapter-visual {
+    background-image: var(--chapter-image);
+    background-size: cover;
+    background-position: center;
+  }
 }
 
 .chapter-scroller .chapter-visual {
@@ -3095,7 +3109,7 @@ body.about-view .page::before {
   .glass-rail-b { display: none; }
   .chapter-scroller .chapter { grid-template-columns: 1fr; }
   .chapter-scroller .chapter-visual { inset: 0; border-radius: inherit; background: oklch(2% 0.012 250); }
-  .chapter-scroller .chapter-info { align-self: end; justify-self: stretch; width: auto; margin: 0 16px 18px; padding: 20px; border-radius: 24px; }
+  .chapter-scroller .chapter-info { align-self: center; justify-self: stretch; width: auto; margin: 0 16px; padding: 20px; border-radius: 24px; }
   .chapter-scroller .chapter-number { font-size: 17px; margin-bottom: 12px; }
   .chapter-scroller .chapter h2,
   .chapter-scroller .animation h2 { max-width: 100%; font-size: clamp(32px, 10.8vw, 52px); letter-spacing: -.05em; }
