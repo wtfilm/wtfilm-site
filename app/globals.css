@@ -2417,13 +2417,7 @@ body.about-view .page::before {
   z-index: 0;
   inset: clamp(12px, 1.4vw, 22px) clamp(12px, 1.4vw, 22px) clamp(12px, 1.4vw, 22px) 36%;
   border-radius: clamp(24px, 3.7vw, 52px);
-  background:
-    linear-gradient(90deg, oklch(2% 0.012 250 / .50) 0 6%, transparent 30%),
-    linear-gradient(180deg, oklch(2% 0.012 250 / .15), transparent 24% 68%, oklch(2% 0.012 250 / .52)),
-    radial-gradient(circle at 58% 42%, var(--chapter-glow), transparent 42vw);
-  background-repeat: no-repeat;
-  background-size: auto, auto, 124% 124%;
-  background-position: center, center, center;
+  background: oklch(2% 0.012 250);
   box-shadow:
     inset 0 0 0 1px oklch(100% 0 0 / .10),
     inset 0 -78px 130px oklch(0% 0 0 / .44),
@@ -2431,6 +2425,19 @@ body.about-view .page::before {
   transform: translateY(var(--parallax-y, 0px));
   will-change: transform;
   transition: transform .9s cubic-bezier(.2,.8,.2,1);
+}
+
+/* Gradientes por cima do vídeo */
+.chapter-scroller .chapter-visual::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, oklch(2% 0.012 250 / .60) 0 6%, transparent 30%),
+    linear-gradient(180deg, oklch(2% 0.012 250 / .20), transparent 24% 68%, oklch(2% 0.012 250 / .60)),
+    radial-gradient(circle at 58% 42%, var(--chapter-glow), transparent 42vw);
 }
 
 .chapter-scroller .chapter:hover .chapter-visual {
@@ -2441,9 +2448,10 @@ body.about-view .page::before {
 .chapter-visual-video {
   position: absolute;
   inset: 0;
+  z-index: 0;
   overflow: hidden;
   border-radius: inherit;
-  z-index: -1;
+  pointer-events: none;
 }
 .chapter-visual-video iframe {
   position: absolute;
@@ -2454,7 +2462,7 @@ body.about-view .page::before {
   transform: translate(-50%, -50%);
   border: 0;
   pointer-events: none;
-  opacity: .82;
+  opacity: .86;
 }
 
 /* Chapter info panel — animates in when slide is active */
@@ -2945,13 +2953,7 @@ body.about-view .page::before {
   .glass-rail-b { display: none; }
   .chapter-scroller .chapter { grid-template-columns: 1fr; }
   .chapter-scroller .chapter::after { display: none; }
-  .chapter-scroller .chapter-visual { inset: 8px; border-radius: 24px; background:
-    linear-gradient(180deg, oklch(2% 0.012 250 / .12), transparent 24% 50%, oklch(2% 0.012 250 / .66)),
-    radial-gradient(circle at 50% 16%, var(--chapter-glow), transparent 72vw),
-    var(--chapter-image);
-    background-repeat: no-repeat;
-    background-size: auto, 134% 134%, cover;
-    background-position: center, center, center; }
+  .chapter-scroller .chapter-visual { inset: 8px; border-radius: 24px; background: oklch(2% 0.012 250); }
   .chapter-scroller .chapter-info { align-self: end; justify-self: stretch; width: auto; margin: 0 16px 18px; padding: 20px; border-radius: 24px; }
   .chapter-scroller .chapter-number { font-size: 17px; margin-bottom: 12px; }
   .chapter-scroller .chapter h2,
