@@ -3314,8 +3314,9 @@ body.about-view .page::before {
   }
   .mobile-menu.open { opacity: 1; pointer-events: auto; transform: translateY(0); clip-path: inset(0 0 0% 0 round 0 0 20px 20px); }
 
-  /* Home experience: remove min-height para caber na altura landscape */
-  .home-experience { min-height: 0; }
+  /* Home experience: dvh adapta quando a barra do Safari aparece/some.
+     svh é fixo e faz a barra cobrir o conteúdo — dvh reflui corretamente. */
+  .home-experience { min-height: 0; height: 100dvh; }
   .chapter-slide { min-height: 0; }
 
   /* Hero landscape: layout compacto */

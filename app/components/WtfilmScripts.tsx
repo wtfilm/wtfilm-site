@@ -364,20 +364,28 @@ export default function WtfilmScripts() {
       scroller.addEventListener('scroll', update, { passive: true, signal: sig })
       window.addEventListener('resize', update, { signal: sig })
 
-      // iOS snap fix — se o browser bar aparece/some, o snap pode travar numa
-      // posição intermediária. Após o scroll parar, corrige para o snap correto.
-      let snapFixTimer: ReturnType<typeof setTimeout> | null = null
-      scroller.addEventListener('scroll', () => {
-        if (snapFixTimer) clearTimeout(snapFixTimer)
-        snapFixTimer = setTimeout(() => {
-          const h = scroller.clientHeight
-          if (h <= 0) return
-          const ideal = Math.round(scroller.scrollTop / h) * h
-          if (Math.abs(scroller.scrollTop - ideal) > 3) {
-            scroller.scrollTo({ top: ideal, behavior: 'smooth' })
-          }
-        }, 450)
-      }, { passive: true, signal: sig })
+      // iOS snap fix — só em touch devices. No desktop o CSS snap é confiável
+      // e o timer interfere com o smooth scroll nativo, causando stuttering.
+      const isTouch = navigator.maxTouchPoints > 0
+      if (isTouch) {
+        let snapFixTimer: ReturnType<typeof setTimeout> | null = null
+        scroller.addEventListener('scroll', () => {
+          if (snapFixTimer) clearTimeout(snapFixTimer)
+          snapFixTimer = setTimeout(() => {
+            const h = scroller.clientHeight
+            if (h <= 0) return
+            const ideal = Math.round(scroller.scrollTop / h) * h
+            if (Math.abs(scroller.scrollTop - ideal) > 3) {
+              scroller.scrollTo({ top: ideal, behavior: 'smooth' })
+            }
+          }, 450)
+        }, { passive: true, signal: sig })
+
+        // Recalcula quando o visualViewport muda (Safari bar aparece/some)
+        if (window.visualViewport) {
+          window.visualViewport.addEventListener('resize', update, { signal: sig })
+        }
+      }
 
       // "explorar" button → scroll to first chapter
       if (revealButton) {
