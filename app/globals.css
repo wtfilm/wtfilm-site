@@ -2035,7 +2035,7 @@ body.about-view .page::before {
   .glass-rail-b { display: none; }
   .chapter-scroller .chapter {
     grid-template-columns: 1fr;
-    border-radius: 0;
+    border-radius: 36px 36px 0 0;
     background:
       linear-gradient(180deg, color-mix(in oklch, var(--chapter-accent) 20%, transparent), transparent 28%),
       oklch(2% 0.012 250 / .66);
@@ -2372,10 +2372,12 @@ body.about-view .page::before {
   overflow: hidden;
   border: 0;
   outline: 0;
-  border-radius: 28px 28px 0 0;
-  box-shadow: 0 -28px 80px oklch(0% 0 0 / .58);
+  border-radius: 56px 56px 0 0;
+  box-shadow: 0 -40px 100px oklch(0% 0 0 / .72);
   z-index: 1;
   background:
+    /* topo transparente — hero aparece por baixo */
+    linear-gradient(180deg, transparent 0%, oklch(3% 0.012 250) 26%),
     radial-gradient(circle at 18% 16%, color-mix(in oklch, var(--chapter-accent) 18%, transparent), transparent 28%),
     linear-gradient(125deg, oklch(5% 0.014 260 / .88), oklch(2% 0.012 250 / .68) 50%, oklch(2% 0.012 250 / .44));
   opacity: 1;
