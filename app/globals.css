@@ -949,7 +949,7 @@ body::after {
 
 .work-player-shell {
   position: relative;
-  width: min(1480px, 94vw);
+  width: min(900px, 72vw);
   min-height: auto;
   height: min(920px, calc(100svh - clamp(32px, 6vw, 84px)));
   margin: 0 auto;
@@ -1025,7 +1025,7 @@ body::after {
   border: 2px solid transparent;
   box-shadow:
     0 46px 140px oklch(0% 0 0 / .74),
-    0 0 82px color-mix(in oklch, var(--player-accent, var(--accent)) 26%, transparent),
+    0 0 48px color-mix(in oklch, var(--player-accent, var(--accent)) 26%, transparent),
     inset 0 1px 0 oklch(100% 0 0 / .16);
 }
 
@@ -1237,7 +1237,9 @@ body::after {
   .work-player-shell {
     width: 100%;
     height: calc(100svh - 36px - env(safe-area-inset-top));
-    padding-top: 62px;
+    padding-top: 58px;
+    justify-content: flex-start;
+    padding-bottom: 80px;
   }
 
   .work-player-back {
@@ -1248,19 +1250,28 @@ body::after {
   }
 
   .work-player-video {
-    min-height: 46svh;
-    max-height: calc(100svh - 170px);
-    border-radius: 24px;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    min-height: 0;
+    max-height: calc(100svh - 200px);
+    border-radius: 18px;
+    /* glow mais suave no mobile para não vazar */
+    box-shadow:
+      0 24px 80px oklch(0% 0 0 / .68),
+      0 0 32px color-mix(in oklch, var(--player-accent, var(--accent)) 22%, transparent),
+      inset 0 1px 0 oklch(100% 0 0 / .14);
   }
 
   .work-player-overlay.mode-moodboard .work-player-video {
-    min-height: 58svh;
+    min-height: 0;
+    aspect-ratio: auto;
+    max-height: 60svh;
   }
 
   .work-player-more {
     font-size: 9px;
     letter-spacing: .12em;
-    margin-top: 14px;
+    margin-top: 16px;
   }
 
   .work-player-info {
@@ -1268,7 +1279,9 @@ body::after {
     gap: 14px;
     border-radius: 22px;
     width: calc(100vw - 28px);
-    bottom: 18px;
+    bottom: 14px;
+    max-height: 72svh;
+    overflow-y: auto;
   }
 
   .work-tech-sheet {
