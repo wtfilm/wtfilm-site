@@ -3322,12 +3322,12 @@ body.about-view .page::before {
   .chapter-slide { min-height: 0; }
 
   /* Hero landscape: layout compacto.
-     padding-top 80px = mobile-bar (52px) + folga segura abaixo da barra do browser.
-     Com align-items:center (padrão), o conteúdo fica centrado na área disponível —
-     quando a barra aparece e o dvh encolhe, o conteúdo sobe ~30px mas ainda tem
-     ~35px de folga abaixo da barra do browser (~56px). */
+     align-items:start ancora o conteúdo sempre ao padding-top — evita que o conteúdo
+     flutue para cima quando o dvh encolhe com a barra do browser.
+     padding-top 100px = mobile-bar (52px) + 48px de respiro visual. */
   .hero-content-overlay {
-    padding: 80px 22px 20px;
+    padding: 100px 22px 16px;
+    align-items: start;
   }
   .hero-content-overlay .kicker { margin-bottom: 8px; font-size: 10px; }
   .mega-title { font-size: clamp(26px, 10vh, 44px); line-height: .88; }
@@ -3347,7 +3347,8 @@ body.about-view .page::before {
   .chapter-scroller .chapter-info {
     align-self: center;
     width: auto;
-    margin: 0 12px;
+    /* margin-top empurra o card pra baixo do centro — afasta da mobile-bar */
+    margin: 64px 12px 0;
     padding: 14px 16px;
     border-radius: 18px;
     transform: none;
