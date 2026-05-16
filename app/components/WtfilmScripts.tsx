@@ -294,7 +294,7 @@ export default function WtfilmScripts() {
       if (!scroller || !experience) return
 
       const slides = [...scroller.querySelectorAll<HTMLElement>('.chapter-slide')]
-      const chapters = [...scroller.querySelectorAll<HTMLElement>('.chapter-scroller .chapter')]
+      const chapters = [...scroller.querySelectorAll<HTMLElement>('.chapter')]
       const progress = experience.querySelector<HTMLElement>('.sequence-progress')
       const revealButton = experience.querySelector<HTMLElement>('[data-scroll-reveal]')
       const returnButton = experience.querySelector<HTMLElement>('[data-chapter-return]')
@@ -315,10 +315,10 @@ export default function WtfilmScripts() {
         // has-chapter on experience for CSS state (blur hero, show return btn, etc.)
         experience.classList.toggle('has-chapter', isChapter)
 
-        // Progress bar: 0 at first chapter, 1 at last chapter
+        // Progress bar: interpolação contínua com rawIdx (não arredondado)
         if (progress) {
-          const pct = chapters.length > 1 ? Math.max(0, idx - 1) / Math.max(1, chapters.length - 1) : 0
-          progress.style.setProperty('--sequence-progress', pct.toFixed(3))
+          const pct = chapters.length > 1 ? Math.max(0, rawIdx - 1) / Math.max(1, chapters.length - 1) : 0
+          progress.style.setProperty('--sequence-progress', Math.min(1, Math.max(0, pct)).toFixed(3))
         }
 
         // Mark active chapter slide for enter animation
