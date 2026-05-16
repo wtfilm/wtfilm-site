@@ -2291,7 +2291,7 @@ body.about-view .page::before {
   pointer-events: none;
   transition: opacity .36s ease;
 }
-.hero-content-overlay .hero-content {
+.hero-content-overlay .play-link {
   pointer-events: auto;
 }
 .home-experience.has-chapter .hero-content-overlay {
