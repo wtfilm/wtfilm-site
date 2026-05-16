@@ -2321,14 +2321,14 @@ body.about-view .page::before {
 }
 .chapter-scroller::-webkit-scrollbar { display: none; }
 
-/* Wrapper de snap — só define snap-align, sem overflow restritivo
-   (overflow:hidden num ancestral bloqueia position:sticky nos filhos) */
+/* Every slide fills the viewport and snaps */
 .chapter-slide {
   height: 100svh;
   min-height: 680px;
   scroll-snap-align: start;
   scroll-snap-stop: always;
   position: relative;
+  overflow: hidden;
 }
 
 /* Hero backdrop — camada visual fixa por baixo do scroller */
@@ -2429,8 +2429,7 @@ body.about-view .page::before {
 .chapter-scroller .chapter {
   display: grid;
   grid-template-columns: minmax(280px, .82fr) minmax(0, 1.18fr);
-  height: 100svh;
-  min-height: 680px;
+  min-height: 0;
   overflow: hidden;
   border: 0;
   outline: 0;
@@ -2647,7 +2646,7 @@ body.about-view .page::before {
   transition: opacity .52s cubic-bezier(.2,.8,.2,1) .06s, transform .52s cubic-bezier(.2,.8,.2,1) .06s;
 }
 
-.chapter-slide.is-snap-target .chapter .chapter-info {
+.chapter-scroller .chapter.is-snap-target .chapter-info {
   opacity: 1;
   transform: none;
 }
@@ -2767,9 +2766,8 @@ body.about-view .page::before {
   width: 100%;
   height: 100%;
   transform-origin: left center;
-  transform: scaleX(var(--sequence-progress, 0));
+  transform: scaleX(0);
   background: linear-gradient(90deg, var(--accent), var(--wt-blue), var(--wt-orange));
-  transition: transform .55s cubic-bezier(.2,.8,.2,1);
 }
 
 .home-experience.has-chapter .scroll-cue {
@@ -3188,7 +3186,7 @@ body.about-view .page::before {
   transform: translateY(36px);
 }
 
-.chapter-slide.is-snap-target .chapter .chapter-info {
+.chapter-scroller .chapter.is-snap-target .chapter-info {
   transform: none;
 }
 

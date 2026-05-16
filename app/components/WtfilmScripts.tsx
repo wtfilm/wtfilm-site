@@ -294,8 +294,9 @@ export default function WtfilmScripts() {
       if (!scroller || !experience) return
 
       const slides = [...scroller.querySelectorAll<HTMLElement>('.chapter-slide')]
-      const chapters = [...scroller.querySelectorAll<HTMLElement>('.chapter')]
+      const chapters = [...scroller.querySelectorAll<HTMLElement>('.chapter-slide.chapter')]
       const progress = experience.querySelector<HTMLElement>('.sequence-progress')
+      const progressSpan = progress?.querySelector<HTMLElement>('span')
       const revealButton = experience.querySelector<HTMLElement>('[data-scroll-reveal]')
       const returnButton = experience.querySelector<HTMLElement>('[data-chapter-return]')
       if (!slides.length) return
@@ -304,6 +305,22 @@ export default function WtfilmScripts() {
       scroller.scrollTop = 0
 
       let currentIndex = 0
+      // Lerp para barra suave — interpola sem depender de CSS transition em var()
+      let progressDisplayed = 0
+      let progressTarget = 0
+      let progressRaf: number | null = null
+
+      const animateProgress = () => {
+        progressRaf = null
+        const diff = progressTarget - progressDisplayed
+        if (Math.abs(diff) < 0.0005) {
+          progressDisplayed = progressTarget
+        } else {
+          progressDisplayed += diff * 0.14
+          progressRaf = requestAnimationFrame(animateProgress)
+        }
+        if (progressSpan) progressSpan.style.transform = `scaleX(${progressDisplayed.toFixed(4)})`
+      }
 
       const update = () => {
         const h = scroller.clientHeight || window.innerHeight
@@ -315,10 +332,10 @@ export default function WtfilmScripts() {
         // has-chapter on experience for CSS state (blur hero, show return btn, etc.)
         experience.classList.toggle('has-chapter', isChapter)
 
-        // Progress bar: interpolação contínua com rawIdx (não arredondado)
-        if (progress) {
-          const pct = chapters.length > 1 ? Math.max(0, rawIdx - 1) / Math.max(1, chapters.length - 1) : 0
-          progress.style.setProperty('--sequence-progress', Math.min(1, Math.max(0, pct)).toFixed(3))
+        // Progress bar: target contínuo, animado via lerp no RAF
+        if (progressSpan && chapters.length > 1) {
+          progressTarget = Math.min(1, Math.max(0, (rawIdx - 1) / (chapters.length - 1)))
+          if (!progressRaf) progressRaf = requestAnimationFrame(animateProgress)
         }
 
         // Mark active chapter slide for enter animation
