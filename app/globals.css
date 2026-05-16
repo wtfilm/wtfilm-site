@@ -3258,3 +3258,105 @@ body.about-view .page::before {
     letter-spacing: -.045em;
   }
 }
+
+/* ── Mobile landscape (celular deitado) ─────────────────────────────────────
+   Em landscape mobile a largura supera 760px → layout desktop ativa com sidebar.
+   max-height: 500px garante que só pegamos celulares deitados, não tablets/desktop. */
+@media (orientation: landscape) and (max-height: 500px) {
+
+  /* Layout mobile: esconde sidebar, mostra mobile-bar */
+  .sidebar { display: none; }
+  .site { margin-left: 0; }
+  .mobile-bar {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 30;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    background: oklch(3% 0.012 250 / .92);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(16px);
+  }
+  .mobile-bar .brand-mark { width: 80px; height: auto; object-fit: contain; }
+  .menu-toggle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    width: 40px; height: 40px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: oklch(100% 0 0 / .035);
+    overflow: hidden;
+  }
+  .menu-toggle span { display: block; width: 16px; height: 1px; background: currentColor; transform-origin: center; transition: transform .32s ease, opacity .24s ease; }
+  .menu-toggle.is-open span { background: var(--accent); }
+  .menu-toggle.is-open span:first-child { transform: translateY(3px) rotate(45deg); }
+  .menu-toggle.is-open span:last-child  { transform: translateY(-3px) rotate(-45deg); }
+  .mobile-menu {
+    position: fixed;
+    inset: 52px 0 auto;
+    z-index: 29;
+    display: grid;
+    gap: 10px;
+    background: oklch(4% 0.012 250 / .98);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 16px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-12px);
+    clip-path: inset(0 0 100% 0 round 0 0 20px 20px);
+    transition: opacity .28s ease, transform .36s cubic-bezier(.2,.8,.2,1), clip-path .36s cubic-bezier(.2,.8,.2,1);
+  }
+  .mobile-menu.open { opacity: 1; pointer-events: auto; transform: translateY(0); clip-path: inset(0 0 0% 0 round 0 0 20px 20px); }
+
+  /* Home experience: remove min-height para caber na altura landscape */
+  .home-experience { min-height: 0; }
+  .chapter-slide { min-height: 0; }
+
+  /* Hero landscape: layout compacto */
+  .hero-content-overlay {
+    padding: 56px 22px 36px;
+  }
+  .hero-content-overlay .kicker { margin-bottom: 8px; font-size: 10px; }
+  .mega-title { font-size: clamp(26px, 10vh, 44px); line-height: .88; }
+  .play-link { margin-top: 14px; }
+  .play-link span:first-child { width: 42px; height: 42px; }
+  .scroll-cue { bottom: 6px; }
+  .scroll-cue-icon { width: 36px; height: 36px; }
+  .chapter-return { bottom: 6px; right: 14px; }
+  .sequence-progress { bottom: 6px; left: 14px; right: 120px; width: auto; }
+
+  /* Lâminas landscape: 2 colunas (info | visual) como desktop, mas compacto */
+  .chapter-scroller .chapter {
+    grid-template-columns: minmax(200px, 0.7fr) 1fr;
+    border-radius: 0;
+  }
+  .chapter-scroller .chapter-visual { inset: 0; border-radius: 0; }
+  .chapter-scroller .chapter-info {
+    align-self: center;
+    width: auto;
+    margin: 0 12px;
+    padding: 14px 16px;
+    border-radius: 18px;
+    transform: none;
+    transition: opacity .3s ease;
+  }
+  .chapter-scroller .chapter.is-snap-target .chapter-info { transform: none; }
+  .chapter-scroller .chapter-number { font-size: 12px; margin-bottom: 6px; }
+  .chapter-scroller .chapter h2,
+  .chapter-scroller .lab h2,
+  .chapter-scroller .music h2,
+  .chapter-scroller .animation h2 {
+    font-size: clamp(18px, 6vh, 32px);
+    line-height: .9;
+    letter-spacing: -.045em;
+    gap: 10px;
+  }
+  .chapter-scroller .chapter-arrow-link { width: 40px; height: 40px; }
+  .chapter-scroller .chapter-arrow-link svg { width: 18px; height: 18px; }
+}
