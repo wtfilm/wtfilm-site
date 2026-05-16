@@ -238,7 +238,10 @@ export default function WtfilmScripts() {
 
     function initCinematicMouse() {
       const root = document.querySelector<HTMLElement>('.home-site')
-      if (!root || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+      // Não roda em touch devices (hover:none) — causa lag no mobile
+      if (!root
+        || window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        || window.matchMedia('(hover: none)').matches) return
       let rafFrame: number | null = null
       let next = { x: window.innerWidth / 2, y: window.innerHeight / 2 }
       let currentDotIndex = 0

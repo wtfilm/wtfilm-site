@@ -2556,12 +2556,17 @@ body.about-view .page::before {
   opacity: .40;
 }
 
-/* Mobile: painéis de vidro e iframes de background ocultos — usamos imagem estática */
+/* Mobile: painéis de vidro ocultos */
 @media (max-width: 760px) {
   .ch-glass { display: none; }
-  /* Vimeo background=1 não é confiável no iOS — fallback para imagem estática */
-  .chapter-visual-video { display: none; }
-  .chapter-scroller .chapter-visual {
+
+  /* Cinema e Videoclipes têm vídeos que não carregam no iOS —
+     usamos imagem estática como fallback só para esses dois */
+  .chapter-scroller .chapter.cinema .chapter-visual-video,
+  .chapter-scroller .chapter.music .chapter-visual-video { display: none; }
+
+  .chapter-scroller .chapter.cinema .chapter-visual,
+  .chapter-scroller .chapter.music .chapter-visual {
     background-image: var(--chapter-image);
     background-size: cover;
     background-position: center;
