@@ -300,6 +300,9 @@ export default function WtfilmScripts() {
       const returnButton = experience.querySelector<HTMLElement>('[data-chapter-return]')
       if (!slides.length) return
 
+      // Reset scroll on every route entry (prevents stale position on navigation back)
+      scroller.scrollTop = 0
+
       let currentIndex = 0
 
       const getIndex = () => {

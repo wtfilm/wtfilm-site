@@ -2809,12 +2809,11 @@ body.about-view .page::before {
 }
 
 @media (min-width: 761px) and (max-width: 1023px) {
-  .home-pin .chapters { inset: clamp(86px, 8svh, 112px) clamp(18px, 3vw, 42px) clamp(44px, 5svh, 70px); }
-  .home-pin .chapter { grid-template-columns: minmax(230px, .9fr) minmax(0, 1.1fr); border-radius: 38px; }
-  .home-pin .chapter-visual { inset: 12px 12px 12px 34%; border-radius: 30px; }
-  .home-pin .chapter-info { margin: 0 0 28px 24px; width: min(88%, 410px); }
-  .home-pin .chapter h2 { font-size: clamp(38px, 6.2vw, 68px); }
-  .home-pin .animation h2 { max-width: 360px; font-size: clamp(34px, 5.4vw, 60px); }
+  .chapter-scroller .chapter { grid-template-columns: minmax(230px, .9fr) minmax(0, 1.1fr); }
+  .chapter-scroller .chapter-visual { inset: 12px 12px 12px 34%; border-radius: 30px; }
+  .chapter-scroller .chapter-info { margin: 0 0 28px 24px; width: min(88%, 410px); }
+  .chapter-scroller .chapter h2 { font-size: clamp(38px, 6.2vw, 68px); }
+  .chapter-scroller .animation h2 { max-width: 360px; font-size: clamp(34px, 5.4vw, 60px); }
 
   .works-body .site { width: calc(100vw - var(--sidebar)); max-width: calc(100vw - var(--sidebar)); margin-left: var(--sidebar); overflow: hidden; }
   .works-body .works-page { --page-pad: clamp(14px, 2.4vw, 24px); width: 100%; max-width: 100%; padding-inline: var(--page-pad); overflow: hidden; }
@@ -2888,20 +2887,24 @@ body.about-view .page::before {
 }
 
 @media (max-width: 760px) {
-  .home-experience { height: 620svh; min-height: 3720px; }
-  .home-pin { min-height: 100svh; }
-  .home-pin .hero { padding: 108px 22px 240px; }
+  .home-experience { height: 100svh; min-height: 680px; }
+  .chapter-slide.hero-slide { padding: 108px 22px 240px; }
   .glass-rail-a { width: 78vw; right: -28vw; top: 4svh; height: 38svh; }
   .glass-rail-b { display: none; }
-  .home-pin .chapters { inset: 102px 12px 48px; }
-  .home-pin .chapter { grid-template-columns: 1fr; border-radius: 30px; }
-  .home-pin .chapter::after { display: none; }
-  .home-pin .chapter-visual { inset: 8px; border-radius: 24px; background: linear-gradient(180deg, oklch(2% 0.012 250 / .12), transparent 24% 50%, oklch(2% 0.012 250 / .66)), radial-gradient(circle at 50% 16%, var(--chapter-glow), transparent 72vw), var(--chapter-image); background-repeat: no-repeat; background-size: auto, 134% 134%, cover; background-position: center, center, var(--chapter-image-pos, center); }
-  .home-pin .chapter-info { align-self: end; justify-self: stretch; width: auto; margin: 0 16px 18px; padding: 20px; border-radius: 24px; }
-  .home-pin .chapter-number { font-size: 17px; margin-bottom: 12px; }
-  .home-pin .chapter h2,
-  .home-pin .animation h2 { max-width: 100%; font-size: clamp(32px, 10.8vw, 52px); letter-spacing: -.05em; }
-  .home-pin .chapter-arrow-link { width: 48px; height: 48px; }
+  .chapter-scroller .chapter { grid-template-columns: 1fr; }
+  .chapter-scroller .chapter::after { display: none; }
+  .chapter-scroller .chapter-visual { inset: 8px; border-radius: 24px; background:
+    linear-gradient(180deg, oklch(2% 0.012 250 / .12), transparent 24% 50%, oklch(2% 0.012 250 / .66)),
+    radial-gradient(circle at 50% 16%, var(--chapter-glow), transparent 72vw),
+    var(--chapter-image);
+    background-repeat: no-repeat;
+    background-size: auto, 134% 134%, cover;
+    background-position: center, center, center; }
+  .chapter-scroller .chapter-info { align-self: end; justify-self: stretch; width: auto; margin: 0 16px 18px; padding: 20px; border-radius: 24px; }
+  .chapter-scroller .chapter-number { font-size: 17px; margin-bottom: 12px; }
+  .chapter-scroller .chapter h2,
+  .chapter-scroller .animation h2 { max-width: 100%; font-size: clamp(32px, 10.8vw, 52px); letter-spacing: -.05em; }
+  .chapter-scroller .chapter-arrow-link { width: 48px; height: 48px; }
   .sequence-progress { left: 14px; right: 14px; bottom: 26px; width: auto; }
 
   .works-body .site { width: 100%; max-width: 100vw; height: 100svh; margin-left: 0; overflow: hidden; }
