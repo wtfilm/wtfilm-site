@@ -1294,13 +1294,13 @@ body::after {
     height: 36px;
   }
   .work-player-video {
-    /* largura = altura disponível × 16/9 */
-    width: calc(100svh * (16 / 9));
-    max-width: 82vw;
+    /* ~30% menor: limita a 56vw e altura a 70% da viewport */
+    width: calc(70svh * (16 / 9));
+    max-width: 56vw;
     flex-shrink: 0;
     aspect-ratio: 16 / 9;
     min-height: 0;
-    max-height: 100svh;
+    max-height: 70svh;
     border-radius: 12px;
   }
   .work-player-more {
