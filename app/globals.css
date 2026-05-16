@@ -2029,29 +2029,18 @@ body.about-view .page::before {
   .page { padding: 104px 18px 34px; }
   .hero { min-height: 92svh; padding: 116px 22px 76px; }
   .hero::before { background-position: 59% center; }
-  .home-experience { height: 640svh; min-height: 3840px; }
-  .home-pin { min-height: 100svh; }
-  .home-pin .hero { padding: 108px 22px 260px; }
+  .home-experience { height: 100svh; min-height: 680px; }
+  .chapter-slide.hero-slide { padding: 108px 22px 260px; }
   .glass-rail-a { width: 78vw; right: -28vw; top: 4svh; height: 38svh; }
   .glass-rail-b { display: none; }
-  .home-pin .chapters {
-    inset: 104px 14px 42px;
-    height: auto;
-  }
-  .home-pin .chapter {
+  .chapter-scroller .chapter {
     grid-template-columns: 1fr;
-    border-radius: 28px;
-    min-height: 0;
-    overflow: hidden;
+    border-radius: 0;
     background:
       linear-gradient(180deg, color-mix(in oklch, var(--chapter-accent) 20%, transparent), transparent 28%),
       oklch(2% 0.012 250 / .66);
-    transform: translate3d(0, 64px, 80px) scale(.94);
-    box-shadow:
-      0 30px 80px oklch(0% 0 0 / .68),
-      0 86px 170px color-mix(in oklch, var(--chapter-accent) 18%, transparent);
   }
-  .home-pin .chapter::after {
+  .chapter-scroller .chapter::after {
     left: 8%;
     right: auto;
     top: 42%;
@@ -2061,7 +2050,7 @@ body.about-view .page::before {
     border-radius: 999px 999px 0 0;
     opacity: .34;
   }
-  .home-pin .chapter-visual {
+  .chapter-scroller .chapter-visual {
     inset: 10px;
     border-radius: 22px 22px 30px 30px;
     opacity: .96;
@@ -2077,7 +2066,7 @@ body.about-view .page::before {
       inset 0 -72px 110px color-mix(in oklch, var(--chapter-accent) 18%, oklch(0% 0 0 / .5)),
       0 26px 80px color-mix(in oklch, var(--chapter-accent) 22%, transparent);
   }
-  .home-pin .chapter-info {
+  .chapter-scroller .chapter-info {
     align-self: center;
     justify-self: stretch;
     min-height: 0;
@@ -2091,12 +2080,11 @@ body.about-view .page::before {
     backdrop-filter: blur(18px) saturate(1.28);
     box-shadow: 0 22px 70px oklch(0% 0 0 / .45), inset 0 1px 0 oklch(100% 0 0 / .12);
   }
-  .home-pin .chapter-info::after { display: none; }
-  .home-pin .chapter h2 {
+  .chapter-scroller .chapter h2 {
     font-size: clamp(34px, 12vw, 56px);
     gap: 14px;
   }
-  .home-pin .chapter-number {
+  .chapter-scroller .chapter-number {
     margin-bottom: 10px;
     font-size: 13px;
   }
@@ -2250,35 +2238,49 @@ body.about-view .page::before {
   background: oklch(3% 0.012 250);
 }
 
+/* ── Home Experience — CSS Scroll Snap ──────────────────────────────────── */
 .home-experience {
-  height: 620svh;
-  min-height: 3720px;
-  position: relative;
-}
-
-.home-pin {
-  position: sticky;
-  top: 0;
   height: 100svh;
   min-height: 680px;
+  position: relative;
   overflow: hidden;
   isolation: isolate;
 }
 
-.home-pin .hero {
-  position: absolute;
-  inset: 0;
-  min-height: 100%;
-  border-bottom: 0;
+/* Scroll-snap container */
+.chapter-scroller {
+  height: 100%;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.chapter-scroller::-webkit-scrollbar { display: none; }
+
+/* Every slide fills the viewport and snaps */
+.chapter-slide {
+  height: 100svh;
+  min-height: 680px;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  position: relative;
+  overflow: hidden;
 }
 
-.home-pin .hero::before {
+/* Hero slide overrides */
+.chapter-slide.hero-slide {
+  border-bottom: 0;
+  min-height: 0;
+}
+
+.chapter-slide.hero-slide::before {
   opacity: .72;
   transform: scale(1.04);
   animation: none;
 }
 
-.home-pin .hero::after {
+.chapter-slide.hero-slide::after {
   background:
     radial-gradient(circle at var(--mx) var(--my), color-mix(in oklch, var(--hero-dot-color) 18%, transparent), transparent 18vw),
     linear-gradient(90deg, oklch(3% 0.012 250 / .72), transparent 54%),
@@ -2286,12 +2288,13 @@ body.about-view .page::before {
   mix-blend-mode: screen;
 }
 
-.home-pin .hero-content {
+.chapter-slide.hero-slide .hero-content {
   transform: translate3d(var(--title-x), var(--title-y), 0);
   will-change: auto;
 }
 
-.home-pin.has-chapter .hero-content {
+/* Hero state when a chapter is active */
+.home-experience.has-chapter .hero-content {
   opacity: .18;
   filter: none;
   transition: opacity .36s ease;
@@ -2336,43 +2339,24 @@ body.about-view .page::before {
   opacity: .56;
 }
 
-.home-pin .chapters {
-  position: absolute;
-  z-index: 4;
-  inset: clamp(88px, 9svh, 118px) clamp(22px, 4vw, 76px) clamp(44px, 6svh, 82px);
-  height: auto;
-  padding: 0;
-  pointer-events: none;
-}
-
-.home-pin .chapter {
-  position: absolute;
-  inset: 0;
+/* Chapter slides — full-screen, stacked vertically by the scroller */
+.chapter-scroller .chapter {
   display: grid;
   grid-template-columns: minmax(280px, .82fr) minmax(0, 1.18fr);
   min-height: 0;
   overflow: hidden;
   border: 0;
   outline: 0;
-  border-radius: clamp(30px, 4.4vw, 62px);
+  border-radius: 0;
   background:
     radial-gradient(circle at 18% 16%, color-mix(in oklch, var(--chapter-accent) 18%, transparent), transparent 28%),
     linear-gradient(125deg, oklch(5% 0.014 260 / .88), oklch(2% 0.012 250 / .68) 50%, oklch(2% 0.012 250 / .44));
-  box-shadow:
-    0 30px 72px oklch(0% 0 0 / .50),
-    0 76px 150px oklch(0% 0 0 / .54),
-    0 0 48px color-mix(in oklch, var(--chapter-accent) 12%, transparent),
-    inset 0 1px 0 oklch(100% 0 0 / .14);
-  opacity: var(--chapter-opacity, 0);
-  transform: translate3d(0, var(--chapter-y-scroll, 110svh), 0) scale(var(--chapter-scale, 1));
-  transition: none;
-  pointer-events: none;
-  z-index: var(--chapter-z, 1);
-  contain: layout;
-  backdrop-filter: blur(28px) saturate(1.14);
+  opacity: 1;
+  pointer-events: auto;
+  isolation: isolate;
 }
 
-.home-pin .chapter::before {
+.chapter-scroller .chapter::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -2381,11 +2365,11 @@ body.about-view .page::before {
   background:
     linear-gradient(108deg, transparent 0 23%, oklch(100% 0 0 / .045) 28%, transparent 34%),
     radial-gradient(circle at var(--mx) var(--my), color-mix(in oklch, var(--chapter-accent) 12%, transparent), transparent 34vw);
-  opacity: var(--chapter-sheen, .05);
+  opacity: .05;
   mix-blend-mode: screen;
 }
 
-.home-pin .chapter::after {
+.chapter-scroller .chapter::after {
   content: "";
   position: absolute;
   z-index: 3;
@@ -2399,7 +2383,7 @@ body.about-view .page::before {
   pointer-events: none;
 }
 
-.home-pin .chapter-visual {
+.chapter-scroller .chapter-visual {
   position: absolute;
   z-index: 0;
   inset: clamp(12px, 1.4vw, 22px) clamp(12px, 1.4vw, 22px) clamp(12px, 1.4vw, 22px) 36%;
@@ -2411,14 +2395,18 @@ body.about-view .page::before {
     var(--chapter-image);
   background-repeat: no-repeat;
   background-size: auto, auto, 124% 124%, cover;
-  background-position: center, center, center, var(--chapter-image-pos, center);
+  background-position: center, center, center, center;
   box-shadow:
     inset 0 0 0 1px oklch(100% 0 0 / .10),
     inset 0 -78px 130px oklch(0% 0 0 / .44),
     0 24px 70px oklch(0% 0 0 / .42);
+  transition: transform .9s cubic-bezier(.2,.8,.2,1);
 }
 
-.home-pin .chapter-info {
+.chapter-scroller .chapter:hover .chapter-visual { transform: scale(1.035); }
+
+/* Chapter info panel — animates in when slide is active */
+.chapter-scroller .chapter-info {
   position: relative;
   z-index: 4;
   align-self: end;
@@ -2431,9 +2419,17 @@ body.about-view .page::before {
   border: 1px solid oklch(100% 0 0 / .09);
   backdrop-filter: blur(22px) saturate(1.24);
   box-shadow: 0 22px 58px oklch(0% 0 0 / .38), inset 0 1px 0 oklch(100% 0 0 / .10);
+  opacity: 0;
+  transform: translateY(36px);
+  transition: opacity .52s cubic-bezier(.2,.8,.2,1) .06s, transform .52s cubic-bezier(.2,.8,.2,1) .06s;
 }
 
-.home-pin .chapter-info::before {
+.chapter-scroller .chapter.is-snap-target .chapter-info {
+  opacity: 1;
+  transform: none;
+}
+
+.chapter-scroller .chapter-info::before {
   content: "";
   position: absolute;
   inset: -1px;
@@ -2447,10 +2443,10 @@ body.about-view .page::before {
   pointer-events: none;
 }
 
-.home-pin .chapter-info::after,
-.home-pin .chapter p { display: none; }
+.chapter-scroller .chapter-info::after { display: none; }
+.chapter-scroller .chapter p { display: none; }
 
-.home-pin .chapter-number {
+.chapter-scroller .chapter-number {
   display: inline-flex;
   margin: 0 0 clamp(14px, 1.8vw, 22px);
   font-size: clamp(18px, 2vw, 30px);
@@ -2458,7 +2454,7 @@ body.about-view .page::before {
   text-shadow: 0 0 22px color-mix(in oklch, var(--chapter-accent) 52%, transparent);
 }
 
-.home-pin .chapter h2 {
+.chapter-scroller .chapter h2 {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -2470,29 +2466,29 @@ body.about-view .page::before {
   overflow-wrap: anywhere;
 }
 
-.home-pin .animation h2 {
+.chapter-scroller .animation h2 {
   max-width: 430px;
   font-size: clamp(38px, 5.8vw, 86px);
   letter-spacing: -.055em;
 }
 
-.home-pin .chapter-title-link,
-.home-pin .chapter-arrow-link { pointer-events: auto; }
+.chapter-scroller .chapter-title-link,
+.chapter-scroller .chapter-arrow-link { pointer-events: auto; }
 
-.home-pin .chapter-title-link {
+.chapter-scroller .chapter-title-link {
   display: inline-block;
   max-width: 100%;
   transition: transform .32s cubic-bezier(.2,.8,.2,1), color .28s ease, filter .28s ease;
 }
 
-.home-pin .chapter-title-link:hover,
-.home-pin .chapter-title-link:focus-visible {
+.chapter-scroller .chapter-title-link:hover,
+.chapter-scroller .chapter-title-link:focus-visible {
   color: var(--chapter-accent);
   transform: scale(1.035);
   filter: drop-shadow(0 0 18px color-mix(in oklch, var(--chapter-accent) 36%, transparent));
 }
 
-.home-pin .chapter-arrow-link {
+.chapter-scroller .chapter-arrow-link {
   width: clamp(48px, 4.4vw, 62px);
   height: clamp(48px, 4.4vw, 62px);
   display: inline-flex;
@@ -2508,7 +2504,7 @@ body.about-view .page::before {
   transition: transform .28s cubic-bezier(.2,.8,.2,1), color .28s ease, border-color .28s ease, box-shadow .28s ease;
 }
 
-.home-pin .chapter-arrow-link svg {
+.chapter-scroller .chapter-arrow-link svg {
   width: clamp(22px, 2vw, 28px);
   height: clamp(18px, 1.7vw, 24px);
   display: block;
@@ -2520,19 +2516,16 @@ body.about-view .page::before {
   transition: transform .28s cubic-bezier(.2,.8,.2,1);
 }
 
-.home-pin .chapter-arrow-link:hover,
-.home-pin .chapter-arrow-link:focus-visible {
+.chapter-scroller .chapter-arrow-link:hover,
+.chapter-scroller .chapter-arrow-link:focus-visible {
   color: var(--chapter-accent);
   border-color: color-mix(in oklch, var(--chapter-accent) 70%, oklch(100% 0 0 / .20));
   box-shadow: inset 0 1px 0 oklch(100% 0 0 / .22), 0 18px 52px color-mix(in oklch, var(--chapter-accent) 24%, transparent);
   transform: translate3d(3px, 0, 0) scale(1.04);
 }
 
-.home-pin .chapter-arrow-link:hover svg,
-.home-pin .chapter-arrow-link:focus-visible svg { transform: translate3d(7px, 0, 0); }
-
-.home-pin .chapter.is-clickable .chapter-title-link,
-.home-pin .chapter.is-clickable .chapter-arrow-link { pointer-events: auto; }
+.chapter-scroller .chapter-arrow-link:hover svg,
+.chapter-scroller .chapter-arrow-link:focus-visible svg { transform: translate3d(7px, 0, 0); }
 
 .sequence-progress {
   position: absolute;
@@ -2555,7 +2548,7 @@ body.about-view .page::before {
   background: linear-gradient(90deg, var(--accent), var(--wt-blue), var(--wt-orange));
 }
 
-.home-pin.has-chapter .scroll-cue {
+.home-experience.has-chapter .scroll-cue {
   opacity: 0;
   transform: translateY(10px);
   pointer-events: none;
@@ -2584,7 +2577,7 @@ body.about-view .page::before {
   pointer-events: none;
   transition: opacity .45s ease, transform .45s ease, color .35s ease;
 }
-.home-pin.has-chapter .chapter-return {
+.home-experience.has-chapter .chapter-return {
   opacity: 1;
   transform: none;
   pointer-events: auto;
@@ -2937,56 +2930,49 @@ body.about-view .page::before {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .home-pin .chapter,
-  .home-pin .chapter-visual,
+  .chapter-scroller .chapter,
+  .chapter-scroller .chapter-visual,
+  .chapter-scroller .chapter-info,
   .card,
   .pill,
   .button,
   .play-link { transition: none !important; animation: none !important; }
+  .chapter-scroller .chapter-info { opacity: 1; transform: none; }
 }
 
-/* Final home chapter fit + lightweight parallax pass. */
-.home-pin.has-chapter .hero-video iframe,
-.home-pin.has-chapter .hero::before {
+/* ── Desktop chapter layout refinements ─────────────────────────────────── */
+.home-experience.has-chapter .hero-video iframe,
+.home-experience.has-chapter .hero-slide::before {
   filter: blur(18px) saturate(1.04) contrast(1.04) brightness(.46);
   transform: translate(-50%, -50%) scale(1.16);
 }
 
-.home-pin.has-chapter .hero::before {
+.home-experience.has-chapter .hero-slide::before {
   transform: scale(1.16);
 }
 
-.home-pin.has-chapter .hero-video::after {
+.home-experience.has-chapter .hero-video::after {
   background:
     linear-gradient(90deg, oklch(3% 0.012 250 / .92) 0 20%, oklch(3% 0.012 250 / .52) 56%, oklch(3% 0.012 250 / .34)),
     linear-gradient(180deg, oklch(3% 0.012 250 / .24), oklch(3% 0.012 250 / .88) 100%);
 }
 
-.home-pin .chapter {
-  background:
-    radial-gradient(circle at 18% 16%, color-mix(in oklch, var(--chapter-accent) 15%, transparent), transparent 30%),
-    linear-gradient(125deg, oklch(5% 0.014 260 / .80), oklch(2% 0.012 250 / .56) 50%, oklch(2% 0.012 250 / .34));
-  backdrop-filter: blur(5px) saturate(1.04);
-}
-
-.home-pin .chapter-visual {
+.chapter-scroller .chapter-visual {
   transform: translate3d(var(--chapter-visual-x, 0px), var(--chapter-visual-y, 0px), 0);
-  will-change: transform;
 }
 
-.home-pin .chapter:hover .chapter-visual {
-  transform: translate3d(var(--chapter-visual-x, 0px), var(--chapter-visual-y, 0px), 0) scale(1.012);
-}
-
-.home-pin .chapter-info {
+.chapter-scroller .chapter-info {
   width: min(96%, 640px);
   min-width: 0;
   padding: clamp(24px, 3.2vw, 42px);
-  transform: translate3d(var(--chapter-info-x, 0px), var(--chapter-info-y, 0px), 0);
-  will-change: transform;
+  transform: translateY(36px);
 }
 
-.home-pin .chapter h2 {
+.chapter-scroller .chapter.is-snap-target .chapter-info {
+  transform: none;
+}
+
+.chapter-scroller .chapter h2 {
   width: 100%;
   max-width: 100%;
   min-width: 0;
@@ -2995,64 +2981,59 @@ body.about-view .page::before {
   letter-spacing: -.05em;
 }
 
-.home-pin .chapter-title-link {
+.chapter-scroller .chapter-title-link {
   max-width: 100%;
   overflow-wrap: anywhere;
   word-break: normal;
   hyphens: auto;
 }
 
-.home-pin .lab h2,
-.home-pin .music h2,
-.home-pin .animation h2 {
+.chapter-scroller .lab h2,
+.chapter-scroller .music h2,
+.chapter-scroller .animation h2 {
   font-size: clamp(34px, 4.35vw, 70px);
   letter-spacing: -.052em;
 }
 
 @media (min-width: 761px) and (max-width: 1180px) {
-  .home-pin .chapter-info {
+  .chapter-scroller .chapter-info {
     width: min(94%, 500px);
     margin-left: 20px;
     padding: clamp(22px, 2.8vw, 32px);
   }
 
-  .home-pin .chapter h2 {
+  .chapter-scroller .chapter h2 {
     font-size: clamp(32px, 5.2vw, 58px);
     line-height: .92;
   }
 
-  .home-pin .lab h2,
-  .home-pin .music h2,
-  .home-pin .animation h2 {
+  .chapter-scroller .lab h2,
+  .chapter-scroller .music h2,
+  .chapter-scroller .animation h2 {
     font-size: clamp(29px, 4.7vw, 50px);
   }
 }
 
 @media (max-width: 760px) {
-  .home-pin.has-chapter .hero-video iframe,
-  .home-pin.has-chapter .hero::before {
+  .home-experience.has-chapter .hero-video iframe,
+  .home-experience.has-chapter .hero-slide::before {
     filter: blur(12px) saturate(1.02) brightness(.46);
     transform: translate(-50%, -50%) scale(1.12);
   }
 
-  .home-pin.has-chapter .hero::before {
+  .home-experience.has-chapter .hero-slide::before {
     transform: scale(1.12);
   }
 
-  .home-pin .chapter-info {
+  .chapter-scroller .chapter-info {
     margin: 0 12px 16px;
     padding: 18px;
-    transform: translate3d(var(--chapter-info-x, 0px), var(--chapter-info-y, 0px), 0);
   }
 
-  .home-pin .chapter-visual {
-    transform: translate3d(var(--chapter-visual-x, 0px), var(--chapter-visual-y, 0px), 0);
-  }
-
-  .home-pin .chapter h2,
-  .home-pin .lab h2,
-  .home-pin .music h2,
-  .home-pin .animation h2 {
+  .chapter-scroller .chapter h2,
+  .chapter-scroller .lab h2,
+  .chapter-scroller .music h2,
+  .chapter-scroller .animation h2 {
     font-size: clamp(28px, 9.4vw, 44px);
     line-height: .94;
     letter-spacing: -.045em;

@@ -54,11 +54,13 @@ const chapters = [
 export default function HomePage() {
   return (
     <main className="site home-site">
-      <section className="home-experience" id="inicio" data-home-sequence>
-        <div className="home-pin">
+      <section className="home-experience" id="inicio" data-home-experience>
 
-          {/* Hero */}
-          <section className="hero" aria-label="wtfilm">
+        {/* Scroll-snap container — hero + 6 chapter slides */}
+        <div className="chapter-scroller" data-chapter-scroller>
+
+          {/* Slide 0 — Hero */}
+          <section className="chapter-slide hero hero-slide" aria-label="wtfilm">
             <div className="hero-video" aria-hidden="true">
               <iframe
                 src="https://player.vimeo.com/video/699221144?h=41566b7914&badge=0&autopause=0&player_id=hero-reel&app_id=58479&autoplay=1&muted=1&loop=1&background=1"
@@ -85,61 +87,65 @@ export default function HomePage() {
               className="scroll-cue"
               type="button"
               data-scroll-reveal
-              aria-label="Arraste para cima para revelar as categorias"
+              aria-label="Ver categorias"
             >
               <span className="scroll-cue-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" focusable="false">
                   <path d="M12 19V5M6 11l6-6 6 6" />
                 </svg>
               </span>
-              <span className="scroll-cue-text">arraste para cima</span>
+              <span className="scroll-cue-text">explorar</span>
             </button>
           </section>
 
-          {/* Chapters */}
-          <section className="chapters" aria-label="Categorias">
-            {chapters.map((ch) => (
-              <article key={ch.slug} className={`chapter ${ch.className}`} data-step={ch.step}>
-                <div className="chapter-visual" />
-                <div className="chapter-info">
-                  <span className="chapter-number">{ch.number}</span>
-                  <h2>
-                    <Link className="chapter-title-link" href={`/trabalhos?f=${ch.slug}`}>
-                      {ch.title}
-                    </Link>
-                  </h2>
-                  <Link
-                    className="chapter-arrow-link"
-                    href={`/trabalhos?f=${ch.slug}`}
-                    aria-label={`Ver ${ch.title.toLowerCase()}`}
-                  >
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M5 12h14M13 6l6 6-6 6" />
-                    </svg>
+          {/* Slides 1–6 — Chapters */}
+          {chapters.map((ch) => (
+            <article
+              key={ch.slug}
+              className={`chapter-slide chapter ${ch.className}`}
+              data-step={ch.step}
+            >
+              <div className="chapter-visual" />
+              <div className="chapter-info">
+                <span className="chapter-number">{ch.number}</span>
+                <h2>
+                  <Link className="chapter-title-link" href={`/trabalhos?f=${ch.slug}`}>
+                    {ch.title}
                   </Link>
-                  <p>{ch.desc}</p>
-                </div>
-              </article>
-            ))}
-          </section>
+                </h2>
+                <Link
+                  className="chapter-arrow-link"
+                  href={`/trabalhos?f=${ch.slug}`}
+                  aria-label={`Ver ${ch.title.toLowerCase()}`}
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M5 12h14M13 6l6 6-6 6" />
+                  </svg>
+                </Link>
+                <p>{ch.desc}</p>
+              </div>
+            </article>
+          ))}
 
-          <div className="sequence-progress" aria-hidden="true"><span /></div>
-
-          {/* Floating back-to-top button — appears when chapters are visible */}
-          <button
-            className="chapter-return"
-            type="button"
-            data-chapter-return
-            aria-label="Voltar ao início"
-          >
-            <span className="chapter-return-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" focusable="false">
-                <path d="M12 19V5M6 11l6-6 6 6" />
-              </svg>
-            </span>
-            <span className="chapter-return-text">início</span>
-          </button>
         </div>
+
+        {/* Overlay UI — fora do scroller para não scrollar junto */}
+        <div className="sequence-progress" aria-hidden="true"><span /></div>
+
+        <button
+          className="chapter-return"
+          type="button"
+          data-chapter-return
+          aria-label="Voltar ao início"
+        >
+          <span className="chapter-return-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M12 19V5M6 11l6-6 6 6" />
+            </svg>
+          </span>
+          <span className="chapter-return-text">início</span>
+        </button>
+
       </section>
     </main>
   )

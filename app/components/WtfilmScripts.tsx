@@ -289,182 +289,63 @@ export default function WtfilmScripts() {
     }
 
     function initHomeSequence() {
-      const sequence = document.querySelector<HTMLElement>('[data-home-sequence]')
-      if (!sequence) return
-      const pin = sequence.querySelector<HTMLElement>('.home-pin')
-      const chapters = [...sequence.querySelectorAll<HTMLElement>('[data-step]')]
-      const progress = sequence.querySelector<HTMLElement>('.sequence-progress')
-      const revealButton = sequence.querySelector<HTMLElement>('[data-scroll-reveal]')
-      if (!chapters.length) return
-      const clamp = (v: number, min = 0, max = 1) => Math.min(max, Math.max(min, v))
-      const smooth = (e0: number, e1: number, v: number) => { const t = clamp((v - e0) / (e1 - e0)); return t * t * (3 - 2 * t) }
-      const revealStart = 0.08, revealEnd = 0.95
-      const readAmount = () => {
-        const rect = sequence.getBoundingClientRect()
-        const scrollable = Math.max(1, rect.height - window.innerHeight)
-        return clamp(-rect.top / scrollable)
+      const experience = document.querySelector<HTMLElement>('[data-home-experience]')
+      const scroller = document.querySelector<HTMLElement>('[data-chapter-scroller]')
+      if (!scroller || !experience) return
+
+      const slides = [...scroller.querySelectorAll<HTMLElement>('.chapter-slide')]
+      const chapters = [...scroller.querySelectorAll<HTMLElement>('.chapter-slide.chapter')]
+      const progress = experience.querySelector<HTMLElement>('.sequence-progress')
+      const revealButton = experience.querySelector<HTMLElement>('[data-scroll-reveal]')
+      const returnButton = experience.querySelector<HTMLElement>('[data-chapter-return]')
+      if (!slides.length) return
+
+      let currentIndex = 0
+
+      const getIndex = () => {
+        const h = scroller.clientHeight || window.innerHeight
+        return Math.round(scroller.scrollTop / Math.max(1, h))
       }
-      const targetAmountFor = (index: number) => {
-        const step = (revealEnd - revealStart) / chapters.length
-        return revealStart + step * (index + 0.94)
-      }
-      const scrollToAmount = (amount: number) => {
-        const scrollable = Math.max(1, sequence.offsetHeight - window.innerHeight)
-        window.scrollTo({ top: sequence.offsetTop + scrollable * clamp(amount), behavior: 'smooth' })
-      }
-      let raf: number | null = null
-      let rafInit: number | null = null
-      const render = (amount: number) => {
-        const chapterProgress = clamp((amount - revealStart) / (revealEnd - revealStart))
-        const hasChapter = amount > revealStart + 0.006
-        const flow = chapterProgress * chapters.length
-        const activeIndex = clamp(Math.floor(flow + 0.36), 0, chapters.length - 1)
-        sequence.style.setProperty('--sequence-progress', amount.toFixed(3))
-        if (pin) pin.classList.toggle('has-chapter', hasChapter)
-        if (progress) progress.style.setProperty('--sequence-progress', amount.toFixed(3))
-        chapters.forEach((chapter, i) => {
-          const local = flow - i
-          const entering = smooth(0, 1, local)
-          const fadeIn = smooth(0.04, 0.22, local)
-          const fadeBack = i === chapters.length - 1 ? 1 : 1 - smooth(1.04, 1.72, local)
-          const hasEntered = hasChapter && local > 0
-          const y = hasEntered ? (1 - entering) * 106 : 108
-          const opacity = hasEntered ? clamp(fadeIn * fadeBack) : 0
-          chapter.style.setProperty('--chapter-opacity', opacity.toFixed(3))
-          chapter.style.setProperty('--chapter-y-scroll', `${y.toFixed(2)}svh`)
-          chapter.style.setProperty('--chapter-scale', '1')
-          chapter.style.setProperty('--chapter-sheen', (0.024 + opacity * 0.035).toFixed(3))
-          chapter.style.setProperty('--chapter-image-pos', `50% ${Math.round(54 - entering * 6)}%`)
-          chapter.style.setProperty('--chapter-z', `${10 + i}`)
-          chapter.classList.toggle('is-flowing', opacity > 0.01)
-          chapter.classList.toggle('is-active', hasEntered && i === activeIndex)
-          chapter.classList.toggle('is-clickable', hasEntered && opacity > 0.16)
-          chapter.classList.toggle('is-prev', hasEntered && i < activeIndex)
-          chapter.classList.toggle('is-next', !hasEntered && i > activeIndex)
+
+      const update = () => {
+        const idx = getIndex()
+        currentIndex = idx
+        const isChapter = idx > 0
+
+        // has-chapter on experience for CSS state (blur hero, show return btn, etc.)
+        experience.classList.toggle('has-chapter', isChapter)
+
+        // Progress bar: 0 at first chapter, 1 at last chapter
+        if (progress) {
+          const pct = chapters.length > 1 ? Math.max(0, idx - 1) / Math.max(1, chapters.length - 1) : 0
+          progress.style.setProperty('--sequence-progress', pct.toFixed(3))
+        }
+
+        // Mark active chapter slide for enter animation
+        slides.forEach((slide, i) => {
+          slide.classList.toggle('is-snap-target', i === idx)
         })
       }
-      const requestUpdate = () => { if (raf) return; raf = requestAnimationFrame(() => { raf = null; render(readAmount()) }) }
 
-      // ── Chapter snap ──────────────────────────────────────────────────────
-      let currentChapterIndex = 0
-      let isSnapping = false
-      let hasSnappedOnce = false
-      let snapRaf: number | null = null
-      let snapTimer: number | null = null
-      let wheelCooldown = false
-      let wheelTimer: number | null = null
+      // Run once at init
+      update()
 
-      const amountToScrollY = (a: number) => {
-        const scrollable = Math.max(1, sequence.offsetHeight - window.innerHeight)
-        return sequence.offsetTop + scrollable * clamp(a)
-      }
+      scroller.addEventListener('scroll', update, { passive: true, signal: sig })
+      window.addEventListener('resize', update, { signal: sig })
 
-      const syncIndex = () => {
-        const a = readAmount()
-        const t = chapters.map((_, j) => targetAmountFor(j))
-        currentChapterIndex = t.reduce((b, v, j) => Math.abs(v - a) < Math.abs(t[b] - a) ? j : b, 0)
-      }
-
-      // Snap to chapter i with ease-out-quart animation
-      const snapToChapter = (i: number) => {
-        const idx = clamp(i, 0, chapters.length - 1)
-        currentChapterIndex = idx
-        hasSnappedOnce = true
-        isSnapping = true
-        if (snapRaf) cancelAnimationFrame(snapRaf)
-        const startY = window.scrollY
-        const targetY = amountToScrollY(targetAmountFor(idx))
-        const dist = targetY - startY
-        if (Math.abs(dist) < 2) { isSnapping = false; return }
-        const duration = Math.max(300, Math.min(560, Math.abs(dist) * 0.40))
-        const t0 = performance.now()
-        const ease = (t: number) => 1 - Math.pow(1 - t, 4)
-        const step = () => {
-          const t = Math.min(1, (performance.now() - t0) / duration)
-          window.scrollTo(0, startY + dist * ease(t))
-          if (t < 1) { snapRaf = requestAnimationFrame(step) }
-          else { isSnapping = false; snapRaf = null }
-        }
-        snapRaf = requestAnimationFrame(step)
-      }
-
-      // Scroll-based snap: fires 110ms after scroll settles
-      const doSnap = () => {
-        if (!sequence.isConnected || isSnapping) return
-        const amount = readAmount()
-        // Guard: only snap inside the chapter zone (use generous upper bound)
-        if (amount <= revealStart || amount >= revealEnd + 0.04) return
-        syncIndex()
-        const targets = chapters.map((_, j) => targetAmountFor(j))
-        const stepSize = targets.length > 1 ? Math.abs(targets[1] - targets[0]) : 0.1
-        const disp = amount - targets[currentChapterIndex]
-        let next = currentChapterIndex
-        if (disp > stepSize * 0.35) next = Math.min(currentChapterIndex + 1, chapters.length - 1)
-        else if (disp < -stepSize * 0.35) next = Math.max(currentChapterIndex - 1, 0)
-        snapToChapter(next)
-      }
-
-      // Wheel-based snap: intercepts wheel once user is settled on a chapter
-      // (hasSnappedOnce prevents zone-entry jump)
-      window.addEventListener('wheel', (e) => {
-        const amount = readAmount()
-        if (amount <= revealStart || amount >= revealEnd + 0.04) return
-        if (!hasSnappedOnce) return // let scroll-based snap handle the first entry
-        const direction = e.deltaY > 0 ? 1 : e.deltaY < 0 ? -1 : 0
-        if (direction === 0) return
-        const targets = chapters.map((_, j) => targetAmountFor(j))
-        const stepSize = targets.length > 1 ? Math.abs(targets[1] - targets[0]) : 0.1
-        // Only intercept when close to current chapter target
-        const distToCurrent = Math.abs(amount - targets[currentChapterIndex])
-        if (distToCurrent > stepSize * 0.5) return
-        e.preventDefault()
-        if (wheelCooldown || isSnapping) return
-        const next = clamp(currentChapterIndex + direction, 0, chapters.length - 1)
-        wheelCooldown = true
-        if (wheelTimer) clearTimeout(wheelTimer)
-        wheelTimer = window.setTimeout(() => { wheelCooldown = false }, 480)
-        snapToChapter(next)
-      }, { passive: false, signal: sig } as AddEventListenerOptions)
-
-      sig.addEventListener('abort', () => {
-        if (snapRaf) { cancelAnimationFrame(snapRaf); snapRaf = null }
-        if (snapTimer) { clearTimeout(snapTimer); snapTimer = null }
-        if (wheelTimer) { clearTimeout(wheelTimer); wheelTimer = null }
-      })
-
-      rafInit = requestAnimationFrame(() => { rafInit = null; render(readAmount()) })
-
-      if (revealButton) revealButton.addEventListener('click', () => { snapToChapter(0) }, { signal: sig })
-
-      const returnButton = sequence.querySelector<HTMLElement>('[data-chapter-return]')
-      if (returnButton) {
-        returnButton.addEventListener('click', () => {
-          if (isSnapping) return
-          isSnapping = true
-          if (snapRaf) cancelAnimationFrame(snapRaf)
-          const startY = window.scrollY
-          const t0 = performance.now()
-          const ease = (t: number) => 1 - Math.pow(1 - t, 4)
-          const duration = Math.max(340, Math.min(680, Math.abs(startY) * 0.46))
-          const step = () => {
-            const t = Math.min(1, (performance.now() - t0) / duration)
-            window.scrollTo(0, startY * (1 - ease(t)))
-            if (t < 1) { snapRaf = requestAnimationFrame(step) }
-            else { isSnapping = false; snapRaf = null; currentChapterIndex = 0; hasSnappedOnce = false }
-          }
-          snapRaf = requestAnimationFrame(step)
+      // "explorar" button → scroll to first chapter
+      if (revealButton) {
+        revealButton.addEventListener('click', () => {
+          scroller.scrollTo({ top: scroller.clientHeight, behavior: 'smooth' })
         }, { signal: sig })
       }
 
-      window.addEventListener('scroll', () => {
-        if (isSnapping) { render(readAmount()); return }
-        syncIndex()
-        requestUpdate()
-        if (snapTimer) clearTimeout(snapTimer)
-        snapTimer = window.setTimeout(doSnap, 110)
-      }, { passive: true, signal: sig } as AddEventListenerOptions)
-
-      window.addEventListener('resize', () => render(readAmount()), { signal: sig })
+      // "início" return button → scroll back to hero
+      if (returnButton) {
+        returnButton.addEventListener('click', () => {
+          scroller.scrollTo({ top: 0, behavior: 'smooth' })
+        }, { signal: sig })
+      }
     }
 
     function initGlassHover() {
