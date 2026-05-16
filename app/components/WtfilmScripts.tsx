@@ -271,10 +271,10 @@ export default function WtfilmScripts() {
         root.style.setProperty('--glass-y', `${dy * -18}px`)
         root.style.setProperty('--chapter-x', `${dx * 16}px`)
         root.style.setProperty('--chapter-y', `${dy * 10}px`)
-        root.style.setProperty('--chapter-info-x', `${dx * 14}px`)
-        root.style.setProperty('--chapter-info-y', `${dy * 9}px`)
-        root.style.setProperty('--chapter-visual-x', `${dx * -18}px`)
-        root.style.setProperty('--chapter-visual-y', `${dy * -12}px`)
+        root.style.setProperty('--chapter-info-x', `${dx * 38}px`)
+        root.style.setProperty('--chapter-info-y', `${dy * 26}px`)
+        root.style.setProperty('--chapter-visual-x', `${dx * -48}px`)
+        root.style.setProperty('--chapter-visual-y', `${dy * -32}px`)
         root.style.setProperty('--hero-dot-color', dot.color)
         root.style.setProperty('--hero-dot-glow', dot.glow)
         root.style.setProperty('--hero-kicker-color', dot.color)
@@ -336,7 +336,8 @@ export default function WtfilmScripts() {
 
         // Progress bar: target contínuo, animado via lerp no RAF
         if (progressSpan && chapters.length > 1) {
-          progressTarget = Math.min(1, Math.max(0, (rawIdx - 1) / (chapters.length - 1)))
+          // hero = 0, lâmina 1 = 1/6, lâmina 6 = 1
+          progressTarget = Math.min(1, Math.max(0, rawIdx / chapters.length))
           if (!progressRaf) progressRaf = requestAnimationFrame(animateProgress)
         }
 
