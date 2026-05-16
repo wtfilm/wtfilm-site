@@ -2364,6 +2364,14 @@ body.about-view .page::before {
   opacity: .56;
 }
 
+/* Z-index crescente — cada lâmina pinta sobre a anterior */
+.chapter-scroller .chapter:nth-child(2) { z-index: 2; }
+.chapter-scroller .chapter:nth-child(3) { z-index: 3; }
+.chapter-scroller .chapter:nth-child(4) { z-index: 4; }
+.chapter-scroller .chapter:nth-child(5) { z-index: 5; }
+.chapter-scroller .chapter:nth-child(6) { z-index: 6; }
+.chapter-scroller .chapter:nth-child(7) { z-index: 7; }
+
 /* Chapter slides — slide over sticky hero as rounded cards */
 .chapter-scroller .chapter {
   display: grid;
@@ -2417,31 +2425,29 @@ body.about-view .page::before {
 .chapter-scroller .chapter-visual {
   position: absolute;
   z-index: 0;
-  inset: clamp(12px, 1.4vw, 22px) clamp(12px, 1.4vw, 22px) clamp(12px, 1.4vw, 22px) 36%;
-  border-radius: clamp(24px, 3.7vw, 52px);
+  inset: 0;
+  border-radius: inherit;
   background: oklch(2% 0.012 250);
-  box-shadow:
-    inset 0 0 0 1px oklch(100% 0 0 / .10),
-    inset 0 -78px 130px oklch(0% 0 0 / .44),
-    0 24px 70px oklch(0% 0 0 / .42);
+  box-shadow: inset 0 -120px 160px oklch(0% 0 0 / .55);
   transform: translateY(var(--parallax-y, 0px));
   will-change: transform;
   transition: transform .9s cubic-bezier(.2,.8,.2,1);
 }
 
-/* Gradientes + frosted glass por cima do vídeo */
+/* Gradientes por cima do vídeo — full bleed */
 .chapter-scroller .chapter-visual::after {
   content: '';
   position: absolute;
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  backdrop-filter: blur(10px) saturate(1.2);
-  -webkit-backdrop-filter: blur(10px) saturate(1.2);
   background:
-    linear-gradient(90deg, oklch(2% 0.012 250 / .55) 0 6%, transparent 30%),
-    linear-gradient(180deg, oklch(2% 0.012 250 / .18), transparent 24% 68%, oklch(2% 0.012 250 / .55)),
-    radial-gradient(circle at 58% 42%, var(--chapter-glow), transparent 42vw);
+    /* escurece a esquerda onde fica o painel de texto */
+    linear-gradient(90deg, oklch(2% 0.012 250 / .82) 0%, oklch(2% 0.012 250 / .50) 38%, transparent 62%),
+    /* escurece topo e rodapé */
+    linear-gradient(180deg, oklch(2% 0.012 250 / .44) 0%, transparent 28% 72%, oklch(2% 0.012 250 / .60) 100%),
+    /* glow da categoria */
+    radial-gradient(circle at 68% 48%, var(--chapter-glow), transparent 52%);
 }
 
 .chapter-scroller .chapter:hover .chapter-visual {
@@ -2466,7 +2472,7 @@ body.about-view .page::before {
   transform: translate(-50%, -50%);
   border: 0;
   pointer-events: none;
-  opacity: .50;
+  opacity: .65;
 }
 
 /* Chapter info panel — animates in when slide is active */
@@ -2957,7 +2963,7 @@ body.about-view .page::before {
   .glass-rail-b { display: none; }
   .chapter-scroller .chapter { grid-template-columns: 1fr; }
   .chapter-scroller .chapter::after { display: none; }
-  .chapter-scroller .chapter-visual { inset: 8px; border-radius: 24px; background: oklch(2% 0.012 250); }
+  .chapter-scroller .chapter-visual { inset: 0; border-radius: inherit; background: oklch(2% 0.012 250); }
   .chapter-scroller .chapter-info { align-self: end; justify-self: stretch; width: auto; margin: 0 16px 18px; padding: 20px; border-radius: 24px; }
   .chapter-scroller .chapter-number { font-size: 17px; margin-bottom: 12px; }
   .chapter-scroller .chapter h2,
