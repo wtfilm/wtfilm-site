@@ -2374,6 +2374,8 @@ body.about-view .page::before {
   outline: 0;
   border-radius: 56px 56px 0 0;
   box-shadow: 0 -40px 100px oklch(0% 0 0 / .72);
+  position: sticky;
+  top: 0;
   z-index: 1;
   background:
     /* topo transparente — hero aparece por baixo */
@@ -2427,16 +2429,18 @@ body.about-view .page::before {
   transition: transform .9s cubic-bezier(.2,.8,.2,1);
 }
 
-/* Gradientes por cima do vídeo */
+/* Gradientes + frosted glass por cima do vídeo */
 .chapter-scroller .chapter-visual::after {
   content: '';
   position: absolute;
   inset: 0;
   z-index: 1;
   pointer-events: none;
+  backdrop-filter: blur(10px) saturate(1.2);
+  -webkit-backdrop-filter: blur(10px) saturate(1.2);
   background:
-    linear-gradient(90deg, oklch(2% 0.012 250 / .60) 0 6%, transparent 30%),
-    linear-gradient(180deg, oklch(2% 0.012 250 / .20), transparent 24% 68%, oklch(2% 0.012 250 / .60)),
+    linear-gradient(90deg, oklch(2% 0.012 250 / .55) 0 6%, transparent 30%),
+    linear-gradient(180deg, oklch(2% 0.012 250 / .18), transparent 24% 68%, oklch(2% 0.012 250 / .55)),
     radial-gradient(circle at 58% 42%, var(--chapter-glow), transparent 42vw);
 }
 
@@ -2457,12 +2461,12 @@ body.about-view .page::before {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: max(100%, 177.78%);
-  height: max(100%, 56.25%);
+  width: max(100%, 177.78svh);
+  height: max(100%, 56.25svw);
   transform: translate(-50%, -50%);
   border: 0;
   pointer-events: none;
-  opacity: .86;
+  opacity: .50;
 }
 
 /* Chapter info panel — animates in when slide is active */
