@@ -2030,7 +2030,7 @@ body.about-view .page::before {
   .hero { min-height: 92svh; padding: 116px 22px 76px; }
   .hero::before { background-position: 59% center; }
   .home-experience { height: 100svh; min-height: 680px; }
-  .chapter-slide.hero-slide { padding: 108px 22px 260px; }
+  .hero-backdrop { padding: 108px 22px 260px; }
   .glass-rail-a { width: 78vw; right: -28vw; top: 4svh; height: 38svh; }
   .glass-rail-b { display: none; }
   .chapter-scroller .chapter {
@@ -2243,12 +2243,14 @@ body.about-view .page::before {
   height: 100svh;
   min-height: 680px;
   position: relative;
-  overflow: hidden;
+  clip-path: inset(0);   /* overflow:hidden anulava position:sticky no hero */
   isolation: isolate;
 }
 
-/* Scroll-snap container */
+/* Scroll-snap container — z:1 para ficar acima do hero-backdrop */
 .chapter-scroller {
+  position: relative;
+  z-index: 1;
   height: 100%;
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
@@ -2268,19 +2270,48 @@ body.about-view .page::before {
   overflow: hidden;
 }
 
-/* Hero slide overrides */
-.chapter-slide.hero-slide {
-  border-bottom: 0;
-  min-height: 0;
+/* Hero backdrop — camada visual fixa por baixo do scroller */
+.hero-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 
-.chapter-slide.hero-slide::before {
+/* Hero content overlay — aparece sobre o scroller quando no hero,
+   some quando um capítulo está ativo                              */
+.hero-content-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  align-items: center;
+  padding: clamp(92px, 12vw, 180px) clamp(24px, 6vw, 96px);
+  pointer-events: none;
+  transition: opacity .36s ease;
+}
+.hero-content-overlay .hero-content {
+  pointer-events: auto;
+}
+.home-experience.has-chapter .hero-content-overlay {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Spacer transparente — primeiro snap target (hero aparece por baixo) */
+.chapter-slide.hero-spacer {
+  background: transparent;
+  pointer-events: none;
+}
+
+.hero-backdrop::before {
   opacity: .72;
   transform: scale(1.04);
   animation: none;
 }
 
-.chapter-slide.hero-slide::after {
+.hero-backdrop::after {
   background:
     radial-gradient(circle at var(--mx) var(--my), color-mix(in oklch, var(--hero-dot-color) 18%, transparent), transparent 18vw),
     linear-gradient(90deg, oklch(3% 0.012 250 / .72), transparent 54%),
@@ -2288,16 +2319,10 @@ body.about-view .page::before {
   mix-blend-mode: screen;
 }
 
-.chapter-slide.hero-slide .hero-content {
+/* Paralax no hero-content (agora dentro do overlay) */
+.hero-content-overlay .hero-content {
   transform: translate3d(var(--title-x), var(--title-y), 0);
   will-change: auto;
-}
-
-/* Hero state when a chapter is active */
-.home-experience.has-chapter .hero-content {
-  opacity: .18;
-  filter: none;
-  transition: opacity .36s ease;
 }
 
 .cursor-light {
@@ -2339,7 +2364,7 @@ body.about-view .page::before {
   opacity: .56;
 }
 
-/* Chapter slides — full-screen, stacked vertically by the scroller */
+/* Chapter slides — slide over sticky hero as rounded cards */
 .chapter-scroller .chapter {
   display: grid;
   grid-template-columns: minmax(280px, .82fr) minmax(0, 1.18fr);
@@ -2347,7 +2372,9 @@ body.about-view .page::before {
   overflow: hidden;
   border: 0;
   outline: 0;
-  border-radius: 0;
+  border-radius: 28px 28px 0 0;
+  box-shadow: 0 -28px 80px oklch(0% 0 0 / .58);
+  z-index: 1;
   background:
     radial-gradient(circle at 18% 16%, color-mix(in oklch, var(--chapter-accent) 18%, transparent), transparent 28%),
     linear-gradient(125deg, oklch(5% 0.014 260 / .88), oklch(2% 0.012 250 / .68) 50%, oklch(2% 0.012 250 / .44));
@@ -2400,10 +2427,14 @@ body.about-view .page::before {
     inset 0 0 0 1px oklch(100% 0 0 / .10),
     inset 0 -78px 130px oklch(0% 0 0 / .44),
     0 24px 70px oklch(0% 0 0 / .42);
+  transform: translateY(var(--parallax-y, 0px));
+  will-change: transform;
   transition: transform .9s cubic-bezier(.2,.8,.2,1);
 }
 
-.chapter-scroller .chapter:hover .chapter-visual { transform: scale(1.035); }
+.chapter-scroller .chapter:hover .chapter-visual {
+  transform: translateY(var(--parallax-y, 0px)) scale(1.035);
+}
 
 /* Chapter info panel — animates in when slide is active */
 .chapter-scroller .chapter-info {
@@ -2888,7 +2919,7 @@ body.about-view .page::before {
 
 @media (max-width: 760px) {
   .home-experience { height: 100svh; min-height: 680px; }
-  .chapter-slide.hero-slide { padding: 108px 22px 240px; }
+  .hero-backdrop { padding: 108px 22px 240px; }
   .glass-rail-a { width: 78vw; right: -28vw; top: 4svh; height: 38svh; }
   .glass-rail-b { display: none; }
   .chapter-scroller .chapter { grid-template-columns: 1fr; }
@@ -2944,13 +2975,13 @@ body.about-view .page::before {
 }
 
 /* ── Desktop chapter layout refinements ─────────────────────────────────── */
-.home-experience.has-chapter .hero-video iframe,
-.home-experience.has-chapter .hero-slide::before {
+.home-experience.has-chapter .hero-backdrop .hero-video iframe,
+.home-experience.has-chapter .hero-backdrop::before {
   filter: blur(18px) saturate(1.04) contrast(1.04) brightness(.46);
   transform: translate(-50%, -50%) scale(1.16);
 }
 
-.home-experience.has-chapter .hero-slide::before {
+.home-experience.has-chapter .hero-backdrop::before {
   transform: scale(1.16);
 }
 
@@ -3019,12 +3050,12 @@ body.about-view .page::before {
 
 @media (max-width: 760px) {
   .home-experience.has-chapter .hero-video iframe,
-  .home-experience.has-chapter .hero-slide::before {
+  .home-experience.has-chapter .hero-backdrop::before {
     filter: blur(12px) saturate(1.02) brightness(.46);
     transform: translate(-50%, -50%) scale(1.12);
   }
 
-  .home-experience.has-chapter .hero-slide::before {
+  .home-experience.has-chapter .hero-backdrop::before {
     transform: scale(1.12);
   }
 

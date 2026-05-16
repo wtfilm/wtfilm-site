@@ -305,13 +305,10 @@ export default function WtfilmScripts() {
 
       let currentIndex = 0
 
-      const getIndex = () => {
-        const h = scroller.clientHeight || window.innerHeight
-        return Math.round(scroller.scrollTop / Math.max(1, h))
-      }
-
       const update = () => {
-        const idx = getIndex()
+        const h = scroller.clientHeight || window.innerHeight
+        const rawIdx = scroller.scrollTop / Math.max(1, h)
+        const idx = Math.round(rawIdx)
         currentIndex = idx
         const isChapter = idx > 0
 
@@ -327,6 +324,14 @@ export default function WtfilmScripts() {
         // Mark active chapter slide for enter animation
         slides.forEach((slide, i) => {
           slide.classList.toggle('is-snap-target', i === idx)
+        })
+
+        // Parallax: chapter-visual shifts at ~0.45x the slide scroll rate
+        chapters.forEach((ch, i) => {
+          const fraction = rawIdx - (i + 1)
+          const py = -(fraction * 44)
+          const visual = ch.querySelector<HTMLElement>('.chapter-visual')
+          if (visual) visual.style.setProperty('--parallax-y', `${py.toFixed(1)}px`)
         })
       }
 

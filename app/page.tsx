@@ -56,47 +56,27 @@ export default function HomePage() {
     <main className="site home-site">
       <section className="home-experience" id="inicio" data-home-experience>
 
-        {/* Scroll-snap container — hero + 6 chapter slides */}
+        {/* ① Backdrop — hero video fixo, puramente visual, sem interação */}
+        <div className="hero hero-backdrop" aria-hidden="true">
+          <div className="hero-video">
+            <iframe
+              src="https://player.vimeo.com/video/699221144?h=41566b7914&badge=0&autopause=0&player_id=hero-reel&app_id=58479&autoplay=1&muted=1&loop=1&background=1"
+              frameBorder="0"
+              allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              title="wtfilm reel"
+            />
+          </div>
+          <div className="glass-rail glass-rail-a" data-depth="1.2" />
+          <div className="glass-rail glass-rail-b" data-depth="-0.8" />
+          <div className="cursor-light" />
+        </div>
+
+        {/* ② Scroll-snap container — spacer transparente + 6 lâminas */}
         <div className="chapter-scroller" data-chapter-scroller>
 
-          {/* Slide 0 — Hero */}
-          <section className="chapter-slide hero hero-slide" aria-label="wtfilm">
-            <div className="hero-video" aria-hidden="true">
-              <iframe
-                src="https://player.vimeo.com/video/699221144?h=41566b7914&badge=0&autopause=0&player_id=hero-reel&app_id=58479&autoplay=1&muted=1&loop=1&background=1"
-                frameBorder="0"
-                allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
-                referrerPolicy="strict-origin-when-cross-origin"
-                title="wtfilm reel"
-              />
-            </div>
-            <div className="glass-rail glass-rail-a" data-depth="1.2" />
-            <div className="glass-rail glass-rail-b" data-depth="-0.8" />
-            <div className="cursor-light" aria-hidden="true" />
-            <div className="hero-content" data-parallax=".42">
-              <div className="kicker">Produzimos filmes que conectam.</div>
-              <h1 className="mega-title">
-                Histórias<br />que não<br />passam<span className="dot">.</span>
-              </h1>
-              <a className="play-link" href="#reel" data-reel-player>
-                <span aria-hidden="true" />
-                <strong>Assista ao reel</strong>
-              </a>
-            </div>
-            <button
-              className="scroll-cue"
-              type="button"
-              data-scroll-reveal
-              aria-label="Ver categorias"
-            >
-              <span className="scroll-cue-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" focusable="false">
-                  <path d="M12 19V5M6 11l6-6 6 6" />
-                </svg>
-              </span>
-              <span className="scroll-cue-text">explorar</span>
-            </button>
-          </section>
+          {/* Slide 0 — spacer transparente (hero aparece por baixo) */}
+          <div className="chapter-slide hero-spacer" aria-hidden="true" />
 
           {/* Slides 1–6 — Chapters */}
           {chapters.map((ch) => (
@@ -129,7 +109,35 @@ export default function HomePage() {
 
         </div>
 
-        {/* Overlay UI — fora do scroller para não scrollar junto */}
+        {/* ③ Overlay de conteúdo do hero — some quando entra num capítulo */}
+        <div className="hero-content-overlay" aria-hidden="false">
+          <div className="hero-content" data-parallax=".42">
+            <div className="kicker">Produzimos filmes que conectam.</div>
+            <h1 className="mega-title">
+              Histórias<br />que não<br />passam<span className="dot">.</span>
+            </h1>
+            <a className="play-link" href="#reel" data-reel-player>
+              <span aria-hidden="true" />
+              <strong>Assista ao reel</strong>
+            </a>
+          </div>
+        </div>
+
+        {/* ④ Controles — sempre overlay */}
+        <button
+          className="scroll-cue"
+          type="button"
+          data-scroll-reveal
+          aria-label="Ver categorias"
+        >
+          <span className="scroll-cue-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M12 19V5M6 11l6-6 6 6" />
+            </svg>
+          </span>
+          <span className="scroll-cue-text">explorar</span>
+        </button>
+
         <div className="sequence-progress" aria-hidden="true"><span /></div>
 
         <button
