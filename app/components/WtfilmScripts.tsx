@@ -295,6 +295,8 @@ export default function WtfilmScripts() {
 
       const slides = [...scroller.querySelectorAll<HTMLElement>('.chapter-slide')]
       const chapters = [...scroller.querySelectorAll<HTMLElement>('.chapter-slide.chapter')]
+      // Cache chapter visuals upfront — evita querySelector dentro do scroll handler
+      const chapterVisuals = chapters.map(ch => ch.querySelector<HTMLElement>('.chapter-visual'))
       const progress = experience.querySelector<HTMLElement>('.sequence-progress')
       const progressSpan = progress?.querySelector<HTMLElement>('span')
       const revealButton = experience.querySelector<HTMLElement>('[data-scroll-reveal]')
@@ -344,11 +346,11 @@ export default function WtfilmScripts() {
         })
 
         // Parallax: chapter-visual shifts at ~0.45x the slide scroll rate
-        chapters.forEach((ch, i) => {
+        chapterVisuals.forEach((visual, i) => {
+          if (!visual) return
           const fraction = rawIdx - (i + 1)
           const py = -(fraction * 44)
-          const visual = ch.querySelector<HTMLElement>('.chapter-visual')
-          if (visual) visual.style.setProperty('--parallax-y', `${py.toFixed(1)}px`)
+          visual.style.setProperty('--parallax-y', `${py.toFixed(1)}px`)
         })
       }
 
@@ -376,8 +378,12 @@ export default function WtfilmScripts() {
     function initGlassHover() {
       const targets = document.querySelectorAll<HTMLElement>('.pill, .button, .play-link, .card, .menu-toggle, .field input, .field textarea, .field select, .work-player-info-close')
       targets.forEach((target) => {
+        // Cache rect on enter — getBoundingClientRect() numa pointermove força reflow por frame
+        let rect = { left: 0, top: 0, width: 1, height: 1 }
+        target.addEventListener('pointerenter', () => {
+          rect = target.getBoundingClientRect()
+        }, { signal: sig })
         target.addEventListener('pointermove', (e) => {
-          const rect = target.getBoundingClientRect()
           target.style.setProperty('--local-x', `${((e.clientX - rect.left) / rect.width * 100).toFixed(2)}%`)
           target.style.setProperty('--local-y', `${((e.clientY - rect.top) / rect.height * 100).toFixed(2)}%`)
         }, { signal: sig })
