@@ -1249,7 +1249,9 @@ body::after {
   .work-player-overlay.mode-moodboard .work-player-video {
     min-height: 0;
     aspect-ratio: auto;
-    max-height: 60svh;
+    max-height: none;
+    width: 100%;
+    overflow: visible;
   }
 
   .work-player-more {
@@ -1559,6 +1561,102 @@ body::after {
   font-size: clamp(13px, 1vw, 16px);
 }
 
+/* ── Ficha de equipe no moodboard ────────────────────────────────────────── */
+.behance-crew {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid oklch(100% 0 0 / .10);
+  border-radius: 22px;
+  background: oklch(100% 0 0 / .07);
+}
+.behance-crew-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 15px 18px;
+  background: oklch(4% 0.014 250 / .72);
+}
+.behance-crew-row dt {
+  color: color-mix(in oklch, var(--player-accent, var(--accent)) 76%, white);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+.behance-crew-row dd {
+  margin: 0;
+  color: var(--fg);
+  font-size: clamp(13px, 1vw, 16px);
+}
+
+/* ── Sobre: vídeo Vimeo ──────────────────────────────────────────────────── */
+.about-reel {
+  position: relative;
+  width: 100%;
+  border-radius: clamp(20px, 2.8vw, 44px);
+  overflow: hidden;
+  background: oklch(5% 0.014 250);
+  box-shadow:
+    0 40px 120px oklch(0% 0 0 / .58),
+    inset 0 1px 0 oklch(100% 0 0 / .12);
+  aspect-ratio: 16 / 9;
+}
+.about-reel iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* ── Sobre: carrossel de logos ───────────────────────────────────────────── */
+.client-strip {
+  width: 100%;
+  overflow: hidden;
+  padding: clamp(24px, 3vw, 48px) 0 clamp(32px, 4vw, 64px);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 10%, #000 90%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 10%, #000 90%, transparent 100%);
+}
+.client-track {
+  display: flex;
+  align-items: center;
+  gap: clamp(40px, 6vw, 80px);
+  width: max-content;
+  animation: clientMarquee 32s linear infinite;
+}
+.client-strip:hover .client-track {
+  animation-play-state: paused;
+}
+.client-logo {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  color: oklch(80% 0.012 250 / .42);
+  font-family: var(--font-display);
+  font-size: clamp(13px, 1.4vw, 18px);
+  font-weight: 500;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: color .3s ease;
+}
+.client-logo:hover { color: oklch(90% 0.012 250 / .72); }
+.client-logo img {
+  height: clamp(18px, 2.2vw, 32px);
+  width: auto;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: .38;
+  transition: opacity .3s ease;
+}
+.client-logo:hover img { opacity: .62; }
+@keyframes clientMarquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
 /* ── Layout A — hero cinematográfico full-bleed ──────────────────────────── */
 .behance-hero-frame-a {
   position: relative;
@@ -1715,6 +1813,17 @@ body::after {
   .behance-hero-a-body {
     grid-template-columns: 1fr;
     padding: 20px 16px;
+    gap: 20px;
+  }
+  .behance-crew {
+    grid-template-columns: 1fr;
+  }
+  .work-player-overlay.mode-moodboard {
+    padding-block: 8px;
+  }
+  .work-player-overlay.mode-moodboard .work-player-shell {
+    min-height: 0;
+    padding-bottom: 32px;
   }
 }
 
@@ -1819,16 +1928,22 @@ body.about-view .page::before {
   display: none;
 }
 .about-page {
-  height: 100svh;
   min-height: 100svh;
   display: grid;
-  grid-template-columns: minmax(360px, .76fr) minmax(42vw, 1fr);
-  gap: clamp(16px, 3vw, 56px);
+  grid-template-columns: minmax(320px, .76fr) minmax(0, 1fr);
+  grid-template-rows: 1fr auto;
+  gap: clamp(16px, 3vw, 48px);
   align-items: center;
   padding-top: clamp(28px, 4vw, 54px);
   padding-bottom: clamp(28px, 4vw, 54px);
-  padding-right: 0;
-  overflow: hidden;
+}
+.about-reel {
+  grid-column: 2;
+  grid-row: 1;
+}
+.client-strip {
+  grid-column: 1 / -1;
+  grid-row: 2;
 }
 .about-copy {
   max-width: 690px;
@@ -2270,16 +2385,26 @@ body.about-view .page::before {
   }
   .about-page {
     grid-template-columns: 1fr;
-    height: 100svh;
+    grid-template-rows: auto auto auto;
+    height: auto;
     min-height: 0;
     padding: 92px 22px 24px;
-    gap: 0;
-    align-items: end;
+    gap: clamp(20px, 4vw, 32px);
+    align-items: start;
+  }
+  .about-reel {
+    grid-column: 1;
+    grid-row: 2;
+    border-radius: 18px;
+  }
+  .client-strip {
+    grid-column: 1;
+    grid-row: 3;
   }
   .about-copy {
     max-width: 100%;
-    align-self: end;
-    padding-bottom: 4px;
+    align-self: start;
+    padding-bottom: 0;
   }
   .about-copy .kicker {
     font-size: 9px;

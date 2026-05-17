@@ -114,6 +114,7 @@ export default function WtfilmScripts() {
       description: string
       note: string
       specs: { cliente: string; formato: string; ano: string; direção: string }
+      crew: { cargo: string; nome: string }[]
       hero: string        // URL da imagem hero
       strip: [string, string]           // 2 imagens da faixa horizontal
       grid: [string, string, string, string]  // 4 imagens da grade
@@ -122,6 +123,14 @@ export default function WtfilmScripts() {
         description: 'Uma série documental sobre pessoas e lugares que carregam memória. Cada episódio é uma janela para um mundo que existe antes da câmera chegar — onde o cotidiano revela o extraordinário.',
         note: 'O documental não é apenas um formato — é uma postura. A câmera que observa antes de comentar.',
         specs: { cliente: 'wtfilm', formato: 'série documental', ano: '2024', direção: 'wtfilm' },
+        crew: [
+          { cargo: 'direção', nome: 'wtfilm' },
+          { cargo: 'dir. de fotografia', nome: 'Ana Lima' },
+          { cargo: 'produção executiva', nome: 'Marcos Teixeira' },
+          { cargo: 'edição', nome: 'Carolina Mendes' },
+          { cargo: 'colorização', nome: 'Pedro Alves' },
+          { cargo: 'som e trilha', nome: 'Studio Vox' },
+        ],
         // ↓ Substitua pelos caminhos reais das imagens do projeto
         hero:  'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=1400&q=85&auto=format&fit=crop',
         strip: [
@@ -181,15 +190,13 @@ export default function WtfilmScripts() {
           </div>
 
           <div class="behance-case-spec">
-            <span>ficha técnica</span>
-            <div>
-              <h3>${title}</h3>
-              <dl>
-                <div><dt>cliente</dt><dd>${d.specs.cliente}</dd></div>
-                <div><dt>formato</dt><dd>${d.specs.formato}</dd></div>
-                <div><dt>ano</dt><dd>${d.specs.ano}</dd></div>
-                <div><dt>direção</dt><dd>${d.specs.direção}</dd></div>
-              </dl>
+            <span>equipe</span>
+            <div class="behance-crew">
+              ${d.crew.map(c => `
+                <div class="behance-crew-row">
+                  <dt>${c.cargo}</dt>
+                  <dd>${c.nome}</dd>
+                </div>`).join('')}
             </div>
           </div>
         </div>`
