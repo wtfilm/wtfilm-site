@@ -2459,8 +2459,8 @@ body.about-view .page::before {
     border-radius: 0;
     opacity: .78;
     z-index: 0;
-    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 18%, #000 100%);
-    mask-image: linear-gradient(180deg, transparent 0%, #000 18%, #000 100%);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 18%, #000 64%, transparent 82%);
+    mask-image: linear-gradient(180deg, transparent 0%, #000 18%, #000 64%, transparent 82%);
   }
   /* desliga ::after no mobile — o gradiente lateral/inferior não faz sentido aqui */
   .about-reel::after { display: none; }
@@ -2490,25 +2490,43 @@ body.about-view .page::before {
     padding-bottom: 12px;
     position: relative;
     z-index: 2;
+    /* ── liquid glass ── */
+    background: oklch(94% 0.004 250 / .78);
+    -webkit-backdrop-filter: blur(24px) saturate(1.6);
+    backdrop-filter: blur(24px) saturate(1.6);
+    border: 1px solid oklch(100% 0 0 / .38);
+    border-radius: 20px;
+    padding: 18px 20px 16px;
+    box-shadow: 0 8px 32px oklch(0% 0 0 / .28), inset 0 1px 0 oklch(100% 0 0 / .52);
+    /* texto escuro sobre fundo claro */
+    color: oklch(16% 0.010 250);
   }
   .about-copy .kicker {
     font-size: 9px;
+    color: var(--accent); /* vermelho — mantém */
   }
   .about-copy .page-title {
-    font-size: clamp(32px, 10vw, 48px);
-    margin-bottom: 12px;
+    font-size: clamp(28px, 9vw, 44px);
+    margin-bottom: 10px;
+    color: oklch(10% 0.008 250);
   }
   .about-copy .lead {
-    font-size: clamp(15px, 4vw, 18px);
-    line-height: 1.24;
+    font-size: clamp(14px, 3.8vw, 17px);
+    line-height: 1.28;
+    color: oklch(20% 0.010 250);
   }
   .about-copy p:not(.lead) {
-    font-size: 13px;
+    font-size: 12px;
     line-height: 1.38;
     max-width: 96%;
+    color: oklch(28% 0.010 250);
   }
   .about-copy .button {
     margin-top: 14px;
+    /* botão escuro para contrastar com o fundo claro do glass */
+    background: oklch(12% 0.012 250 / .88);
+    color: oklch(92% 0.006 250);
+    border-color: oklch(100% 0 0 / .18);
   }
   .about-visual {
     position: absolute;
@@ -3445,11 +3463,29 @@ body.about-view .page::before {
   .works-body .works-page .page-title { max-width: 100%; margin-bottom: 14px; font-size: clamp(36px, 13.5vw, 58px); line-height: .88; }
   .works-body .toolbar { width: 100%; max-width: 100%; margin: 0 0 14px; overflow: visible; }
   .works-body .toolbar::before { inset: -7px; border-radius: 20px; }
-  .works-body .filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; width: 100%; overflow: visible; }
+  /* Filters: scroll horizontal no portrait — mais fácil de usar que grid 2 colunas */
+  .works-body .filters {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 7px;
+    width: 100%;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 4px;
+  }
+  .works-body .filters::-webkit-scrollbar { display: none; }
   .works-body .pill,
   .works-body .pill[data-filter="ia"],
-  .works-body .pill[data-filter="todos"] { width: 100%; min-width: 0; min-height: 36px; padding: 9px 10px; justify-content: center; text-align: center; white-space: normal; line-height: 1.05; font-size: 10px; }
-  .works-body .pill[data-filter="todos"] { grid-column: 1 / -1; }
+  .works-body .pill[data-filter="todos"] {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 0;
+    min-height: 36px;
+    padding: 9px 16px;
+    white-space: nowrap;
+    font-size: 10px;
+  }
   .works-body .works-rail,
   .works-body .works-page .grid,
   .works-body .works-page .grid.is-filtered { --rail-card: min(82vw, 330px); width: 100%; max-width: 100%; padding: 12px 0; gap: 12px; grid-template-rows: 1fr; }
