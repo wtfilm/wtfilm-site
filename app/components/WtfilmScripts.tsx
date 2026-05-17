@@ -80,39 +80,28 @@ export default function WtfilmScripts() {
     function initFilters() {
       document.querySelectorAll<HTMLElement>('[data-filter-group]').forEach((group) => {
         const buttons = group.querySelectorAll<HTMLElement>('[data-filter]')
-        const grid = group.closest('.works-page')?.querySelector('.grid')
+        const grid = group.closest('.works-page')?.querySelector<HTMLElement>('.grid')
         const cards: HTMLElement[] = grid
           ? [...grid.querySelectorAll<HTMLElement>('[data-category]')]
           : [...document.querySelectorAll<HTMLElement>('[data-category]')]
 
-        // Save the original DOM order so "todos" can restore the mosaic nth-child positions
-        const originalOrder = [...cards]
-
         const requested = new URLSearchParams(window.location.search).get('f')
-        const categoryOrder = ['campanhas', 'ia', 'conteudo', 'videoclipes', 'cinema', 'animacao']
-        const categoryBuckets = categoryOrder.map((cat) => cards.filter((c) => c.dataset.category === cat))
-        const orderedCards = new Map<string, HTMLElement[]>()
-        categoryOrder.forEach((cat) => orderedCards.set(cat, cards.filter((c) => c.dataset.category === cat)))
 
         const applyFilter = (filter: string) => {
-          if (grid) {
-            if (filter === 'todos') {
-              // Restore original DOM order to preserve nth-child mosaic CSS positions
-              originalOrder.forEach((c) => grid.appendChild(c))
-            } else {
-              const nextCards = orderedCards.get(filter) || cards
-              nextCards.forEach((c) => grid.appendChild(c))
-            }
-          }
           if (grid) grid.classList.toggle('is-filtered', filter !== 'todos')
           buttons.forEach((b) => b.classList.toggle('active', b.dataset.filter === filter))
           cards.forEach((c) => {
             const show = filter === 'todos' || c.dataset.category === filter
             c.style.display = show ? '' : 'none'
-            if (show) c.animate([{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], { duration: 420, easing: 'cubic-bezier(.2,.8,.2,1)' })
+            if (show) c.animate(
+              [{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }],
+              { duration: 380, easing: 'cubic-bezier(.2,.8,.2,1)' }
+            )
           })
-          if (grid) (grid as HTMLElement).scrollTo({ left: 0, behavior: 'smooth' })
+          // Scroll rail de volta ao início ao trocar filtro
+          if (grid) grid.scrollTo({ left: 0, behavior: 'smooth' })
         }
+
         buttons.forEach((btn) => btn.addEventListener('click', () => applyFilter(btn.dataset.filter!), { signal: sig }))
         if (requested && [...buttons].some((b) => b.dataset.filter === requested)) applyFilter(requested)
       })
@@ -574,6 +563,10 @@ export default function WtfilmScripts() {
       })
     }
 
+    // Ativa classe works-body na página de trabalhos para o rail horizontal
+    const isWorksPage = pathname === '/trabalhos'
+    if (isWorksPage) document.body.classList.add('works-body')
+
     initLoader()
     initRouteTone()
     initMobileMenu()
@@ -587,7 +580,10 @@ export default function WtfilmScripts() {
     initGlassHover()
     initVisualViewportOffset()
 
-    return () => ac.abort()
+    return () => {
+      ac.abort()
+      document.body.classList.remove('works-body')
+    }
   }, [pathname])
 
   return (
