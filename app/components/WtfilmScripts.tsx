@@ -54,8 +54,48 @@ export default function WtfilmScripts() {
       loader.setAttribute('aria-hidden', 'true')
       loader.innerHTML = `<div class="loader-core"><img class="loader-logo" src="/logo.png" alt=""><div class="loader-track"></div></div>`
       document.body.prepend(loader)
-      const finish = () => { loader.classList.add('is-done'); window.setTimeout(() => loader.remove(), 620) }
-      window.setTimeout(finish, 620)
+
+      const finish = () => {
+        loader.classList.add('is-done')
+        window.setTimeout(() => loader.remove(), 920)
+      }
+
+      const heroIframe = document.querySelector<HTMLIFrameElement>('.hero-video iframe')
+      if (!heroIframe) { window.setTimeout(finish, 800); return }
+
+      // Mínimo 700ms para a logo wtfilm ser vista mesmo em conexão rápida
+      let minElapsed = false
+      let videoReady = false
+      const tryFinish = () => { if (minElapsed && videoReady) finish() }
+      window.setTimeout(() => { minElapsed = true; tryFinish() }, 700)
+
+      // Safety: máximo 6s de espera (rede muito lenta)
+      const safety = window.setTimeout(() => { videoReady = true; minElapsed = true; finish() }, 6000)
+
+      // Espera o Vimeo Player SDK carregar (está no <script> abaixo no DOM)
+      const waitForVimeo = () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const V = (window as any).Vimeo
+        if (V?.Player) {
+          try {
+            const player = new V.Player(heroIframe)
+            // 'loaded' dispara quando o vídeo está pronto para reproduzir
+            player.on('loaded', () => {
+              clearTimeout(safety)
+              videoReady = true
+              tryFinish()
+            })
+          } catch {
+            // Fallback se o Player der erro (ex: iframe cross-origin bloqueado)
+            clearTimeout(safety)
+            window.setTimeout(finish, 600)
+          }
+        } else {
+          // SDK ainda carregando, tenta novamente em 80ms
+          window.setTimeout(waitForVimeo, 80)
+        }
+      }
+      waitForVimeo()
     }
 
     function initMobileMenu() {
@@ -483,7 +523,7 @@ export default function WtfilmScripts() {
             if (Math.abs(scroller.scrollTop - ideal) > 3) {
               scroller.scrollTo({ top: ideal, behavior: 'smooth' })
             }
-          }, 450)
+          }, 700)
         }, { passive: true, signal: sig })
 
         // Recalcula quando o visualViewport muda (Safari bar aparece/some)
@@ -531,12 +571,20 @@ export default function WtfilmScripts() {
         if (!iframe.src && iframe.dataset.src) iframe.src = iframe.dataset.src
       }
 
-      // Usa o chapter-scroller como root e pré-carrega 1 slide à frente/atrás
+      const isTouch = navigator.maxTouchPoints > 0
+
+      if (!isTouch) {
+        // Desktop: carrega todos imediatamente — conexão boa e sem custo de dados
+        iframes.forEach(load)
+        return
+      }
+
+      // Mobile: lazy — carrega 2 slides à frente para economizar dados
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) load(entry.target as HTMLIFrameElement)
         })
-      }, { root: scroller || null, rootMargin: '100% 0px' })
+      }, { root: scroller || null, rootMargin: '200% 0px' })
 
       iframes.forEach(iframe => observer.observe(iframe))
     }
