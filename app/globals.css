@@ -1596,10 +1596,16 @@ body::after {
 /* ── Sobre: carrossel de logos ───────────────────────────────────────────── */
 .client-strip {
   width: 100%;
-  overflow: hidden;
   padding: clamp(24px, 3vw, 48px) 0 clamp(32px, 4vw, 64px);
+}
+/* wrapper que tem overflow+mask — o label fica fora, livre da máscara */
+.client-marquee {
+  overflow: hidden;
   -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 10%, #000 90%, transparent 100%);
   mask-image: linear-gradient(90deg, transparent 0%, #000 10%, #000 90%, transparent 100%);
+}
+.client-strip:hover .client-marquee {
+  animation-play-state: paused;
 }
 .client-track {
   display: flex;
@@ -1608,7 +1614,8 @@ body::after {
   width: max-content;
   animation: clientMarquee 32s linear infinite;
 }
-.client-strip:hover .client-track {
+.client-strip:hover .client-track,
+.client-marquee:hover .client-track {
   animation-play-state: paused;
 }
 .client-logo {
@@ -2450,12 +2457,13 @@ body.about-view .page::before {
     height: auto;
     margin: 0;
     border-radius: 0;
-    opacity: .72;
+    opacity: .78;
     z-index: 0;
-    box-shadow: inset 0 -100px 130px var(--bg), inset 0 80px 80px var(--bg);
-    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 20%, #000 55%, transparent 100%);
-    mask-image: linear-gradient(180deg, transparent 0%, #000 20%, #000 55%, transparent 100%);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 18%, #000 100%);
+    mask-image: linear-gradient(180deg, transparent 0%, #000 18%, #000 100%);
   }
+  /* desliga ::after no mobile — o gradiente lateral/inferior não faz sentido aqui */
+  .about-reel::after { display: none; }
   .about-reel iframe {
     position: absolute;
     top: 50%; left: 50%;
@@ -2468,8 +2476,12 @@ body.about-view .page::before {
     grid-column: 1;
     grid-row: 2;
     position: relative;
-    z-index: 2;
+    z-index: 3;
     padding: 8px 0 env(safe-area-inset-bottom, 14px);
+  }
+  /* garante que o label seja sempre legível sobre o vídeo */
+  .client-strip-label {
+    text-shadow: 0 1px 8px oklch(0% 0 0 / .7);
   }
   .about-copy {
     max-width: 100%;
@@ -3673,8 +3685,17 @@ body.about-view .page::before {
   }
 
   /* ── Trabalhos landscape: toolbar compacta + rail funcional ── */
+  /* Works: esconde kicker para liberar linha no grid (3 tracks = title + toolbar + rail) */
+  .works-body .works-page > .kicker { display: none; }
+  /* Works: site ocupa 100% — corrige subtração da sidebar oculta que tablet block aplica */
+  .works-body .site {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    height: 100dvh;
+  }
   .works-body .works-page {
-    height: 100svh;
+    height: 100dvh;
     min-height: 0;
     padding-top: calc(var(--vv-top, 0px) + 58px);
     padding-bottom: 12px;
@@ -3706,24 +3727,37 @@ body.about-view .page::before {
   .works-body .works-rail,
   .works-body .works-page .grid,
   .works-body .works-page .grid.is-filtered {
-    --rail-card: min(60svh, 340px);
+    --rail-card: min(58dvh, 320px);
     width: 100%;
     max-width: 100%;
     padding-top: 8px;
     padding-bottom: 8px;
+    /* 1 linha única no landscape — mais espaço horizontal por card */
+    grid-template-rows: minmax(0, 1fr);
+  }
+  /* Todos os cards ocupam 1 linha no landscape */
+  .works-body .works-page .grid .card,
+  .works-body .works-page .grid .card.wide,
+  .works-body .works-page .grid .card.mid,
+  .works-body .works-page .grid .card.small,
+  .works-body .works-page .grid .card.tall,
+  .works-body .works-page .grid:not(.is-filtered) .card:nth-child(n),
+  .works-body .works-page .grid.is-filtered .card {
+    grid-row: span 1;
+    min-height: 0;
   }
 
   /* ── Sobre landscape: vídeo como painel lateral ── */
   body.about-view,
   body.about-view .site {
-    height: 100svh;
+    height: 100dvh;
     overflow: hidden;
   }
   .about-page {
     grid-template-columns: minmax(260px, .72fr) minmax(0, 1fr);
     grid-template-rows: 1fr auto;
-    height: 100svh;
-    min-height: 100svh;
+    height: 100dvh;
+    min-height: 100dvh;
     overflow: hidden;
     padding-top: calc(var(--vv-top, 0px) + 58px);
     padding-bottom: 0;
@@ -3747,7 +3781,7 @@ body.about-view .page::before {
   .about-reel iframe {
     position: absolute;
     top: 50%; left: 50%;
-    width: 177.78vh; height: 100svh;
+    width: 177.78vh; height: 100dvh;
     min-width: 100%; min-height: 56.25vw;
     transform: translate(-50%, -50%);
     border: 0;

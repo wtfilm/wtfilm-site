@@ -59,13 +59,15 @@ export default function SobrePage() {
 
         <div className="client-strip" aria-label="Clientes">
           <p className="client-strip-label">Nossos Clientes:</p>
-          <div className="client-track">
-            {track.map((c, i) => (
-              <span key={i} className="client-logo">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`/logos/${c.file}`} alt={c.alt} />
-              </span>
-            ))}
+          <div className="client-marquee">
+            <div className="client-track">
+              {track.map((c, i) => (
+                <span key={i} className="client-logo">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={`/logos/${c.file}`} alt={c.alt} />
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </section>
