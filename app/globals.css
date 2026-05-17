@@ -1559,6 +1559,96 @@ body::after {
   font-size: clamp(13px, 1vw, 16px);
 }
 
+/* ── Layout A — hero cinematográfico full-bleed ──────────────────────────── */
+.behance-hero-frame-a {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border-radius: clamp(22px, 2.8vw, 46px);
+  background: oklch(6% 0.014 250);
+  aspect-ratio: 16 / 6.4;
+  min-height: min(44svh, 520px);
+  box-shadow:
+    0 30px 100px oklch(0% 0 0 / .52),
+    inset 0 1px 0 oklch(100% 0 0 / .14);
+}
+.behance-hero-frame-a img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  filter: saturate(1.08) contrast(1.04);
+  transform: scale(1.035);
+  transition: transform 1.2s cubic-bezier(.2,.8,.2,1), filter .8s ease;
+}
+.behance-hero-frame-a:hover img {
+  transform: scale(1.08);
+  filter: saturate(1.18) contrast(1.07);
+}
+.behance-hero-a-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: clamp(22px, 3.5vw, 56px);
+  gap: 10px;
+  background:
+    linear-gradient(to top, oklch(0% 0 0 / .86) 0%, oklch(0% 0 0 / .28) 46%, transparent 74%);
+}
+.behance-hero-a-overlay h2 {
+  margin: 0;
+  color: var(--fg);
+  font-size: clamp(34px, 6.2vw, 108px);
+  line-height: .88;
+  letter-spacing: -.045em;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  text-wrap: balance;
+}
+.behance-hero-a-body {
+  display: grid;
+  grid-template-columns: 1fr .54fr;
+  gap: clamp(18px, 3.5vw, 56px);
+  align-items: start;
+  padding: clamp(20px, 2.6vw, 40px) clamp(16px, 2.4vw, 34px);
+  border-radius: clamp(18px, 2.4vw, 36px);
+  background: oklch(100% 0 0 / .045);
+}
+.behance-hero-a-desc {
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(15px, 1.4vw, 22px);
+  line-height: 1.48;
+}
+.behance-hero-a-specs dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid oklch(100% 0 0 / .10);
+  border-radius: 18px;
+  background: oklch(100% 0 0 / .07);
+  margin: 0;
+}
+.behance-hero-a-specs dl div {
+  padding: 13px 15px;
+  background: oklch(4% 0.014 250 / .72);
+}
+.behance-hero-a-specs dt {
+  margin-bottom: 5px;
+  color: color-mix(in oklch, var(--player-accent, var(--accent)) 76%, white);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+.behance-hero-a-specs dd {
+  margin: 0;
+  color: var(--fg);
+  font-size: clamp(12px, 1vw, 14px);
+}
+
 @media (max-width: 900px) {
   .work-player-overlay.mode-moodboard .work-player-shell {
     width: min(100%, calc(100vw - 28px));
@@ -1612,6 +1702,19 @@ body::after {
   .behance-case-spec h3 {
     font-size: clamp(26px, 9vw, 52px);
     line-height: .98;
+  }
+
+  .behance-hero-frame-a {
+    aspect-ratio: 16 / 9;
+    min-height: 0;
+  }
+  .behance-hero-a-overlay h2 {
+    font-size: clamp(28px, 10vw, 60px);
+    letter-spacing: -.032em;
+  }
+  .behance-hero-a-body {
+    grid-template-columns: 1fr;
+    padding: 20px 16px;
   }
 }
 

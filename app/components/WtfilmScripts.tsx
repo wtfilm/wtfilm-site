@@ -155,13 +155,23 @@ export default function WtfilmScripts() {
         src ? `<img src="${src}" alt="${alt}" loading="lazy" />` : ''
       return `
         <div class="behance-case" style="--player-accent:${accent}">
-          <div class="behance-case-hero">
-            <div class="behance-case-copy">
+          <figure class="behance-hero-frame-a">
+            ${img(d.hero, title)}
+            <div class="behance-hero-a-overlay">
               <span class="kicker" style="color:${accent}">${category} · ${meta}</span>
               <h2>${title}</h2>
-              <p>${d.description}</p>
             </div>
-            <figure class="behance-hero-frame">${img(d.hero, title)}</figure>
+          </figure>
+          <div class="behance-hero-a-body">
+            <p class="behance-hero-a-desc">${d.description}</p>
+            <div class="behance-hero-a-specs">
+              <dl>
+                <div><dt>cliente</dt><dd>${d.specs.cliente}</dd></div>
+                <div><dt>formato</dt><dd>${d.specs.formato}</dd></div>
+                <div><dt>ano</dt><dd>${d.specs.ano}</dd></div>
+                <div><dt>direção</dt><dd>${d.specs.direção}</dd></div>
+              </dl>
+            </div>
           </div>
 
           <div class="behance-case-strip">
