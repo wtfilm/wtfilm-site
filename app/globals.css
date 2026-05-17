@@ -1591,25 +1591,7 @@ body::after {
   font-size: clamp(13px, 1vw, 16px);
 }
 
-/* ── Sobre: vídeo Vimeo ──────────────────────────────────────────────────── */
-.about-reel {
-  position: relative;
-  width: 100%;
-  border-radius: clamp(20px, 2.8vw, 44px);
-  overflow: hidden;
-  background: oklch(5% 0.014 250);
-  box-shadow:
-    0 40px 120px oklch(0% 0 0 / .58),
-    inset 0 1px 0 oklch(100% 0 0 / .12);
-  aspect-ratio: 16 / 9;
-}
-.about-reel iframe {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: 0;
-}
+/* ── Sobre: vídeo Vimeo (estilos base — layout principal em .about-page) ─── */
 
 /* ── Sobre: carrossel de logos ───────────────────────────────────────────── */
 .client-strip {
@@ -1655,6 +1637,27 @@ body::after {
 @keyframes clientMarquee {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
+}
+
+/* ── Pill kicker no hero do moodboard ───────────────────────────────────── */
+.behance-hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: oklch(100% 0 0 / .13);
+  border: 1px solid oklch(100% 0 0 / .20);
+  backdrop-filter: blur(14px);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: oklch(90% 0.012 250 / .85);
+  width: fit-content;
+}
+.behance-hero-pill-sep {
+  opacity: .44;
 }
 
 /* ── Layout A — hero cinematográfico full-bleed ──────────────────────────── */
@@ -1930,16 +1933,49 @@ body.about-view .page::before {
 .about-page {
   min-height: 100svh;
   display: grid;
-  grid-template-columns: minmax(320px, .76fr) minmax(0, 1fr);
+  grid-template-columns: minmax(360px, .76fr) minmax(42vw, 1fr);
   grid-template-rows: 1fr auto;
-  gap: clamp(16px, 3vw, 48px);
+  gap: clamp(16px, 3vw, 56px);
+  column-gap: 0;
   align-items: center;
   padding-top: clamp(28px, 4vw, 54px);
   padding-bottom: clamp(28px, 4vw, 54px);
+  padding-right: 0;
+  overflow: hidden;
 }
 .about-reel {
   grid-column: 2;
   grid-row: 1;
+  align-self: stretch;
+  min-height: 0;
+  height: calc(100svh - clamp(56px, 8vw, 108px));
+  width: calc(100% + var(--page-pad));
+  margin-right: calc(var(--page-pad) * -1);
+  border-radius: clamp(28px, 4vw, 62px) 0 0 clamp(28px, 4vw, 62px);
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 88px 0 120px var(--bg), inset 0 0 90px oklch(0% 0 0 / .48);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,.28) 12%, #000 34%, #000 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,.28) 12%, #000 34%, #000 100%);
+  background: oklch(5% 0.014 250);
+}
+.about-reel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, var(--bg), transparent 34%),
+    linear-gradient(180deg, transparent, oklch(3% 0.012 250 / .42));
+  pointer-events: none;
+  z-index: 1;
+}
+.about-reel iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  object-fit: cover;
 }
 .client-strip {
   grid-column: 1 / -1;
@@ -2395,11 +2431,31 @@ body.about-view .page::before {
   .about-reel {
     grid-column: 1;
     grid-row: 2;
-    border-radius: 18px;
+    position: absolute;
+    inset: 68px 0 0 0;
+    z-index: 0;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    margin: 0;
+    border-radius: 0;
+    align-self: auto;
+    box-shadow: inset 0 -120px 140px var(--bg), inset 0 0 80px oklch(0% 0 0 / .5);
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, rgba(0,0,0,.78) 42%, transparent 100%);
+    mask-image: linear-gradient(180deg, #000 0%, rgba(0,0,0,.78) 42%, transparent 100%);
+    opacity: .6;
+  }
+  .about-reel iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
   }
   .client-strip {
     grid-column: 1;
     grid-row: 3;
+    position: relative;
+    z-index: 2;
   }
   .about-copy {
     max-width: 100%;

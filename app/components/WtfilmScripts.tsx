@@ -156,7 +156,11 @@ export default function WtfilmScripts() {
           <figure class="behance-hero-frame-a">
             ${img(d.hero, title)}
             <div class="behance-hero-a-overlay">
-              <span class="kicker" style="color:${accent}">${category} · ${meta}</span>
+              <div class="behance-hero-pill">
+                <span style="color:${accent}">${category}</span>
+                <span class="behance-hero-pill-sep">·</span>
+                <span>${meta}</span>
+              </div>
               <h2>${title}</h2>
             </div>
           </figure>
