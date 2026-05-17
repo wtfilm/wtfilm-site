@@ -118,6 +118,84 @@ export default function WtfilmScripts() {
       })
     }
 
+    // ── Dados dos moodboards ─────────────────────────────────────────────────
+    // Para adicionar imagens reais: substitua os src="" por URLs ou caminhos locais.
+    // Cada entrada é identificada pelo title do card (data-work-player-title).
+    const moodboardData: Record<string, {
+      description: string
+      note: string
+      specs: { cliente: string; formato: string; ano: string; direção: string }
+      hero: string        // URL da imagem hero
+      strip: [string, string]           // 2 imagens da faixa horizontal
+      grid: [string, string, string, string]  // 4 imagens da grade
+    }> = {
+      'Conexões que viram histórias': {
+        description: 'Uma série documental sobre pessoas e lugares que carregam memória. Cada episódio é uma janela para um mundo que existe antes da câmera chegar — onde o cotidiano revela o extraordinário.',
+        note: 'O documental não é apenas um formato — é uma postura. A câmera que observa antes de comentar.',
+        specs: { cliente: 'wtfilm', formato: 'série documental', ano: '2024', direção: 'wtfilm' },
+        // ↓ Substitua pelos caminhos reais das imagens do projeto
+        hero:  'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=1400&q=85&auto=format&fit=crop',
+        strip: [
+          'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=900&q=85&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=900&q=85&auto=format&fit=crop',
+        ],
+        grid: [
+          'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&q=85&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=85&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1504805572947-34fad45aed93?w=800&q=85&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1487611459768-bd414656ea10?w=800&q=85&auto=format&fit=crop',
+        ],
+      },
+    }
+
+    function buildMoodboardHTML(title: string, category: string, meta: string, accent: string): string {
+      const d = moodboardData[title]
+      if (!d) return `<div class="behance-case"><p style="color:var(--muted);padding:40px">Conteúdo do moodboard em breve.</p></div>`
+      const img = (src: string, alt = '') =>
+        src ? `<img src="${src}" alt="${alt}" loading="lazy" />` : ''
+      return `
+        <div class="behance-case" style="--player-accent:${accent}">
+          <div class="behance-case-hero">
+            <div class="behance-case-copy">
+              <span class="kicker" style="color:${accent}">${category} · ${meta}</span>
+              <h2>${title}</h2>
+              <p>${d.description}</p>
+            </div>
+            <figure class="behance-hero-frame">${img(d.hero, title)}</figure>
+          </div>
+
+          <div class="behance-case-strip">
+            <figure>${img(d.strip[0], 'cena 01')}<figcaption>cena 01</figcaption></figure>
+            <figure>${img(d.strip[1], 'making of')}<figcaption>making of</figcaption></figure>
+          </div>
+
+          <div class="behance-case-note">
+            <span>direção</span>
+            <p>"${d.note}"</p>
+          </div>
+
+          <div class="behance-case-grid">
+            <figure>${img(d.grid[0])}</figure>
+            <figure>${img(d.grid[1])}</figure>
+            <figure>${img(d.grid[2])}</figure>
+            <figure>${img(d.grid[3])}</figure>
+          </div>
+
+          <div class="behance-case-spec">
+            <span>ficha técnica</span>
+            <div>
+              <h3>${title}</h3>
+              <dl>
+                <div><dt>cliente</dt><dd>${d.specs.cliente}</dd></div>
+                <div><dt>formato</dt><dd>${d.specs.formato}</dd></div>
+                <div><dt>ano</dt><dd>${d.specs.ano}</dd></div>
+                <div><dt>direção</dt><dd>${d.specs.direção}</dd></div>
+              </dl>
+            </div>
+          </div>
+        </div>`
+    }
+
     function initWorkCardPlayers() {
       const cards = document.querySelectorAll<HTMLElement>('.works-page .card[data-category]')
       const reelButtons = document.querySelectorAll<HTMLElement>('[data-reel-player]')
@@ -173,24 +251,41 @@ export default function WtfilmScripts() {
         document.body.classList.remove('work-player-open')
         if (more) { more.setAttribute('aria-expanded', 'false'); more.hidden = false }
         if (video) video.innerHTML = ''
+        // Garante reset do scroll interno do overlay
+        overlay!.scrollTo({ top: 0, behavior: 'auto' })
       }
       const openOverlay = (card: HTMLElement, index: number) => {
         const title = card.querySelector('h3')?.textContent?.trim() || 'Projeto wtfilm'
         const meta = card.querySelector('.card-meta')?.textContent?.trim() || 'filme'
         const category = card.dataset.category || ''
-        const vimeoId = card.dataset.vimeoId || '699221144'
-        const vimeoHash = card.dataset.vimeoHash || '41566b7914'
-        overlay!.style.setProperty('--player-accent', getComputedStyle(card).getPropertyValue('--card-accent') || 'var(--accent)')
-        if (titleNode) titleNode.textContent = title
-        if (categoryNode) categoryNode.textContent = `${labels[category] || 'Projeto'} · ${meta}`
-        if (descriptionNode) descriptionNode.innerHTML = `<p>${descriptions[category] || 'Projeto audiovisual wtfilm.'}</p>`
-        if (video) video.innerHTML = `<iframe src="https://player.vimeo.com/video/${vimeoId}?h=${vimeoHash}&badge=0&autopause=0&app_id=58479&autoplay=1&player_id=work-${index}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" title="${title}"></iframe>`
-        document.body.classList.add('work-player-open')
-        overlay!.classList.add('open')
-        overlay!.classList.remove('info-open')
-        overlay!.setAttribute('aria-hidden', 'false')
-        if (more) { more.setAttribute('aria-expanded', 'false'); more.hidden = false }
-        overlay!.scrollTo({ top: 0, behavior: 'auto' })
+        const workType = card.dataset.workType || 'video'
+        const accent = getComputedStyle(card).getPropertyValue('--card-accent').trim() || 'var(--accent)'
+        overlay!.style.setProperty('--player-accent', accent || 'var(--accent)')
+
+        if (workType === 'moodboard') {
+          // ── Modo moodboard (Behance) ─────────────────────────────────────
+          overlay!.classList.add('open', 'mode-moodboard')
+          overlay!.classList.remove('info-open')
+          overlay!.setAttribute('aria-hidden', 'false')
+          document.body.classList.add('work-player-open')
+          if (video) video.innerHTML = buildMoodboardHTML(title, labels[category] || category, meta, accent)
+          if (more) more.hidden = true
+          overlay!.scrollTo({ top: 0, behavior: 'auto' })
+        } else {
+          // ── Modo vídeo (player padrão) ───────────────────────────────────
+          const vimeoId = card.dataset.vimeoId || '699221144'
+          const vimeoHash = card.dataset.vimeoHash || '41566b7914'
+          if (titleNode) titleNode.textContent = title
+          if (categoryNode) categoryNode.textContent = `${labels[category] || 'Projeto'} · ${meta}`
+          if (descriptionNode) descriptionNode.innerHTML = `<p>${descriptions[category] || 'Projeto audiovisual wtfilm.'}</p>`
+          if (video) video.innerHTML = `<iframe src="https://player.vimeo.com/video/${vimeoId}?h=${vimeoHash}&badge=0&autopause=0&app_id=58479&autoplay=1&player_id=work-${index}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" title="${title}"></iframe>`
+          document.body.classList.add('work-player-open')
+          overlay!.classList.add('open')
+          overlay!.classList.remove('mode-moodboard', 'info-open')
+          overlay!.setAttribute('aria-hidden', 'false')
+          if (more) { more.setAttribute('aria-expanded', 'false'); more.hidden = false }
+          overlay!.scrollTo({ top: 0, behavior: 'auto' })
+        }
       }
       cards.forEach((card, i) => {
         card.addEventListener('click', (e) => { e.preventDefault(); openOverlay(card, i) }, { signal: sig })

@@ -3,11 +3,17 @@ export const metadata = { title: 'Trabalhos · wtfilm' }
 // The first 6 items are the "featured" cards shown in the mosaic "todos" view.
 // nth-child(1..6) map to the CSS mosaic positions (one per category).
 // Items 7+ are hidden in mosaic mode and revealed only when that category is filtered.
-const works = [
+type Work = {
+  category: string; size: string; kicker: string; title: string; meta: string; glow: string;
+  type?: 'video' | 'moodboard'
+  vimeoId?: string; vimeoHash?: string
+}
+
+const works: Work[] = [
   // ── Mosaic row (6 featured, one per category) ─────────────────────────────
   { category: 'campanhas',  size: 'wide',  kicker: 'Campanha',    title: 'Nova Beleza para Natura',      meta: 'Natura · filme principal',  glow: 'oklch(60% 0.24 18 / .38)' },
   { category: 'ia',         size: 'mid',   kicker: 'Filme + IA',  title: 'Futuro imaginado',             meta: 'wtfilm Lab',                 glow: 'oklch(60% 0.24 18 / .38)' },
-  { category: 'conteudo',   size: 'mid',   kicker: 'Conteúdo',    title: 'Conexões que viram histórias', meta: 'documental',                 glow: 'oklch(48% 0.14 245 / .40)' },
+  { category: 'conteudo',   size: 'mid',   kicker: 'Conteúdo',    title: 'Conexões que viram histórias', meta: 'documental',                 glow: 'oklch(48% 0.14 245 / .40)', type: 'moodboard' },
   { category: 'videoclipes', size: 'mid',  kicker: 'Videoclipe',  title: 'Melhor Só',                    meta: 'João · performance',         glow: 'oklch(54% 0.17 245 / .38)' },
   { category: 'cinema',     size: 'small', kicker: 'Cinema',      title: 'Entre Silêncios',              meta: 'curta-metragem',             glow: 'oklch(70% 0.18 55 / .36)' },
   { category: 'animacao',   size: 'mid',   kicker: 'Animação',    title: 'Pequenos imaginados',          meta: 'mundo e personagem',         glow: 'oklch(70% 0.18 55 / .34)' },
@@ -64,6 +70,9 @@ export default function TrabalhosPage() {
               role="button"
               tabIndex={0}
               data-category={w.category}
+              data-work-type={w.type ?? 'video'}
+              data-vimeo-id={w.vimeoId ?? ''}
+              data-vimeo-hash={w.vimeoHash ?? ''}
               style={{ '--card-glow': w.glow } as React.CSSProperties}
             >
               <div className="card-content">
