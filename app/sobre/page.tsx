@@ -2,15 +2,30 @@ import Link from 'next/link'
 
 export const metadata = { title: 'Sobre · wtfilm' }
 
-// Logos dos clientes — substitua os textos por <img src="/logos/cliente.svg" alt="Nome" />
-// quando tiver os arquivos de logo prontos
 const clients = [
-  'Natura', 'Vivo', 'Itaú', 'Ambev', 'Nike', 'Globo',
-  'C&A', 'Samsung', 'Bradesco', 'Havaianas', 'Nubank', 'Heineken',
+  { file: 'nubank.png',           alt: 'Nubank' },
+  { file: 'google.png',           alt: 'Google' },
+  { file: 'disney-plus.png',      alt: 'Disney+' },
+  { file: 'warner-bros.png',      alt: 'Warner Bros' },
+  { file: 'universal-pictures.png', alt: 'Universal Pictures' },
+  { file: 'espn.png',             alt: 'ESPN' },
+  { file: 'intel.png',            alt: 'Intel' },
+  { file: 'nestle.png',           alt: 'Nestlé' },
+  { file: 'danone.png',           alt: 'Danone' },
+  { file: 'converse.png',         alt: 'Converse' },
+  { file: 'fila.png',             alt: 'Fila' },
+  { file: 'acer.png',             alt: 'Acer' },
+  { file: 'qualcomm.png',         alt: 'Qualcomm' },
+  { file: 'enel.svg',             alt: 'Enel' },
+  { file: 'perdigao.png',         alt: 'Perdigão' },
+  { file: 'omelete.png',          alt: 'Omelete' },
+  { file: 'iron-studios.png',     alt: 'Iron Studios' },
+  { file: 'ccxp.webp',            alt: 'CCXP' },
+  { file: 'live.png',             alt: 'Live' },
+  { file: 'mondial.png',          alt: 'Mondial' },
 ]
 
 export default function SobrePage() {
-  // Duplica a lista para o loop contínuo do carrossel
   const track = [...clients, ...clients]
 
   return (
@@ -34,7 +49,6 @@ export default function SobrePage() {
           </Link>
         </div>
 
-        {/* Vídeo Vimeo — substitua o vimeoId pelo ID do vídeo desejado */}
         <div className="about-reel">
           <iframe
             src="https://player.vimeo.com/video/699221144?h=41566b7914&badge=0&autopause=0&background=1&loop=1&muted=1&autoplay=1"
@@ -43,11 +57,13 @@ export default function SobrePage() {
           />
         </div>
 
-        {/* Carrossel de logos */}
         <div className="client-strip" aria-label="Clientes">
           <div className="client-track">
-            {track.map((name, i) => (
-              <span key={i} className="client-logo">{name}</span>
+            {track.map((c, i) => (
+              <span key={i} className="client-logo">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={`/logos/${c.file}`} alt={c.alt} />
+              </span>
             ))}
           </div>
         </div>

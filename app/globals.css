@@ -1615,25 +1615,19 @@ body::after {
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  color: oklch(80% 0.012 250 / .42);
-  font-family: var(--font-display);
-  font-size: clamp(13px, 1.4vw, 18px);
-  font-weight: 500;
-  letter-spacing: .08em;
-  text-transform: uppercase;
   white-space: nowrap;
-  transition: color .3s ease;
-}
-.client-logo:hover { color: oklch(90% 0.012 250 / .72); }
-.client-logo img {
-  height: clamp(18px, 2.2vw, 32px);
-  width: auto;
-  object-fit: contain;
-  filter: brightness(0) invert(1);
-  opacity: .38;
+  opacity: .46;
   transition: opacity .3s ease;
 }
-.client-logo:hover img { opacity: .62; }
+.client-logo:hover { opacity: .78; }
+.client-logo img {
+  display: block;
+  height: clamp(18px, 1.8vw, 30px);
+  width: auto;
+  max-width: 130px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
 @keyframes clientMarquee {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
