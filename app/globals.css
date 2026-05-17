@@ -1993,7 +1993,9 @@ body.about-view .page::before {
   font-weight: 600;
   letter-spacing: .18em;
   text-transform: uppercase;
-  color: oklch(60% 0.012 250);
+  color: oklch(72% 0.012 250);
+  position: relative;
+  z-index: 3;
 }
 .about-copy .page-title {
   font-size: clamp(38px, 5.7vw, 84px);
@@ -3712,6 +3714,11 @@ body.about-view .page::before {
   }
 
   /* ── Sobre landscape: vídeo como painel lateral ── */
+  body.about-view,
+  body.about-view .site {
+    height: 100svh;
+    overflow: hidden;
+  }
   .about-page {
     grid-template-columns: minmax(260px, .72fr) minmax(0, 1fr);
     grid-template-rows: 1fr auto;

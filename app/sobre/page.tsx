@@ -58,7 +58,7 @@ export default function SobrePage() {
         </div>
 
         <div className="client-strip" aria-label="Clientes">
-          <p className="client-strip-label">Nossos Clientes</p>
+          <p className="client-strip-label">Nossos Clientes:</p>
           <div className="client-track">
             {track.map((c, i) => (
               <span key={i} className="client-logo">
