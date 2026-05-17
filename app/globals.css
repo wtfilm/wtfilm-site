@@ -1646,14 +1646,14 @@ body::after {
   gap: 7px;
   padding: 6px 14px;
   border-radius: 999px;
-  background: oklch(100% 0 0 / .13);
-  border: 1px solid oklch(100% 0 0 / .20);
-  backdrop-filter: blur(14px);
+  background: oklch(4% 0.012 250 / .72);
+  border: 1px solid oklch(100% 0 0 / .14);
+  backdrop-filter: blur(18px);
   font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: .12em;
   text-transform: uppercase;
-  color: oklch(90% 0.012 250 / .85);
+  color: oklch(88% 0.012 250 / .80);
   width: fit-content;
 }
 .behance-hero-pill-sep {
@@ -1784,7 +1784,11 @@ body::after {
 
   .behance-case-strip,
   .behance-case-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .behance-case-grid {
+    grid-auto-rows: clamp(120px, 28vw, 200px);
   }
 
   .behance-case-strip figure,
@@ -1793,7 +1797,7 @@ body::after {
   .behance-case-grid figure:nth-child(2) {
     grid-column: auto;
     grid-row: auto;
-    aspect-ratio: 1.12 / 1;
+    aspect-ratio: 1.2 / 1;
   }
 
   .behance-case-spec dl {
@@ -3649,4 +3653,82 @@ body.about-view .page::before {
   }
   .chapter-scroller .chapter-arrow-link { width: 40px; height: 40px; }
   .chapter-scroller .chapter-arrow-link svg { width: 18px; height: 18px; }
+
+  /* ── Páginas internas landscape: empurra conteúdo abaixo da mobile-bar + browser bar ── */
+  .page {
+    padding-top: calc(var(--vv-top, 0px) + 58px) !important;
+  }
+
+  /* ── Trabalhos landscape: toolbar compacta + rail funcional ── */
+  .works-body .works-page {
+    height: 100svh;
+    min-height: 0;
+    padding-top: calc(var(--vv-top, 0px) + 58px);
+    padding-bottom: 12px;
+    grid-template-rows: auto auto minmax(0, 1fr);
+  }
+  .works-body .toolbar {
+    margin-bottom: 8px;
+  }
+  .works-body .filters {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 6px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 2px;
+  }
+  .works-body .filters::-webkit-scrollbar { display: none; }
+  .works-body .pill,
+  .works-body .pill[data-filter="ia"],
+  .works-body .pill[data-filter="todos"] {
+    flex: 0 0 auto;
+    width: auto;
+    min-height: 32px;
+    padding: 7px 12px;
+    font-size: 9px;
+    white-space: nowrap;
+  }
+  .works-body .works-rail,
+  .works-body .works-page .grid,
+  .works-body .works-page .grid.is-filtered {
+    --rail-card: min(60svh, 340px);
+    width: 100%;
+    max-width: 100%;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  /* ── Sobre landscape: vídeo como background lateral ── */
+  .about-page {
+    grid-template-columns: minmax(260px, .72fr) minmax(0, 1fr);
+    grid-template-rows: 1fr auto;
+    height: 100svh;
+    min-height: 100svh;
+    overflow: hidden;
+    padding-top: calc(var(--vv-top, 0px) + 58px);
+    padding-bottom: 0;
+  }
+  .about-reel {
+    position: static !important;
+    inset: auto !important;
+    grid-column: 2;
+    grid-row: 1;
+    align-self: stretch;
+    height: 100% !important;
+    width: calc(100% + var(--page-pad, 24px)) !important;
+    margin-right: calc(var(--page-pad, 24px) * -1) !important;
+    opacity: 1 !important;
+    border-radius: clamp(18px, 3vw, 36px) 0 0 clamp(18px, 3vw, 36px) !important;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,.28) 14%, #000 36%, #000 100%);
+    mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,.28) 14%, #000 36%, #000 100%);
+  }
+  .about-copy .page-title {
+    font-size: clamp(22px, 5vh, 38px);
+    margin-bottom: 8px;
+  }
+  .about-copy .lead { font-size: clamp(13px, 2.2vh, 16px); }
+  .about-copy p:not(.lead) { display: none; }
+  .client-strip { grid-column: 1 / -1; grid-row: 2; padding: 10px 0 14px; }
 }
