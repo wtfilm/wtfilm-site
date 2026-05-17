@@ -1987,6 +1987,14 @@ body.about-view .page::before {
   position: relative;
   z-index: 2;
 }
+.client-strip-label {
+  margin: 0 0 clamp(10px, 1.2vw, 16px);
+  font-size: clamp(9px, .7vw, 11px);
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: oklch(60% 0.012 250);
+}
 .about-copy .page-title {
   font-size: clamp(38px, 5.7vw, 84px);
   margin-bottom: clamp(16px, 2vw, 22px);
@@ -2420,48 +2428,54 @@ body.about-view .page::before {
     height: 100svh;
     overflow: hidden;
   }
+  /* portrait mobile — vídeo como fundo full-screen, texto embaixo */
   .about-page {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
-    height: auto;
-    min-height: 0;
-    padding: 92px 22px 24px;
-    gap: clamp(20px, 4vw, 32px);
-    align-items: start;
+    grid-template-rows: 1fr auto;
+    height: 100svh;
+    min-height: 100svh;
+    padding: calc(var(--vv-top, 0px) + 74px) 22px 0;
+    gap: 0;
+    align-items: end;
+    overflow: hidden;
   }
   .about-reel {
-    grid-column: 1;
-    grid-row: 2;
     position: absolute;
-    inset: 68px 0 0 0;
-    z-index: 0;
+    top: 0; right: 0; bottom: 0; left: 0;
+    grid-row: unset;
+    grid-column: unset;
     width: 100%;
     height: auto;
-    min-height: 0;
     margin: 0;
     border-radius: 0;
-    align-self: auto;
-    box-shadow: inset 0 -120px 140px var(--bg), inset 0 0 80px oklch(0% 0 0 / .5);
-    -webkit-mask-image: linear-gradient(180deg, #000 0%, rgba(0,0,0,.78) 42%, transparent 100%);
-    mask-image: linear-gradient(180deg, #000 0%, rgba(0,0,0,.78) 42%, transparent 100%);
-    opacity: .6;
+    opacity: .72;
+    z-index: 0;
+    box-shadow: inset 0 -100px 130px var(--bg), inset 0 80px 80px var(--bg);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 20%, #000 55%, transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0%, #000 20%, #000 55%, transparent 100%);
   }
   .about-reel iframe {
     position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
+    top: 50%; left: 50%;
+    width: 177.78vh; height: 100svh;
+    min-width: 100%; min-height: 56.25vw;
+    transform: translate(-50%, -50%);
+    border: 0;
   }
   .client-strip {
     grid-column: 1;
-    grid-row: 3;
+    grid-row: 2;
     position: relative;
     z-index: 2;
+    padding: 8px 0 env(safe-area-inset-bottom, 14px);
   }
   .about-copy {
     max-width: 100%;
-    align-self: start;
-    padding-bottom: 0;
+    align-self: end;
+    grid-row: 1;
+    padding-bottom: 12px;
+    position: relative;
+    z-index: 2;
   }
   .about-copy .kicker {
     font-size: 9px;
@@ -3697,7 +3711,7 @@ body.about-view .page::before {
     padding-bottom: 8px;
   }
 
-  /* ── Sobre landscape: vídeo como background lateral ── */
+  /* ── Sobre landscape: vídeo como painel lateral ── */
   .about-page {
     grid-template-columns: minmax(260px, .72fr) minmax(0, 1fr);
     grid-template-rows: 1fr auto;
@@ -3706,20 +3720,34 @@ body.about-view .page::before {
     overflow: hidden;
     padding-top: calc(var(--vv-top, 0px) + 58px);
     padding-bottom: 0;
+    align-items: center;
   }
   .about-reel {
-    position: static !important;
-    inset: auto !important;
+    position: relative;
+    inset: auto;
     grid-column: 2;
     grid-row: 1;
     align-self: stretch;
-    height: 100% !important;
-    width: calc(100% + var(--page-pad, 24px)) !important;
-    margin-right: calc(var(--page-pad, 24px) * -1) !important;
-    opacity: 1 !important;
-    border-radius: clamp(18px, 3vw, 36px) 0 0 clamp(18px, 3vw, 36px) !important;
+    width: calc(100% + var(--page-pad, 24px));
+    margin-right: calc(var(--page-pad, 24px) * -1);
+    height: auto;
+    opacity: 1;
+    border-radius: clamp(18px, 3vw, 36px) 0 0 clamp(18px, 3vw, 36px);
+    overflow: hidden;
     -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,.28) 14%, #000 36%, #000 100%);
     mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,.28) 14%, #000 36%, #000 100%);
+  }
+  .about-reel iframe {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 177.78vh; height: 100svh;
+    min-width: 100%; min-height: 56.25vw;
+    transform: translate(-50%, -50%);
+    border: 0;
+  }
+  .about-copy {
+    align-self: center;
+    padding-bottom: 0;
   }
   .about-copy .page-title {
     font-size: clamp(22px, 5vh, 38px);
@@ -3727,5 +3755,5 @@ body.about-view .page::before {
   }
   .about-copy .lead { font-size: clamp(13px, 2.2vh, 16px); }
   .about-copy p:not(.lead) { display: none; }
-  .client-strip { grid-column: 1 / -1; grid-row: 2; padding: 10px 0 14px; }
+  .client-strip { grid-column: 1 / -1; grid-row: 2; padding: 8px 0 10px; }
 }
