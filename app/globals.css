@@ -1949,10 +1949,12 @@ body.about-view .page::before {
 }
 .about-reel {
   grid-column: 2;
-  grid-row: 1;
+  grid-row: 1 / -1;
   align-self: stretch;
   min-height: 0;
-  height: calc(100svh - clamp(56px, 8vw, 108px));
+  height: 100svh;
+  margin-top: calc(clamp(28px, 4vw, 54px) * -1);
+  margin-bottom: calc(clamp(28px, 4vw, 54px) * -1);
   width: calc(100% + var(--page-pad));
   margin-right: calc(var(--page-pad) * -1);
   border-radius: clamp(28px, 4vw, 62px) 0 0 clamp(28px, 4vw, 62px);
