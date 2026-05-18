@@ -16,7 +16,6 @@ const clients = [
   { file: 'acer.png',             alt: 'Acer' },
   { file: 'qualcomm.png',         alt: 'Qualcomm' },
   { file: 'omelete.png',          alt: 'Omelete' },
-  { file: 'iron-studios.png',     alt: 'Iron Studios' },
   { file: 'ccxp.webp',            alt: 'CCXP' },
   { file: 'live.png',             alt: 'Live' },
   { file: 'mondial.png',          alt: 'Mondial' },
