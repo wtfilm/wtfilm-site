@@ -42,7 +42,7 @@ type SanityProject = {
   isMoodboard?: boolean
   vimeoId?: string
   vimeoHash?: string
-  thumbnail?: { asset: { url: string } }
+  thumbnail?: { asset: { url: string }; hotspot?: { x: number; y: number } }
   descricaoCard?: string
   lead?: string
   cliente?: string
@@ -67,6 +67,7 @@ type CardData = {
   vimeoId?: string
   vimeoHash?: string
   thumbUrl?: string
+  thumbPosition?: string
   descricaoCard?: string
   moodboardJson?: string
 }
@@ -117,6 +118,8 @@ export default async function TrabalhosPage() {
         }
 
         const colors = categoryColors[p.categoria] ?? defaultColors
+        const hs = p.thumbnail?.hotspot
+        const thumbPosition = hs ? `${Math.round(hs.x * 100)}% ${Math.round(hs.y * 100)}%` : undefined
 
         // Serializa dados do moodboard para o cliente
         const moodboardJson = p.isMoodboard ? JSON.stringify({
@@ -155,6 +158,7 @@ export default async function TrabalhosPage() {
           vimeoId: p.vimeoId,
           vimeoHash: p.vimeoHash,
           thumbUrl,
+          thumbPosition,
           descricaoCard: p.descricaoCard,
           moodboardJson,
         }
@@ -197,7 +201,12 @@ export default async function TrabalhosPage() {
             >
               {w.thumbUrl && (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img className="card-thumb" src={w.thumbUrl} alt={w.title} />
+                <img
+                  className="card-thumb"
+                  src={w.thumbUrl}
+                  alt={w.title}
+                  style={w.thumbPosition ? { objectPosition: w.thumbPosition } : undefined}
+                />
               )}
               <div className="card-content">
                 <span className="kicker">{w.kicker}</span>

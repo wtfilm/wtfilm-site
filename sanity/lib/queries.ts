@@ -14,7 +14,7 @@ export const allProjectsQuery = groq`
     isMoodboard,
     vimeoId,
     vimeoHash,
-    thumbnail { asset-> { url } },
+    thumbnail { asset->{ url }, hotspot { x, y } },
     descricaoCard,
     lead,
     cliente,
