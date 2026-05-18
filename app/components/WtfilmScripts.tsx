@@ -514,21 +514,31 @@ export default function WtfilmScripts() {
       const isTouch = navigator.maxTouchPoints > 0
       if (isTouch) {
         let snapFixTimer: ReturnType<typeof setTimeout> | null = null
-        scroller.addEventListener('scroll', () => {
+
+        // Usa visualViewport.height (tamanho real visível) em vez de clientHeight,
+        // que pode estar desatualizado durante a transição da barra do Safari.
+        const snapToNearest = (delay: number) => {
           if (snapFixTimer) clearTimeout(snapFixTimer)
           snapFixTimer = setTimeout(() => {
-            const h = scroller.clientHeight
+            const h = window.visualViewport?.height || scroller.clientHeight
             if (h <= 0) return
             const ideal = Math.round(scroller.scrollTop / h) * h
-            if (Math.abs(scroller.scrollTop - ideal) > 3) {
+            if (Math.abs(scroller.scrollTop - ideal) > 4) {
               scroller.scrollTo({ top: ideal, behavior: 'smooth' })
             }
-          }, 700)
-        }, { passive: true, signal: sig })
+          }, delay)
+        }
+
+        // Dispara fix após scroll parar (cobre momentum scroll)
+        scroller.addEventListener('scroll', () => snapToNearest(500), { passive: true, signal: sig })
+
+        // Dispara fix logo que o dedo sai da tela (resposta mais rápida)
+        scroller.addEventListener('touchend', () => snapToNearest(120), { passive: true, signal: sig })
 
         // Recalcula quando o visualViewport muda (Safari bar aparece/some)
         if (window.visualViewport) {
           window.visualViewport.addEventListener('resize', update, { signal: sig })
+          window.visualViewport.addEventListener('resize', () => snapToNearest(200), { signal: sig })
         }
       }
 
