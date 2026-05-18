@@ -1635,6 +1635,11 @@ body::after {
   object-fit: contain;
   filter: brightness(0) invert(1);
 }
+/* logos menores por design — compensar com height maior */
+.client-logo img[src*="nubank"],
+.client-logo img[src*="disney-plus"] {
+  height: clamp(28px, 2.8vw, 46px);
+}
 @keyframes clientMarquee {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
