@@ -2485,7 +2485,7 @@ body.about-view .page::before {
   }
   .about-copy {
     max-width: 100%;
-    align-self: end;
+    align-self: center;
     grid-row: 1;
     padding-bottom: 12px;
     position: relative;
@@ -2541,6 +2541,24 @@ body.about-view .page::before {
     background: linear-gradient(180deg, transparent 46%, var(--bg));
   }
   .player-bar { grid-template-columns: 1fr; }
+
+  /* ── Moodboard mobile portrait: coluna única ── */
+  .behance-case-strip,
+  .behance-case-grid {
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+  }
+  .behance-case-strip figure,
+  .behance-case-grid figure,
+  .behance-case-grid figure:nth-child(1),
+  .behance-case-grid figure:nth-child(2) {
+    grid-column: auto;
+    grid-row: auto;
+    aspect-ratio: 16 / 9;
+  }
+  .work-player-overlay.mode-moodboard .work-player-shell {
+    width: min(100%, calc(100vw - 20px));
+  }
 }
 
 /* Works grid override: fluid dense mosaic that survives viewport resizing. */
