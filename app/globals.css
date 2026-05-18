@@ -3706,16 +3706,24 @@ body.about-view .page::before {
     max-width: 100%;
     margin-left: 0;
     height: 100dvh;
+    overflow: hidden;
   }
   .works-body .works-page {
     height: 100dvh;
     min-height: 0;
     padding-top: calc(var(--vv-top, 0px) + 58px);
-    padding-bottom: 12px;
+    padding-bottom: 8px;
     grid-template-rows: auto auto minmax(0, 1fr);
+    overflow: hidden;
+  }
+  /* Título menor em landscape — libera altura para o rail */
+  .works-body .works-page .page-title {
+    font-size: clamp(26px, 6vh, 40px);
+    line-height: .88;
+    margin-bottom: 6px;
   }
   .works-body .toolbar {
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
   .works-body .filters {
     display: flex;
