@@ -85,7 +85,8 @@ export const projetoSchema = defineType({
               ]}
             }),
           ],
-          preview: { select: { media: 'imagem', title: 'caption' }, prepare: ({ media, title }: { media: unknown; title: string }) => ({ title: title || 'Imagem', media }) }
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          preview: { select: { media: 'imagem', title: 'caption' }, prepare: (v: any) => ({ title: v.title || 'Imagem', media: v.media }) }
         },
         {
           type: 'object',
@@ -113,7 +114,8 @@ export const projetoSchema = defineType({
             defineField({ name: 'vimeoHash', title: 'Hash do Vimeo (se privado)', type: 'string' }),
             defineField({ name: 'legenda', title: 'Legenda', type: 'string' }),
           ],
-          preview: { select: { title: 'vimeoId' }, prepare: ({ title }: { title: string }) => ({ title: `Vimeo: ${title || '—'}` }) }
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          preview: { select: { title: 'vimeoId' }, prepare: (v: any) => ({ title: `Vimeo: ${v.title || '—'}` }) }
         },
       ]
     }),
