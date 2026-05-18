@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import { client } from '../../sanity/lib/client'
-import { sobrePageQuery } from '../../sanity/lib/queries'
+import { client } from '../../../sanity/lib/client'
+import { sobrePageQuery } from '../../../sanity/lib/queries'
 
 export const metadata = { title: 'Sobre · wtfilm' }
 export const revalidate = 60 // revalida a cada 60 segundos
