@@ -24,7 +24,7 @@ export const projetoSchema = defineType({
       name: 'cardSize', title: 'Tamanho do card', type: 'string', initialValue: 'mid',
       options: { list: ['wide', 'mid', 'tall', 'small'] }
     }),
-    defineField({ name: 'cardGlow', title: 'Cor do glow (oklch)', type: 'string', description: 'Ex: oklch(60% 0.24 18 / .38)' }),
+    /* cardGlow removido — cor automática pela categoria */
     defineField({ name: 'destaque', title: 'Em destaque na Home?', type: 'boolean', initialValue: false }),
     defineField({ name: 'ordem', title: 'Ordem de exibição', type: 'number' }),
     defineField({ name: 'vimeoId', title: 'ID do Vimeo', type: 'string', description: 'Só o número. Ex: 699221144' }),
@@ -63,6 +63,59 @@ export const projetoSchema = defineType({
         { name: 'label', title: 'Label (ex: "Lembrança de marca")', type: 'string' },
         { name: 'valor', title: 'Valor (ex: "+37%")', type: 'string' },
       ]}]
+    }),
+    defineField({
+      name: 'blocos',
+      title: 'Blocos do moodboard',
+      type: 'array',
+      description: 'Adicione imagens, textos e vídeos na ordem que quiser. O layout se adapta automaticamente.',
+      of: [
+        {
+          type: 'object',
+          name: 'blocoImagem',
+          title: 'Imagem',
+          fields: [
+            defineField({ name: 'imagem', title: 'Imagem', type: 'image', options: { hotspot: true } }),
+            defineField({ name: 'caption', title: 'Legenda', type: 'string' }),
+            defineField({
+              name: 'tamanho', title: 'Tamanho', type: 'string', initialValue: 'full',
+              options: { list: [
+                { title: 'Largura total', value: 'full' },
+                { title: 'Metade (emparelha com a próxima)', value: 'half' },
+              ]}
+            }),
+          ],
+          preview: { select: { media: 'imagem', title: 'caption' }, prepare: ({ media, title }: { media: unknown; title: string }) => ({ title: title || 'Imagem', media }) }
+        },
+        {
+          type: 'object',
+          name: 'blocoTexto',
+          title: 'Texto',
+          fields: [
+            defineField({ name: 'texto', title: 'Texto', type: 'text', rows: 3 }),
+            defineField({
+              name: 'tipo', title: 'Tipo de texto', type: 'string', initialValue: 'body',
+              options: { list: [
+                { title: 'Corpo de texto', value: 'body' },
+                { title: 'Citação / nota de direção', value: 'quote' },
+                { title: 'Subtítulo de seção', value: 'subtitle' },
+              ]}
+            }),
+          ],
+          preview: { select: { title: 'texto' } }
+        },
+        {
+          type: 'object',
+          name: 'blocoVideo',
+          title: 'Vídeo Vimeo',
+          fields: [
+            defineField({ name: 'vimeoId', title: 'ID do Vimeo', type: 'string' }),
+            defineField({ name: 'vimeoHash', title: 'Hash do Vimeo (se privado)', type: 'string' }),
+            defineField({ name: 'legenda', title: 'Legenda', type: 'string' }),
+          ],
+          preview: { select: { title: 'vimeoId' }, prepare: ({ title }: { title: string }) => ({ title: `Vimeo: ${title || '—'}` }) }
+        },
+      ]
     }),
     defineField({
       name: 'isMoodboard',

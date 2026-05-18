@@ -147,103 +147,109 @@ export default function WtfilmScripts() {
       })
     }
 
-    // ── Dados dos moodboards ─────────────────────────────────────────────────
-    // Para adicionar imagens reais: substitua os src="" por URLs ou caminhos locais.
-    // Cada entrada é identificada pelo title do card (data-work-player-title).
-    const moodboardData: Record<string, {
-      description: string
-      note: string
-      specs: { cliente: string; formato: string; ano: string; direção: string }
-      crew: { cargo: string; nome: string }[]
-      hero: string        // URL da imagem hero
-      strip: [string, string]           // 2 imagens da faixa horizontal
-      grid: [string, string, string, string]  // 4 imagens da grade
-    }> = {
-      'Conexões que viram histórias': {
-        description: 'Uma série documental sobre pessoas e lugares que carregam memória. Cada episódio é uma janela para um mundo que existe antes da câmera chegar — onde o cotidiano revela o extraordinário.',
-        note: 'O documental não é apenas um formato — é uma postura. A câmera que observa antes de comentar.',
-        specs: { cliente: 'wtfilm', formato: 'série documental', ano: '2024', direção: 'wtfilm' },
-        crew: [
-          { cargo: 'direção', nome: 'wtfilm' },
-          { cargo: 'dir. de fotografia', nome: 'Ana Lima' },
-          { cargo: 'produção executiva', nome: 'Marcos Teixeira' },
-          { cargo: 'edição', nome: 'Carolina Mendes' },
-          { cargo: 'colorização', nome: 'Pedro Alves' },
-          { cargo: 'som e trilha', nome: 'Studio Vox' },
-        ],
-        // ↓ Substitua pelos caminhos reais das imagens do projeto
-        hero:  'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=1400&q=85&auto=format&fit=crop',
-        strip: [
-          'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=900&q=85&auto=format&fit=crop',
-          'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=900&q=85&auto=format&fit=crop',
-        ],
-        grid: [
-          'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&q=85&auto=format&fit=crop',
-          'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=85&auto=format&fit=crop',
-          'https://images.unsplash.com/photo-1504805572947-34fad45aed93?w=800&q=85&auto=format&fit=crop',
-          'https://images.unsplash.com/photo-1487611459768-bd414656ea10?w=800&q=85&auto=format&fit=crop',
-        ],
-      },
+    // ── Moodboard dinâmico — lê dados do atributo data-moodboard do card ────
+    type MBlock = {
+      _type: string
+      url?: string
+      caption?: string
+      tamanho?: string
+      texto?: string
+      tipo?: string
+      vimeoId?: string
+      vimeoHash?: string
+      legenda?: string
+    }
+    type MData = {
+      thumbUrl?: string
+      lead?: string
+      cliente?: string
+      agencia?: string
+      direcao?: string
+      ano?: number
+      servicos?: string
+      blocos?: MBlock[]
     }
 
-    function buildMoodboardHTML(title: string, category: string, meta: string, accent: string): string {
-      const d = moodboardData[title]
-      if (!d) return `<div class="behance-case"><p style="color:var(--muted);padding:40px">Conteúdo do moodboard em breve.</p></div>`
-      const img = (src: string, alt = '') =>
+    function buildMoodboardHTML(title: string, category: string, meta: string, accent: string, card: HTMLElement): string {
+      let d: MData = {}
+      try { if (card.dataset.moodboard) d = JSON.parse(card.dataset.moodboard) } catch {}
+
+      const img = (src?: string, alt = '') =>
         src ? `<img src="${src}" alt="${alt}" loading="lazy" />` : ''
-      return `
-        <div class="behance-case" style="--player-accent:${accent}">
-          <figure class="behance-hero-frame-a">
-            ${img(d.hero, title)}
-            <div class="behance-hero-a-overlay">
-              <div class="behance-hero-pill">
-                <span style="color:${accent}">${category}</span>
-                <span class="behance-hero-pill-sep">·</span>
-                <span>${meta}</span>
-              </div>
-              <h2>${title}</h2>
+
+      const heroUrl = d.thumbUrl
+
+      const hasSpecs = d.cliente || d.agencia || d.servicos || d.ano || d.direcao
+      const specsHtml = hasSpecs ? `<div class="behance-hero-a-specs"><dl>
+        ${d.cliente  ? `<div><dt>cliente</dt><dd>${d.cliente}</dd></div>`   : ''}
+        ${d.agencia  ? `<div><dt>agência</dt><dd>${d.agencia}</dd></div>`   : ''}
+        ${d.servicos ? `<div><dt>formato</dt><dd>${d.servicos}</dd></div>`  : ''}
+        ${d.ano      ? `<div><dt>ano</dt><dd>${d.ano}</dd></div>`           : ''}
+        ${d.direcao  ? `<div><dt>direção</dt><dd>${d.direcao}</dd></div>`   : ''}
+      </dl></div>` : ''
+
+      function renderBlocos(blocos?: MBlock[]): string {
+        if (!blocos?.length) return ''
+        let html = ''
+        let i = 0
+        while (i < blocos.length) {
+          const b = blocos[i]
+          if (b._type === 'blocoImagem') {
+            if (b.tamanho === 'half') {
+              const nx = blocos[i + 1]
+              if (nx && nx._type === 'blocoImagem' && nx.tamanho === 'half') {
+                html += `<div class="behance-case-strip">
+                  <figure>${img(b.url, b.caption || '')}${b.caption ? `<figcaption>${b.caption}</figcaption>` : ''}</figure>
+                  <figure>${img(nx.url, nx.caption || '')}${nx.caption ? `<figcaption>${nx.caption}</figcaption>` : ''}</figure>
+                </div>`
+                i += 2; continue
+              }
+            }
+            html += `<figure class="behance-block-img-full">
+              ${img(b.url, b.caption || '')}
+              ${b.caption ? `<figcaption class="behance-block-caption">${b.caption}</figcaption>` : ''}
+            </figure>`
+          } else if (b._type === 'blocoTexto') {
+            if (b.tipo === 'quote') {
+              html += `<div class="behance-case-note"><span>direção</span><p>"${b.texto}"</p></div>`
+            } else if (b.tipo === 'subtitle') {
+              html += `<h3 class="behance-block-subtitle">${b.texto}</h3>`
+            } else {
+              html += `<p class="behance-block-body">${b.texto}</p>`
+            }
+          } else if (b._type === 'blocoVideo') {
+            const vsrc = `https://player.vimeo.com/video/${b.vimeoId}${b.vimeoHash ? `?h=${b.vimeoHash}&` : '?'}badge=0&autopause=0&autoplay=0`
+            html += `<div class="behance-block-video">
+              <iframe src="${vsrc}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" title="${b.legenda || 'Vídeo'}"></iframe>
+              ${b.legenda ? `<figcaption class="behance-block-caption">${b.legenda}</figcaption>` : ''}
+            </div>`
+          }
+          i++
+        }
+        return html
+      }
+
+      const blocosHtml = renderBlocos(d.blocos)
+
+      return `<div class="behance-case" style="--player-accent:${accent}">
+        ${heroUrl ? `<figure class="behance-hero-frame-a">
+          ${img(heroUrl, title)}
+          <div class="behance-hero-a-overlay">
+            <div class="behance-hero-pill">
+              <span style="color:${accent}">${category}</span>
+              <span class="behance-hero-pill-sep">·</span>
+              <span>${meta}</span>
             </div>
-          </figure>
-          <div class="behance-hero-a-body">
-            <p class="behance-hero-a-desc">${d.description}</p>
-            <div class="behance-hero-a-specs">
-              <dl>
-                <div><dt>cliente</dt><dd>${d.specs.cliente}</dd></div>
-                <div><dt>formato</dt><dd>${d.specs.formato}</dd></div>
-                <div><dt>ano</dt><dd>${d.specs.ano}</dd></div>
-                <div><dt>direção</dt><dd>${d.specs.direção}</dd></div>
-              </dl>
-            </div>
+            <h2>${title}</h2>
           </div>
-
-          <div class="behance-case-strip">
-            <figure>${img(d.strip[0], 'cena 01')}<figcaption>cena 01</figcaption></figure>
-            <figure>${img(d.strip[1], 'making of')}<figcaption>making of</figcaption></figure>
-          </div>
-
-          <div class="behance-case-note">
-            <span>direção</span>
-            <p>"${d.note}"</p>
-          </div>
-
-          <div class="behance-case-grid">
-            <figure>${img(d.grid[0])}</figure>
-            <figure>${img(d.grid[1])}</figure>
-            <figure>${img(d.grid[2])}</figure>
-            <figure>${img(d.grid[3])}</figure>
-          </div>
-
-          <div class="behance-case-spec">
-            <span>equipe</span>
-            <div class="behance-crew">
-              ${d.crew.map(c => `
-                <div class="behance-crew-row">
-                  <dt>${c.cargo}</dt>
-                  <dd>${c.nome}</dd>
-                </div>`).join('')}
-            </div>
-          </div>
-        </div>`
+        </figure>` : ''}
+        ${(d.lead || hasSpecs) ? `<div class="behance-hero-a-body">
+          ${d.lead ? `<p class="behance-hero-a-desc">${d.lead}</p>` : '<div></div>'}
+          ${specsHtml}
+        </div>` : ''}
+        ${blocosHtml}
+        ${!blocosHtml && !heroUrl ? `<p style="color:var(--muted);padding:40px 24px">Conteúdo do moodboard em breve.</p>` : ''}
+      </div>`
     }
 
     function initWorkCardPlayers() {
@@ -318,7 +324,7 @@ export default function WtfilmScripts() {
           overlay!.classList.remove('info-open')
           overlay!.setAttribute('aria-hidden', 'false')
           document.body.classList.add('work-player-open')
-          if (video) video.innerHTML = buildMoodboardHTML(title, labels[category] || category, meta, accent)
+          if (video) video.innerHTML = buildMoodboardHTML(title, labels[category] || category, meta, accent, card)
           if (more) more.hidden = true
           overlay!.scrollTo({ top: 0, behavior: 'auto' })
         } else {

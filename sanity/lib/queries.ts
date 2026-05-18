@@ -10,12 +10,28 @@ export const allProjectsQuery = groq`
     meta,
     categoria,
     cardSize,
-    cardGlow,
     destaque,
     isMoodboard,
     vimeoId,
     vimeoHash,
-    thumbnail { asset-> { url } }
+    thumbnail { asset-> { url } },
+    lead,
+    cliente,
+    agencia,
+    direcao,
+    ano,
+    servicos,
+    blocos[] {
+      _type,
+      caption,
+      tamanho,
+      texto,
+      tipo,
+      vimeoId,
+      vimeoHash,
+      legenda,
+      imagem { asset->{ url } }
+    }
   }
 `
 

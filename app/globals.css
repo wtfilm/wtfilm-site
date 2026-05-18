@@ -1678,6 +1678,59 @@ body::after {
   opacity: .44;
 }
 
+/* ── Blocos flexíveis do moodboard ──────────────────────────────────────── */
+.behance-block-img-full {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 4px;
+}
+.behance-block-img-full img {
+  width: 100%;
+  display: block;
+  transition: transform 1.2s cubic-bezier(.2,.8,.2,1), filter .8s ease;
+}
+.behance-block-img-full:hover img {
+  transform: scale(1.05);
+  filter: saturate(1.14) contrast(1.05);
+}
+.behance-block-caption {
+  display: block;
+  padding: 10px 4px 0;
+  color: oklch(80% 0.01 250 / .55);
+  font-family: var(--font-mono);
+  font-size: clamp(10px, 1.1vw, 12px);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+.behance-block-body {
+  max-width: 680px;
+  color: var(--muted);
+  font-size: clamp(14px, 1.5vw, 17px);
+  line-height: 1.6;
+  padding: 8px 0;
+}
+.behance-block-subtitle {
+  color: var(--fg);
+  font-size: clamp(16px, 2vw, 22px);
+  font-weight: 500;
+  letter-spacing: -.02em;
+  margin: 0 0 8px;
+}
+.behance-block-video {
+  position: relative;
+  width: 100%;
+  border-radius: 6px;
+  overflow: hidden;
+  background: oklch(4% 0.014 250 / .9);
+}
+.behance-block-video iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: none;
+}
+
 /* ── Layout A — hero cinematográfico full-bleed ──────────────────────────── */
 .behance-hero-frame-a {
   position: relative;
