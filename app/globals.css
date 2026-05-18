@@ -839,6 +839,7 @@ body::after {
   content: "";
   position: absolute;
   inset: 0;
+  border-radius: inherit;
   background:
     linear-gradient(180deg, transparent 22%, oklch(3% 0.012 250 / .86)),
     radial-gradient(circle at 75% 18%, var(--card-glow, color-mix(in oklch, var(--accent) 25%, transparent)), transparent 24vw),
@@ -3365,7 +3366,7 @@ body.about-view .page::before {
   overflow-y: hidden;
   overscroll-behavior-inline: contain;
   scroll-snap-type: x proximity;
-  padding: 18px 1px 14px;
+  padding: 18px 16px 14px;
   position: relative;
   z-index: 1;
 }

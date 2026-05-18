@@ -15,6 +15,7 @@ export const allProjectsQuery = groq`
     vimeoId,
     vimeoHash,
     thumbnail { asset-> { url } },
+    descricaoCard,
     lead,
     cliente,
     agencia,

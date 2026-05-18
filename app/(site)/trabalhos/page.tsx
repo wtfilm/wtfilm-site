@@ -43,6 +43,7 @@ type SanityProject = {
   vimeoId?: string
   vimeoHash?: string
   thumbnail?: { asset: { url: string } }
+  descricaoCard?: string
   lead?: string
   cliente?: string
   agencia?: string
@@ -66,6 +67,7 @@ type CardData = {
   vimeoId?: string
   vimeoHash?: string
   thumbUrl?: string
+  descricaoCard?: string
   moodboardJson?: string
 }
 
@@ -118,6 +120,7 @@ export default async function TrabalhosPage() {
 
         // Serializa dados do moodboard para o cliente
         const moodboardJson = p.isMoodboard ? JSON.stringify({
+          descricaoCard: p.descricaoCard,
           thumbUrl,
           lead: p.lead,
           cliente: p.cliente,
@@ -152,6 +155,7 @@ export default async function TrabalhosPage() {
           vimeoId: p.vimeoId,
           vimeoHash: p.vimeoHash,
           thumbUrl,
+          descricaoCard: p.descricaoCard,
           moodboardJson,
         }
       })
@@ -187,6 +191,7 @@ export default async function TrabalhosPage() {
               data-work-type={w.isMoodboard ? 'moodboard' : 'video'}
               data-vimeo-id={w.vimeoId ?? ''}
               data-vimeo-hash={w.vimeoHash ?? ''}
+              data-description={w.descricaoCard ?? ''}
               data-moodboard={w.moodboardJson ?? ''}
               style={{ '--card-glow': w.glow, '--card-accent': w.accent } as React.CSSProperties}
             >

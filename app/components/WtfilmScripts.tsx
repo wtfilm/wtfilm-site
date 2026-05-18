@@ -256,13 +256,14 @@ export default function WtfilmScripts() {
       const cards = document.querySelectorAll<HTMLElement>('.works-page .card[data-category]')
       const reelButtons = document.querySelectorAll<HTMLElement>('[data-reel-player]')
       if (!cards.length && !reelButtons.length) return
+      // Descrição genérica por categoria — usada só se o projeto não tiver descricaoCard
       const descriptions: Record<string, string> = {
-        campanhas: 'Imagem de marca com desejo, presença e precisão.',
-        ia: 'Experimento audiovisual onde inteligência artificial entra como extensão de direção.',
-        conteudo: 'Conteúdo filmado com olhar documental, ritmo contemporâneo e foco em presença humana.',
+        campanhas:   'Imagem de marca com desejo, presença e precisão.',
+        ia:          'Experimento audiovisual onde inteligência artificial entra como extensão de direção.',
+        conteudo:    'Conteúdo filmado com olhar documental, ritmo contemporâneo e foco em presença humana.',
         videoclipes: 'Performance, cor e montagem para transformar música em atmosfera visual.',
-        cinema: 'Narrativa visual com silêncio, paisagem e construção de personagem.',
-        animacao: 'Mundos e personagens imaginados com textura cinematográfica e direção de arte.',
+        cinema:      'Narrativa visual com silêncio, paisagem e construção de personagem.',
+        animacao:    'Mundos e personagens imaginados com textura cinematográfica e direção de arte.',
       }
       const labels: Record<string, string> = {
         campanhas: 'Campanha', ia: 'IA / Experimentos', conteudo: 'Conteúdo',
@@ -333,7 +334,8 @@ export default function WtfilmScripts() {
           const vimeoHash = card.dataset.vimeoHash || '41566b7914'
           if (titleNode) titleNode.textContent = title
           if (categoryNode) categoryNode.textContent = `${labels[category] || 'Projeto'} · ${meta}`
-          if (descriptionNode) descriptionNode.innerHTML = `<p>${descriptions[category] || 'Projeto audiovisual wtfilm.'}</p>`
+          const descText = card.dataset.description || descriptions[category] || 'Projeto audiovisual wtfilm.'
+          if (descriptionNode) descriptionNode.innerHTML = `<p>${descText}</p>`
           if (video) video.innerHTML = `<iframe src="https://player.vimeo.com/video/${vimeoId}?h=${vimeoHash}&badge=0&autopause=0&app_id=58479&autoplay=1&player_id=work-${index}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" title="${title}"></iframe>`
           document.body.classList.add('work-player-open')
           overlay!.classList.add('open')
