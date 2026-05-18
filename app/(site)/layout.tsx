@@ -4,10 +4,18 @@ import Link from 'next/link'
 import Image from 'next/image'
 import WtfilmScripts from '../components/WtfilmScripts'
 import NavLinks from '../components/NavLinks'
+import { client } from '../../sanity/lib/client'
+import { globalConfigQuery } from '../../sanity/lib/queries'
 
-export const metadata: Metadata = {
-  title: 'wtfilm - Histórias que não passam',
-  description: 'Produzimos filmes que conectam.',
+export async function generateMetadata(): Promise<Metadata> {
+  const config = await client.fetch(globalConfigQuery).catch(() => null)
+  return {
+    title: 'wtfilm - Histórias que não passam',
+    description: 'Produzimos filmes que conectam.',
+    icons: {
+      icon: config?.favicon?.asset?.url ?? '/favicon.ico',
+    },
+  }
 }
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {

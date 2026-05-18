@@ -36,6 +36,7 @@ export const paginaHomeSchema = defineType({
           defineField({ name: 'ctaUrl', title: 'Link do botão', type: 'string', initialValue: '/trabalhos' }),
           defineField({ name: 'vimeoId', title: 'ID do Vimeo (fundo da lâmina)', type: 'string' }),
           defineField({ name: 'vimeoHash', title: 'Hash do Vimeo (se privado)', type: 'string' }),
+          defineField({ name: 'vimeoStart', title: 'Início do loop (segundos)', type: 'number', description: 'Ex: 88 para começar em 1m28s. Deixe vazio para o início.' }),
         ],
         preview: { select: { title: 'titulo', subtitle: 'categoria' } }
       }]
@@ -97,5 +98,6 @@ export const configuracaoGlobalSchema = defineType({
     defineField({ name: 'youtube', title: 'URL YouTube', type: 'url' }),
     defineField({ name: 'linkedin', title: 'URL LinkedIn', type: 'url' }),
     defineField({ name: 'logo', title: 'Logo', type: 'image' }),
+    defineField({ name: 'favicon', title: 'Favicon (ícone da aba do browser)', type: 'image', description: 'PNG ou ICO, quadrado, mínimo 32×32px.' }),
   ]
 })

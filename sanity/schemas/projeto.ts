@@ -64,7 +64,26 @@ export const projetoSchema = defineType({
         { name: 'valor', title: 'Valor (ex: "+37%")', type: 'string' },
       ]}]
     }),
-    defineField({ name: 'thumbnail', title: 'Thumbnail do card', type: 'image', options: { hotspot: true } }),
+    defineField({
+      name: 'isMoodboard',
+      title: 'É moodboard?',
+      type: 'boolean',
+      initialValue: false,
+      description: 'Moodboards exigem thumbnail personalizada (campo obrigatório abaixo).',
+    }),
+    defineField({
+      name: 'thumbnail',
+      title: 'Thumbnail do card',
+      type: 'image',
+      options: { hotspot: true },
+      description: 'Obrigatória para moodboards. Nos demais, se vazia, puxamos do Vimeo automaticamente.',
+      validation: R => R.custom((val, ctx) => {
+        if ((ctx.document as { isMoodboard?: boolean })?.isMoodboard && !val) {
+          return 'Projetos moodboard exigem uma thumbnail personalizada.'
+        }
+        return true
+      }),
+    }),
   ],
   preview: {
     select: { title: 'titulo', subtitle: 'categoria', media: 'thumbnail' }

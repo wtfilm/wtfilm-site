@@ -12,7 +12,10 @@ export const allProjectsQuery = groq`
     cardSize,
     cardGlow,
     destaque,
-    thumbnail
+    isMoodboard,
+    vimeoId,
+    vimeoHash,
+    thumbnail { asset-> { url } }
   }
 `
 
@@ -70,7 +73,8 @@ export const homePageQuery = groq`
       ctaLabel,
       ctaUrl,
       vimeoId,
-      vimeoHash
+      vimeoHash,
+      vimeoStart
     }
   }
 `
@@ -103,7 +107,7 @@ export const contatoPageQuery = groq`
   }
 `
 
-// Configuração global (sidebar, redes sociais)
+// Configuração global (sidebar, redes sociais, favicon)
 export const globalConfigQuery = groq`
   *[_type == "configuracaoGlobal"][0] {
     nomeDoSite,
@@ -112,6 +116,7 @@ export const globalConfigQuery = groq`
     vimeo,
     youtube,
     linkedin,
-    logo { asset-> { url } }
+    logo { asset-> { url } },
+    favicon { asset-> { url } }
   }
 `
