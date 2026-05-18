@@ -11,12 +11,14 @@ export const paginaHomeSchema = defineType({
     defineField({ name: 'heroVimeoFim', title: 'Hero: Fim do loop (segundos)', type: 'number', description: 'Ex: 120 para parar em 2min. Deixe vazio para loop completo.' }),
     defineField({ name: 'heroKicker', title: 'Hero: Kicker', type: 'string', initialValue: 'Produzimos filmes que conectam.' }),
     defineField({ name: 'heroTitulo', title: 'Hero: Título', type: 'string', initialValue: 'Histórias que não passam' }),
-    defineField({ name: 'heroCtaLabel', title: 'Hero: Texto do botão', type: 'string', initialValue: 'Assista ao reel' }),
+    defineField({ name: 'heroCtaLabel', title: 'Hero: Texto do botão de reel', type: 'string', initialValue: 'Assista ao reel' }),
+    defineField({ name: 'heroReelVimeoId', title: 'Reel: ID do Vimeo (vídeo que abre ao clicar no botão)', type: 'string' }),
+    defineField({ name: 'heroReelVimeoHash', title: 'Reel: Hash do Vimeo (se privado)', type: 'string' }),
     defineField({
-      name: 'laminasVideo',
-      title: 'Lâminas: Vídeos por categoria',
+      name: 'laminas',
+      title: 'Lâminas',
       type: 'array',
-      description: 'Controla o vídeo de fundo de cada lâmina na home.',
+      description: 'Vídeo, título e texto de cada lâmina na home. A ordem aqui define a ordem na tela.',
       of: [{
         type: 'object',
         fields: [
@@ -28,12 +30,14 @@ export const paginaHomeSchema = defineType({
             { title: 'Cinema', value: 'cinema' },
             { title: 'Animação', value: 'animacao' },
           ]}}),
-          defineField({ name: 'vimeoId', title: 'ID do Vimeo', type: 'string' }),
+          defineField({ name: 'titulo', title: 'Título da lâmina', type: 'string' }),
+          defineField({ name: 'texto', title: 'Texto da lâmina', type: 'text', rows: 3 }),
+          defineField({ name: 'ctaLabel', title: 'Texto do botão', type: 'string', initialValue: 'Ver projetos →' }),
+          defineField({ name: 'ctaUrl', title: 'Link do botão', type: 'string', initialValue: '/trabalhos' }),
+          defineField({ name: 'vimeoId', title: 'ID do Vimeo (fundo da lâmina)', type: 'string' }),
           defineField({ name: 'vimeoHash', title: 'Hash do Vimeo (se privado)', type: 'string' }),
-          defineField({ name: 'vimeoInicio', title: 'Início do loop (segundos)', type: 'number' }),
-          defineField({ name: 'vimeoFim', title: 'Fim do loop (segundos)', type: 'number' }),
         ],
-        preview: { select: { title: 'categoria', subtitle: 'vimeoId' } }
+        preview: { select: { title: 'titulo', subtitle: 'categoria' } }
       }]
     }),
   ]
@@ -46,10 +50,26 @@ export const paginaSobreSchema = defineType({
   fields: [
     defineField({ name: 'kicker', title: 'Kicker', type: 'string', initialValue: 'Sobre' }),
     defineField({ name: 'titulo', title: 'Título', type: 'string' }),
-    defineField({ name: 'lead', title: 'Lead', type: 'text' }),
-    defineField({ name: 'corpo', title: 'Texto completo', type: 'array', of: [{ type: 'block' }] }),
+    defineField({ name: 'lead', title: 'Lead (primeiro parágrafo)', type: 'text', rows: 3 }),
+    defineField({ name: 'corpo', title: 'Texto (segundo parágrafo)', type: 'text', rows: 4 }),
     defineField({ name: 'ctaLabel', title: 'Texto do botão', type: 'string', initialValue: 'Falar com a wtfilm →' }),
     defineField({ name: 'ctaUrl', title: 'URL do botão', type: 'string', initialValue: '/contato' }),
+    defineField({ name: 'reelVimeoId', title: 'Showreel: ID do Vimeo', type: 'string', description: 'Vídeo de fundo da página Sobre' }),
+    defineField({ name: 'reelVimeoHash', title: 'Showreel: Hash do Vimeo (se privado)', type: 'string' }),
+    defineField({
+      name: 'clientes',
+      title: 'Carrossel de clientes',
+      type: 'array',
+      description: 'Logos em branco (PNG/SVG). Arraste para reordenar.',
+      of: [{
+        type: 'object',
+        fields: [
+          defineField({ name: 'nome', title: 'Nome do cliente', type: 'string' }),
+          defineField({ name: 'logo', title: 'Logo', type: 'image', options: { hotspot: false } }),
+        ],
+        preview: { select: { title: 'nome', media: 'logo' } }
+      }]
+    }),
   ]
 })
 

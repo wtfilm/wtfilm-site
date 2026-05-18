@@ -60,7 +60,18 @@ export const homePageQuery = groq`
     heroVimeoHash,
     heroKicker,
     heroTitulo,
-    heroCtaLabel
+    heroCtaLabel,
+    heroReelVimeoId,
+    heroReelVimeoHash,
+    laminas[] {
+      categoria,
+      titulo,
+      texto,
+      ctaLabel,
+      ctaUrl,
+      vimeoId,
+      vimeoHash
+    }
   }
 `
 
@@ -72,7 +83,13 @@ export const sobrePageQuery = groq`
     lead,
     corpo,
     ctaLabel,
-    ctaUrl
+    ctaUrl,
+    reelVimeoId,
+    reelVimeoHash,
+    clientes[] {
+      nome,
+      logo { asset-> { url } }
+    }
   }
 `
 
