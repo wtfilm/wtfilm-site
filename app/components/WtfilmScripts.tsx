@@ -645,29 +645,24 @@ export default function WtfilmScripts() {
       const MAX = 42, MIN = 13
 
       function fitOne(h3: HTMLElement) {
-        // Precisa estar no DOM renderizado para medir
-        const card = h3.closest<HTMLElement>('.card')
-        if (!card || card.offsetWidth === 0) return
+        // Precisa ter layout para medir
+        if (!h3.offsetWidth) return
 
-        // Largura disponível = largura do card menos padding horizontal (≈52px) e seta (44px)
-        const padH = parseFloat(getComputedStyle(h3.parentElement!).paddingLeft || '24') * 2
-        const avail = card.offsetWidth - padH - 44
-        if (avail < 30) return
-
-        // Testa no tamanho máximo primeiro
+        // Seta para o máximo e testa: o texto cabe dentro do próprio h3?
+        // (h3 já tem padding-right:44px no CSS → a folga da seta está inclusa no offsetWidth)
         h3.style.fontSize = MAX + 'px'
-        if (h3.scrollWidth <= avail) {
-          // Cabe no máximo — deixa o CSS clamp decidir
+        if (h3.scrollWidth <= h3.offsetWidth) {
+          // Cabe no máximo — deixa o CSS clamp cuidar
           h3.style.removeProperty('font-size')
           return
         }
 
-        // Binary search: maior tamanho que cabe em 1 linha
+        // Binary search: maior tamanho onde scrollWidth ≤ offsetWidth
         let lo = MIN, hi = MAX
         while (hi - lo > 0.5) {
           const mid = (lo + hi) / 2
           h3.style.fontSize = mid + 'px'
-          if (h3.scrollWidth <= avail) lo = mid
+          if (h3.scrollWidth <= h3.offsetWidth) lo = mid
           else hi = mid
         }
         h3.style.fontSize = Math.floor(lo) + 'px'
@@ -678,13 +673,12 @@ export default function WtfilmScripts() {
 
       const run = () => titles.forEach(fitOne)
 
-      // 3 passagens em momentos diferentes para garantir que o layout esteja pronto
-      // (hydration SSR, fontes, imagens podem atrasar o layout)
+      // 3 passagens: rAF, 120ms, 500ms — cobre SSR hydration, fontes web e imagens
       requestAnimationFrame(run)
       window.setTimeout(run, 120)
       window.setTimeout(run, 500)
 
-      // Re-ajusta quando os cards redimensionam (filtros, resize de janela, mobile)
+      // Re-ajusta quando os cards redimensionam (filtros, resize, mobile)
       const ro = new ResizeObserver(run)
       titles.forEach(h3 => {
         const card = h3.closest<HTMLElement>('.card')

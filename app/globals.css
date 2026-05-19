@@ -916,9 +916,9 @@ body::after {
   font-size: clamp(14px, 2.3vw, 42px); /* JS substitui com valor exato por card */
   line-height: 1;
   letter-spacing: -.035em;
+  padding-right: 44px; /* folga para a seta → (posição absoluta) */
   white-space: nowrap;
   overflow: hidden;
-  /* sem text-overflow: ellipsis — o JS garante que o texto cabe inteiro */
 }
 .card-meta { color: var(--muted); font-size: 12px; }
 .card .arrow {
