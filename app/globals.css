@@ -898,6 +898,7 @@ body::after {
   overflow: hidden;
   border-radius: 22px;
   z-index: 0;
+  transform: translateZ(0); /* força compositing layer própria → Safari aplica overflow+radius sempre */
   transition: transform .45s ease;
 }
 .card:hover .card-thumb-wrap { transform: scale(1.035); }
