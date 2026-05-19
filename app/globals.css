@@ -758,9 +758,11 @@ body::after {
   height: 100%;
   position: relative;
   overflow: hidden;
+  overflow: clip; /* mais agressivo: clippa até layers composited (GPU) */
   border: 1.5px solid var(--border);
   border-radius: 22px;
   background: var(--surface);
+  background-clip: padding-box;
   isolation: isolate;
   transition:
     transform .42s cubic-bezier(.2,.8,.2,1),
@@ -885,6 +887,7 @@ body::after {
 .card:hover::before { transform: scale(1.035); filter: saturate(1.18) contrast(1.08) brightness(1.08); }
 /* Thumbnail de card (Sanity ou fallback Vimeo) */
 .card-thumb {
+  border-radius: inherit;
   position: absolute;
   inset: 0;
   width: 100%;
@@ -901,7 +904,15 @@ body::after {
   padding: 24px;
   z-index: 1;
 }
-.card h3 { margin: 9px 0 6px; font-size: clamp(24px, 2.3vw, 42px); line-height: 1; letter-spacing: -.035em; }
+.card h3 {
+  margin: 9px 0 6px;
+  font-size: clamp(24px, 2.3vw, 42px);
+  line-height: 1;
+  letter-spacing: -.035em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .card-meta { color: var(--muted); font-size: 12px; }
 .card .arrow {
   position: absolute;
@@ -1177,6 +1188,10 @@ body::after {
   font-size: clamp(34px, 5vw, 86px);
   line-height: .9;
   letter-spacing: -.045em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .work-player-info p {
