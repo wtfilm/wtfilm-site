@@ -851,9 +851,9 @@ body::after {
   background:
     linear-gradient(180deg, transparent 22%, oklch(3% 0.012 250 / .86)),
     radial-gradient(circle at 75% 18%, var(--card-glow, color-mix(in oklch, var(--accent) 25%, transparent)), transparent 24vw),
-    var(--card-image, url("/assets/generated/wtfilm-campaigns.png"));
+    var(--thumb-url, var(--card-image, url("/assets/generated/wtfilm-campaigns.png")));
   background-size: cover;
-  background-position: center;
+  background-position: var(--thumb-pos, center);
   transition: transform .7s ease;
 }
 .card[data-category="campanhas"] {
@@ -894,19 +894,7 @@ body::after {
 /* Thumbnail — sem transform próprio: fica na mesma compositing layer do card.
    O card já tem overflow:hidden + border-radius que clipa corretamente elementos
    na mesma layer. O zoom do hover vem do scale(1.012) do próprio card. */
-.card-thumb {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: inherit;
-  z-index: 0;
-  opacity: .72;
-  /* sem transition: o Safari não promove a thumbnail para GPU layer separada,
-     então overflow:hidden + border-radius consegue clipar corretamente */
-}
-.card:hover .card-thumb { opacity: .88; }
+/* .card-thumb removido — thumbnail agora é background-image do ::before via --thumb-url */
 .card-content {
   position: absolute;
   inset: auto 0 0;
