@@ -895,10 +895,11 @@ body::after {
 .card-thumb-wrap {
   position: absolute;
   inset: 0;
-  overflow: hidden;
-  border-radius: 22px;
   z-index: 0;
-  transform: translateZ(0); /* força compositing layer própria → Safari aplica overflow+radius sempre */
+  /* clip-path clipa o output pintado inteiro, inclusive filhos em compositing layers separadas.
+     Funciona no Safari onde overflow:hidden+border-radius falha com elementos animados. */
+  -webkit-clip-path: inset(0 round 22px);
+  clip-path: inset(0 round 22px);
   transition: transform .45s ease;
 }
 .card:hover .card-thumb-wrap { transform: scale(1.035); }
