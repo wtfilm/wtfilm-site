@@ -763,8 +763,7 @@ body::after {
   background: var(--surface);
   background-clip: padding-box;
   isolation: isolate;
-  transform: translateZ(0); /* força GPU layer → overflow:hidden clippa corretamente */
-  -webkit-mask-image: linear-gradient(#fff, #fff); /* fix Safari: clipa filhos em compositing layers separadas */
+  transform: translateZ(0);
   transition:
     transform .42s cubic-bezier(.2,.8,.2,1),
     box-shadow .42s cubic-bezier(.2,.8,.2,1),
@@ -772,8 +771,10 @@ body::after {
   cursor: pointer;
 }
 .card:focus-visible {
-  outline: 2px solid color-mix(in oklch, var(--card-accent, var(--accent)) 74%, white);
-  outline-offset: 4px;
+  outline: none; /* outline é clipado pelo overflow:hidden — usa box-shadow */
+  box-shadow:
+    0 0 0 2px var(--bg),
+    0 0 0 4px color-mix(in oklch, var(--card-accent, var(--accent)) 74%, white);
 }
 .card::after, .glass::after, .about-visual::before {
   content: "";
@@ -887,14 +888,20 @@ body::after {
 }
 .card:hover::before { transform: scale(1.035); filter: saturate(1.18) contrast(1.08) brightness(1.08); }
 /* Thumbnail de card (Sanity ou fallback Vimeo) */
+/* Wrapper que clipa a thumbnail no Safari sem efeito colateral na borda do card */
+.card-thumb-wrap {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 22px; /* idêntico ao .card */
+  z-index: 0;
+}
 .card-thumb {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: inherit; /* impede bleeding fora do card ao criar compositing layer */
-  z-index: 0;
   opacity: .72;
   transition: opacity .4s, transform .45s ease;
 }
