@@ -901,10 +901,10 @@ body::after {
   height: 100%;
   object-fit: cover;
   border-radius: inherit;
-  clip-path: inset(0 round 22px); /* clipa no estágio de compositing — funciona no Safari mesmo com GPU layer separada */
   z-index: 0;
   opacity: .72;
-  transition: opacity .4s;
+  /* sem transition: o Safari não promove a thumbnail para GPU layer separada,
+     então overflow:hidden + border-radius consegue clipar corretamente */
 }
 .card:hover .card-thumb { opacity: .88; }
 .card-content {
