@@ -762,7 +762,6 @@ body::after {
   border-radius: 22px;
   background: var(--surface);
   background-clip: padding-box;
-  isolation: isolate;
   /* translateZ(0) removido: com ele o card fica SEMPRE numa compositing layer,
      o que neutraliza o isolation:isolate e faz o Safari não aplicar overflow+radius.
      Sem o translateZ(0), o card só vai para GPU no hover (quando o transform
@@ -789,8 +788,7 @@ body::after {
   background:
     radial-gradient(circle at var(--local-x, 64%) var(--local-y, 24%), oklch(100% 0 0 / .16), transparent 24%),
     linear-gradient(130deg, oklch(100% 0 0 / .16), transparent 18% 78%, oklch(100% 0 0 / .08));
-  opacity: .42;
-  mix-blend-mode: screen;
+  opacity: .28;
 }
 .card.wide {
   grid-column: 1 / 6;
