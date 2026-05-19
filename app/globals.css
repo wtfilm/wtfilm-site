@@ -757,7 +757,9 @@ body::after {
   min-height: 0;
   height: 100%;
   position: relative;
-  overflow: hidden;
+  /* overflow: hidden removido — thumbnail clipada pelo .card-thumb-wrap,
+     ::before/::after clipados pelo border-radius: inherit.
+     Sem overflow:hidden o outline e box-shadow de focus ficam livres. */
   border: 1.5px solid var(--border);
   border-radius: 22px;
   background: var(--surface);
@@ -771,10 +773,8 @@ body::after {
   cursor: pointer;
 }
 .card:focus-visible {
-  outline: none; /* outline é clipado pelo overflow:hidden — usa box-shadow */
-  box-shadow:
-    0 0 0 2px var(--bg),
-    0 0 0 4px color-mix(in oklch, var(--card-accent, var(--accent)) 74%, white);
+  outline: 2px solid color-mix(in oklch, var(--card-accent, var(--accent)) 74%, white);
+  outline-offset: 4px;
 }
 .card::after, .glass::after, .about-visual::before {
   content: "";
