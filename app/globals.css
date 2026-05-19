@@ -763,7 +763,10 @@ body::after {
   background: var(--surface);
   background-clip: padding-box;
   isolation: isolate;
-  transform: translateZ(0);
+  /* translateZ(0) removido: com ele o card fica SEMPRE numa compositing layer,
+     o que neutraliza o isolation:isolate e faz o Safari não aplicar overflow+radius.
+     Sem o translateZ(0), o card só vai para GPU no hover (quando o transform
+     de translateY/scale é aplicado), onde a thumbnail já fica na mesma layer. */
   transition:
     transform .42s cubic-bezier(.2,.8,.2,1),
     box-shadow .42s cubic-bezier(.2,.8,.2,1),
@@ -898,6 +901,7 @@ body::after {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: inherit; /* segurança extra: imagem já tem as quinas arredondadas */
   z-index: 0;
   opacity: .72;
   transition: opacity .4s;
