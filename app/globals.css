@@ -889,14 +889,18 @@ body::after {
 }
 .card:hover::before { transform: scale(1.035); filter: saturate(1.18) contrast(1.08) brightness(1.08); }
 /* Thumbnail de card (Sanity ou fallback Vimeo) */
-/* Wrapper que clipa a thumbnail no Safari sem efeito colateral na borda do card */
+/* Wrapper clipa a thumbnail — o scale fica no wrapper, não na img.
+   Assim a thumbnail nunca vira compositing layer separada no Safari,
+   evitando o bleeding fora do border-radius. */
 .card-thumb-wrap {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  border-radius: 22px; /* idêntico ao .card */
+  border-radius: 22px;
   z-index: 0;
+  transition: transform .45s ease;
 }
+.card:hover .card-thumb-wrap { transform: scale(1.035); }
 .card-thumb {
   position: absolute;
   inset: 0;
@@ -904,9 +908,9 @@ body::after {
   height: 100%;
   object-fit: cover;
   opacity: .72;
-  transition: opacity .4s, transform .45s ease;
+  transition: opacity .4s;
 }
-.card:hover .card-thumb { opacity: .88; transform: scale(1.035); }
+.card:hover .card-thumb { opacity: .88; }
 .card-content {
   position: absolute;
   inset: auto 0 0;
