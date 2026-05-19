@@ -892,6 +892,7 @@ body::after {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: inherit; /* impede bleeding fora do card ao criar compositing layer */
   z-index: 0;
   opacity: .72;
   transition: opacity .4s, transform .45s ease;
@@ -905,14 +906,13 @@ body::after {
 }
 .card h3 {
   margin: 9px 0 6px;
-  font-size: clamp(24px, 2.3vw, 42px);
+  font-size: clamp(14px, 2.3vw, 42px); /* JS ajusta por card via data-fit-size */
   line-height: 1;
   letter-spacing: -.035em;
-  padding-right: 48px; /* espaço para a seta → */
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
+  padding-right: 52px; /* espaço para a seta → */
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis; /* fallback antes do JS rodar */
 }
 .card-meta { color: var(--muted); font-size: 12px; }
 .card .arrow {

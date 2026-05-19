@@ -640,6 +640,53 @@ export default function WtfilmScripts() {
       })
     }
 
+    // ── Auto-fit: encolhe o font-size do título até caber em 1 linha ───────
+    function initFitCardTitles() {
+      const FONT_MAX = 42
+      const FONT_MIN = 13
+
+      function fitOne(h3: HTMLElement) {
+        const content = h3.closest<HTMLElement>('.card-content')
+        if (!content) return
+        // Largura disponível (descontando o espaço da seta)
+        const avail = content.clientWidth - 56
+        if (avail <= 0) return
+
+        // Reseta para máximo e testa com binary search
+        let lo = FONT_MIN
+        let hi = FONT_MAX
+        h3.style.fontSize = hi + 'px'
+
+        // Se já couber no máximo, não faz nada
+        if (h3.scrollWidth <= avail) {
+          h3.style.fontSize = ''
+          return
+        }
+
+        while (hi - lo > 0.4) {
+          const mid = (lo + hi) / 2
+          h3.style.fontSize = mid + 'px'
+          if (h3.scrollWidth <= avail) lo = mid
+          else hi = mid
+        }
+        h3.style.fontSize = Math.floor(lo) + 'px'
+      }
+
+      const titles = Array.from(document.querySelectorAll<HTMLElement>('.card h3'))
+      if (titles.length === 0) return
+
+      // Primeira passagem após o layout estabilizar
+      requestAnimationFrame(() => titles.forEach(fitOne))
+
+      // Re-ajusta quando os cards mudam de tamanho (resize de janela, filtros, etc.)
+      const ro = new ResizeObserver(() => titles.forEach(fitOne))
+      titles.forEach(h3 => {
+        const card = h3.closest<HTMLElement>('.card')
+        if (card) ro.observe(card)
+      })
+      sig.addEventListener('abort', () => ro.disconnect())
+    }
+
     // Ativa classe works-body na página de trabalhos para o rail horizontal
     const isWorksPage = pathname === '/trabalhos'
     if (isWorksPage) document.body.classList.add('works-body')
@@ -649,6 +696,7 @@ export default function WtfilmScripts() {
     initMobileMenu()
     initFilters()
     initWorkCardPlayers()
+    initFitCardTitles()
     initContactForm()
     initCinematicMouse()
     initHomeSequence()
