@@ -332,7 +332,26 @@ export default function WtfilmScripts() {
           // ── Modo vídeo (player padrão) ───────────────────────────────────
           const vimeoId = card.dataset.vimeoId || '699221144'
           const vimeoHash = card.dataset.vimeoHash || '41566b7914'
-          if (titleNode) titleNode.textContent = title
+          if (titleNode) {
+            titleNode.textContent = title
+            // Auto-fit: encolhe font-size até caber em 1 linha
+            requestAnimationFrame(() => {
+              const MAX = 86, MIN = 16
+              titleNode.style.fontSize = MAX + 'px'
+              if (titleNode.scrollWidth > titleNode.offsetWidth) {
+                let lo = MIN, hi = MAX
+                while (hi - lo > 0.5) {
+                  const mid = (lo + hi) / 2
+                  titleNode.style.fontSize = mid + 'px'
+                  if (titleNode.scrollWidth <= titleNode.offsetWidth) lo = mid
+                  else hi = mid
+                }
+                titleNode.style.fontSize = Math.floor(lo) + 'px'
+              } else {
+                titleNode.style.removeProperty('font-size')
+              }
+            })
+          }
           if (categoryNode) categoryNode.textContent = `${labels[category] || 'Projeto'} · ${meta}`
           const descText = card.dataset.description || descriptions[category] || 'Projeto audiovisual wtfilm.'
           if (descriptionNode) descriptionNode.innerHTML = `<p>${descText}</p>`

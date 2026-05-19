@@ -29,13 +29,13 @@ export const projetoSchema = defineType({
       group: 'card',
     }),
     defineField({
-      name: 'kicker', title: 'Kicker', type: 'string',
+      name: 'kicker', title: 'Tipo de Projeto', type: 'string',
       description: 'Texto pequeno acima do título no card. Ex: "Campanha", "Videoclipe".',
       group: 'card',
     }),
     defineField({
-      name: 'meta', title: 'Meta', type: 'string',
-      description: 'Linha de contexto no card. Ex: "Natura · filme principal".',
+      name: 'meta', title: 'Cliente (card)', type: 'string',
+      description: 'Linha de cliente/contexto no card. Ex: "Natura · filme principal".',
       group: 'card',
     }),
     defineField({
