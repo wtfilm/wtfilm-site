@@ -197,15 +197,17 @@ export default async function TrabalhosPage() {
               data-vimeo-hash={w.vimeoHash ?? ''}
               data-description={w.descricaoCard ?? ''}
               data-moodboard={w.moodboardJson ?? ''}
-              style={{
-                '--card-glow': w.glow,
-                '--card-accent': w.accent,
-                ...(w.thumbUrl ? {
-                  '--thumb-url': `url("${w.thumbUrl}")`,
-                  '--thumb-pos': w.thumbPosition ?? 'center',
-                } : {}),
-              } as React.CSSProperties}
+              style={{ '--card-glow': w.glow, '--card-accent': w.accent } as React.CSSProperties}
             >
+              {w.thumbUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  className="card-thumb"
+                  src={w.thumbUrl}
+                  alt={w.title}
+                  style={w.thumbPosition ? { objectPosition: w.thumbPosition } : undefined}
+                />
+              )}
               <div className="card-content">
                 <span className="kicker">{w.kicker}</span>
                 <h3>{w.title}</h3>
