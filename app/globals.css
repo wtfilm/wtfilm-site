@@ -854,8 +854,7 @@ body::after {
     var(--card-image, url("/assets/generated/wtfilm-campaigns.png"));
   background-size: cover;
   background-position: center;
-  filter: saturate(1.1) contrast(1.04);
-  transition: transform .7s ease, filter .7s ease;
+  transition: transform .7s ease;
 }
 .card[data-category="campanhas"] {
   --card-image: url("/assets/generated/wtfilm-campaigns.png");
@@ -890,7 +889,7 @@ body::after {
     0 0 34px color-mix(in oklch, var(--card-accent, var(--accent)) 28%, transparent),
     inset 0 1px 0 oklch(100% 0 0 / .16);
 }
-.card:hover::before { transform: scale(1.035); filter: saturate(1.18) contrast(1.08) brightness(1.08); }
+.card:hover::before { transform: scale(1.035); }
 /* Thumbnail de card (Sanity ou fallback Vimeo) */
 /* Thumbnail — sem transform próprio: fica na mesma compositing layer do card.
    O card já tem overflow:hidden + border-radius que clipa corretamente elementos
@@ -901,7 +900,8 @@ body::after {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: inherit; /* segurança extra: imagem já tem as quinas arredondadas */
+  border-radius: inherit;
+  clip-path: inset(0 round 22px); /* clipa no estágio de compositing — funciona no Safari mesmo com GPU layer separada */
   z-index: 0;
   opacity: .72;
   transition: opacity .4s;
