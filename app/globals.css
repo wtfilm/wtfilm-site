@@ -889,26 +889,16 @@ body::after {
 }
 .card:hover::before { transform: scale(1.035); filter: saturate(1.18) contrast(1.08) brightness(1.08); }
 /* Thumbnail de card (Sanity ou fallback Vimeo) */
-/* Wrapper clipa a thumbnail — o scale fica no wrapper, não na img.
-   Assim a thumbnail nunca vira compositing layer separada no Safari,
-   evitando o bleeding fora do border-radius. */
-.card-thumb-wrap {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  /* clip-path clipa o output pintado inteiro, inclusive filhos em compositing layers separadas.
-     Funciona no Safari onde overflow:hidden+border-radius falha com elementos animados. */
-  -webkit-clip-path: inset(0 round 22px);
-  clip-path: inset(0 round 22px);
-  transition: transform .45s ease;
-}
-.card:hover .card-thumb-wrap { transform: scale(1.035); }
+/* Thumbnail — sem transform próprio: fica na mesma compositing layer do card.
+   O card já tem overflow:hidden + border-radius que clipa corretamente elementos
+   na mesma layer. O zoom do hover vem do scale(1.012) do próprio card. */
 .card-thumb {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  z-index: 0;
   opacity: .72;
   transition: opacity .4s;
 }
