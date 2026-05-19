@@ -642,28 +642,29 @@ export default function WtfilmScripts() {
 
     // ── Auto-fit: encolhe o font-size do título até caber em 1 linha ───────
     function initFitCardTitles() {
-      const FONT_MAX = 42
-      const FONT_MIN = 13
+      const MAX = 42, MIN = 13
 
       function fitOne(h3: HTMLElement) {
-        const content = h3.closest<HTMLElement>('.card-content')
-        if (!content) return
-        // Largura disponível (descontando o espaço da seta)
-        const avail = content.clientWidth - 56
-        if (avail <= 0) return
+        // Precisa estar no DOM renderizado para medir
+        const card = h3.closest<HTMLElement>('.card')
+        if (!card || card.offsetWidth === 0) return
 
-        // Reseta para máximo e testa com binary search
-        let lo = FONT_MIN
-        let hi = FONT_MAX
-        h3.style.fontSize = hi + 'px'
+        // Largura disponível = largura do card menos padding horizontal (≈52px) e seta (44px)
+        const padH = parseFloat(getComputedStyle(h3.parentElement!).paddingLeft || '24') * 2
+        const avail = card.offsetWidth - padH - 44
+        if (avail < 30) return
 
-        // Se já couber no máximo, não faz nada
+        // Testa no tamanho máximo primeiro
+        h3.style.fontSize = MAX + 'px'
         if (h3.scrollWidth <= avail) {
-          h3.style.fontSize = ''
+          // Cabe no máximo — deixa o CSS clamp decidir
+          h3.style.removeProperty('font-size')
           return
         }
 
-        while (hi - lo > 0.4) {
+        // Binary search: maior tamanho que cabe em 1 linha
+        let lo = MIN, hi = MAX
+        while (hi - lo > 0.5) {
           const mid = (lo + hi) / 2
           h3.style.fontSize = mid + 'px'
           if (h3.scrollWidth <= avail) lo = mid
@@ -673,13 +674,18 @@ export default function WtfilmScripts() {
       }
 
       const titles = Array.from(document.querySelectorAll<HTMLElement>('.card h3'))
-      if (titles.length === 0) return
+      if (!titles.length) return
 
-      // Primeira passagem após o layout estabilizar
-      requestAnimationFrame(() => titles.forEach(fitOne))
+      const run = () => titles.forEach(fitOne)
 
-      // Re-ajusta quando os cards mudam de tamanho (resize de janela, filtros, etc.)
-      const ro = new ResizeObserver(() => titles.forEach(fitOne))
+      // 3 passagens em momentos diferentes para garantir que o layout esteja pronto
+      // (hydration SSR, fontes, imagens podem atrasar o layout)
+      requestAnimationFrame(run)
+      window.setTimeout(run, 120)
+      window.setTimeout(run, 500)
+
+      // Re-ajusta quando os cards redimensionam (filtros, resize de janela, mobile)
+      const ro = new ResizeObserver(run)
       titles.forEach(h3 => {
         const card = h3.closest<HTMLElement>('.card')
         if (card) ro.observe(card)
