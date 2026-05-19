@@ -763,7 +763,8 @@ body::after {
   background: var(--surface);
   background-clip: padding-box;
   isolation: isolate;
-  transform: translateZ(0); /* força GPU layer → faz overflow:hidden clippar corretamente */
+  transform: translateZ(0); /* força GPU layer → overflow:hidden clippa corretamente */
+  -webkit-mask-image: linear-gradient(#fff, #fff); /* fix Safari: clipa filhos em compositing layers separadas */
   transition:
     transform .42s cubic-bezier(.2,.8,.2,1),
     box-shadow .42s cubic-bezier(.2,.8,.2,1),
