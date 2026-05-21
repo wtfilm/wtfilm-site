@@ -1199,8 +1199,9 @@ body::after {
   margin-top: 8px;
   color: var(--fg);
   font-size: clamp(16px, 4.5vw, 86px); /* JS ajusta para caber em 1 linha */
-  line-height: 1.05;
+  line-height: 1;
   letter-spacing: -.045em;
+  padding-bottom: 0.15em;
   white-space: nowrap;
   overflow: hidden;
 }
