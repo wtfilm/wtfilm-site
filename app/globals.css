@@ -1711,15 +1711,17 @@ body::after {
 .behance-block-img-full {
   position: relative;
   margin: 0;
+}
+.behance-img-wrap {
   overflow: hidden;
   border-radius: 4px;
 }
-.behance-block-img-full img {
+.behance-img-wrap img {
   width: 100%;
   display: block;
   transition: transform 1.2s cubic-bezier(.2,.8,.2,1), filter .8s ease;
 }
-.behance-block-img-full:hover img {
+.behance-block-img-full:hover .behance-img-wrap img {
   transform: scale(1.05);
   filter: saturate(1.14) contrast(1.05);
 }

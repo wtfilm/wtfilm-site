@@ -206,7 +206,7 @@ export default function WtfilmScripts() {
               }
             }
             html += `<figure class="behance-block-img-full">
-              ${img(b.url, b.caption || '')}
+              <div class="behance-img-wrap">${img(b.url, b.caption || '')}</div>
               ${b.caption ? `<figcaption class="behance-block-caption">${b.caption}</figcaption>` : ''}
             </figure>`
           } else if (b._type === 'blocoTexto') {
