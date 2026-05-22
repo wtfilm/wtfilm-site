@@ -49,15 +49,19 @@ export default async function HomePage() {
     vimeoHash: sanity?.heroVimeoHash ?? fallbackHero.heroVimeoHash,
   }
 
-  const laminas = (sanity?.laminas?.length ? sanity.laminas : fallbackLaminas).map(
-    (l: typeof fallbackLaminas[0], i: number) => ({
-      ...l,
-      slug:      l.categoria,
-      step:      i,
-      className: categoryMap[l.categoria]?.className ?? l.categoria,
-      number:    categoryMap[l.categoria]?.number    ?? String(i + 1).padStart(2, '0'),
-    })
-  )
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const laminas = (sanity?.laminas?.length ? sanity.laminas : fallbackLaminas).map((l: any, i: number) => ({
+    categoria:  l.categoria  ?? '',
+    titulo:     l.titulo     ?? '',
+    texto:      l.texto      ?? '',
+    vimeoId:    l.vimeoId    ?? '',
+    vimeoHash:  l.vimeoHash  ?? '',
+    vimeoStart: l.vimeoStart ?? 0,
+    slug:       l.categoria  ?? '',
+    step:       i,
+    className:  categoryMap[l.categoria]?.className ?? (l.categoria ?? ''),
+    number:     categoryMap[l.categoria]?.number    ?? String(i + 1).padStart(2, '0'),
+  }))
 
   const heroSrc = `https://player.vimeo.com/video/${hero.vimeoId}?h=${hero.vimeoHash}&badge=0&autopause=0&player_id=hero-reel&app_id=58479&autoplay=1&muted=1&loop=1&background=1`
 
