@@ -4,12 +4,7 @@ import { homePageQuery } from '../../sanity/lib/queries'
 
 export const revalidate = 60
 
-export async function generateMetadata() {
-  const sanity = await client.fetch(homePageQuery).catch(() => null)
-  const titulo = sanity?.heroTitulo ?? fallbackHero.heroTitulo
-  const tituloLinha = String(titulo).split('\n').join(' ')
-  return { title: `${tituloLinha}. · wtfilm` }
-}
+export const metadata = { title: 'wtfilm. - Site Oficial' }
 
 type Lamina = {
   categoria: string
