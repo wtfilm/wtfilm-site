@@ -4,6 +4,19 @@ import { homePageQuery } from '../../sanity/lib/queries'
 
 export const revalidate = 60
 
+type Lamina = {
+  categoria: string
+  titulo: string
+  texto: string
+  vimeoId: string
+  vimeoHash: string
+  vimeoStart: number
+  slug: string
+  step: number
+  className: string
+  number: string
+}
+
 // ── Mapeamento de categoria → className e número ──────────────────────────
 const categoryMap: Record<string, { className: string; number: string }> = {
   campanhas:   { className: 'campaign',  number: '01' },
@@ -50,7 +63,7 @@ export default async function HomePage() {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const laminas = (sanity?.laminas?.length ? sanity.laminas : fallbackLaminas).map((l: any, i: number) => ({
+  const laminas: Lamina[] = (sanity?.laminas?.length ? sanity.laminas : fallbackLaminas).map((l: any, i: number) => ({
     categoria:  l.categoria  ?? '',
     titulo:     l.titulo     ?? '',
     texto:      l.texto      ?? '',
