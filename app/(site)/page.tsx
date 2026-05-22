@@ -151,7 +151,7 @@ export default async function HomePage() {
           <div className="hero-content" data-parallax=".42">
             <div className="kicker">{hero.kicker}</div>
             <h1 className="mega-title">
-              {hero.titulo.split('\n').map((linha, i, arr) => (
+              {String(hero.titulo).split('\n').map((linha: string, i: number, arr: string[]) => (
                 <span key={i}>{linha}{i < arr.length - 1 && <br />}</span>
               ))}<span className="dot">.</span>
             </h1>
