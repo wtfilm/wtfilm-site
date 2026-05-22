@@ -10,7 +10,7 @@ export const paginaHomeSchema = defineType({
     defineField({ name: 'heroVimeoInicio', title: 'Hero: Início do loop (segundos)', type: 'number', description: 'Ex: 88 para começar em 1m28s. Deixe vazio para início do vídeo.' }),
     defineField({ name: 'heroVimeoFim', title: 'Hero: Fim do loop (segundos)', type: 'number', description: 'Ex: 120 para parar em 2min. Deixe vazio para loop completo.' }),
     defineField({ name: 'heroKicker', title: 'Hero: Kicker', type: 'string', initialValue: 'Produzimos filmes que conectam.' }),
-    defineField({ name: 'heroTitulo', title: 'Hero: Título', type: 'string', initialValue: 'Histórias que não passam' }),
+    defineField({ name: 'heroTitulo', title: 'Hero: Título (uma linha por quebra)', type: 'text', rows: 3, initialValue: 'Histórias\nque não\npassam', description: 'Cada linha vira uma linha no site. Use Enter para quebrar.' }),
     defineField({ name: 'heroCtaLabel', title: 'Hero: Texto do botão de reel', type: 'string', initialValue: 'Assista ao reel' }),
     defineField({ name: 'heroReelVimeoId', title: 'Reel: ID do Vimeo (vídeo que abre ao clicar no botão)', type: 'string' }),
     defineField({ name: 'heroReelVimeoHash', title: 'Reel: Hash do Vimeo (se privado)', type: 'string' }),
