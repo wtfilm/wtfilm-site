@@ -1,9 +1,11 @@
 import { defineType, defineField } from 'sanity'
+import { orderRankField, orderRankOrdering } from '@sanity/orderable-document-list'
 
 export const projetoSchema = defineType({
   name: 'projeto',
   title: 'Projeto',
   type: 'document',
+  orderings: [orderRankOrdering],
 
   // ── Grupos (abas no Studio) ───────────────────────────────────────────
   groups: [
@@ -14,6 +16,7 @@ export const projetoSchema = defineType({
   ],
 
   fields: [
+    orderRankField({ type: 'string', hidden: true }),
 
     // ── ABA: Card ────────────────────────────────────────────────────────
     defineField({

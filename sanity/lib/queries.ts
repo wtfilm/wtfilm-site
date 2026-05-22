@@ -2,7 +2,7 @@ import { groq } from 'next-sanity'
 
 // Todos os projetos para a página /trabalhos
 export const allProjectsQuery = groq`
-  *[_type == "projeto"] | order(ordem asc) {
+  *[_type == "projeto"] | order(orderRank asc) {
     _id,
     titulo,
     slug,

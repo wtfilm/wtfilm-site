@@ -1,5 +1,6 @@
 import { defineConfig } from 'sanity'
 import { structureTool } from 'sanity/structure'
+import { orderableDocumentListDeskItem } from '@sanity/orderable-document-list'
 import { schemaTypes } from './schemas'
 
 export default defineConfig({
@@ -10,11 +11,11 @@ export default defineConfig({
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
   plugins: [
     structureTool({
-      structure: (S) =>
+      structure: (S, context) =>
         S.list()
           .title('wtfilm')
           .items([
-            S.documentTypeListItem('projeto').title('Projetos'),
+            orderableDocumentListDeskItem({ type: 'projeto', title: 'Projetos', S, context }),
             S.divider(),
             S.listItem().title('Página: Home').child(
               S.document().schemaType('paginaHome').documentId('paginaHome')
