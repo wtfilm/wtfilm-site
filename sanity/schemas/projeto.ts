@@ -115,6 +115,12 @@ export const projetoSchema = defineType({
       group: 'video',
     }),
     defineField({
+      name: 'descricaoCard', title: 'Descrição (painel "informações")', type: 'text',
+      rows: 4,
+      description: 'Texto que aparece no painel de informações ao abrir o projeto no site.',
+      group: 'video',
+    }),
+    defineField({
       name: 'duracao', title: 'Duração do vídeo', type: 'string',
       description: 'Ex: "02:18"',
       group: 'video',
@@ -179,17 +185,10 @@ export const projetoSchema = defineType({
     }),
 
     // ── ABA: Informações ─────────────────────────────────────────────────
-    defineField({
-      name: 'descricaoCard', title: 'Descrição (painel "informações")', type: 'text',
-      rows: 4,
-      description: 'Texto que aparece no painel de informações ao abrir o projeto no site.',
-      group: 'infos',
-    }),
     defineField({ name: 'cliente',  title: 'Cliente',           type: 'string', group: 'infos' }),
     defineField({ name: 'agencia',  title: 'Agência',           type: 'string', group: 'infos' }),
     defineField({ name: 'direcao',  title: 'Direção',           type: 'string', initialValue: 'wtfilm', group: 'infos' }),
     defineField({ name: 'ano',      title: 'Ano',               type: 'number', group: 'infos' }),
-    defineField({ name: 'servicos', title: 'Serviços / Formato', type: 'string', description: 'Ex: "Filme, captação, pós"', group: 'infos' }),
     defineField({ name: 'lead',     title: 'Lead (texto intro do moodboard)', type: 'text', rows: 3, group: 'infos' }),
   ],
 
