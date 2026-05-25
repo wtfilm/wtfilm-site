@@ -14,6 +14,7 @@ type Lamina = {
   vimeoHash: string
   vimeoStart: number
   slug: string
+  filterUrl: string
   step: number
   className: string
   number: string
@@ -73,6 +74,7 @@ export default async function HomePage() {
     vimeoHash:  l.vimeoHash  ?? '',
     vimeoStart: l.vimeoStart ?? 0,
     slug:       l.categoria  ?? '',
+    filterUrl:  l.categoria ? `/trabalhos?f=${l.categoria}` : (l.ctaUrl ?? '/trabalhos'),
     step:       i,
     className:  categoryMap[l.categoria]?.className ?? (l.categoria ?? ''),
     number:     categoryMap[l.categoria]?.number    ?? String(i + 1).padStart(2, '0'),
@@ -128,13 +130,13 @@ export default async function HomePage() {
               <div className="chapter-info">
                 <span className="chapter-number">{ch.number}</span>
                 <h2>
-                  <Link className="chapter-title-link" href={`/trabalhos?f=${ch.slug}`}>
+                  <Link className="chapter-title-link" href={ch.filterUrl}>
                     {ch.titulo}
                   </Link>
                 </h2>
                 <Link
                   className="chapter-arrow-link"
-                  href={`/trabalhos?f=${ch.slug}`}
+                  href={ch.filterUrl}
                   aria-label={`Ver ${ch.titulo.toLowerCase()}`}
                 >
                   <svg viewBox="0 0 24 24" aria-hidden="true">
