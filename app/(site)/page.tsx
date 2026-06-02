@@ -114,7 +114,6 @@ export default async function HomePage() {
               key={ch.slug}
               className={`chapter-slide chapter ${ch.className}`}
               data-step={ch.step}
-              data-category={ch.categoria}
             >
               <div className="chapter-visual">
                 <div className="chapter-visual-video" aria-hidden="true">
