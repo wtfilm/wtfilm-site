@@ -423,6 +423,9 @@ export default function WtfilmScripts() {
         { color: 'oklch(56% 0.25 264)', glow: 'oklch(56% 0.25 264 / .34)' },
         { color: 'oklch(68% 0.20 50)', glow: 'oklch(68% 0.20 50 / .34)' },
       ]
+      // Captura o capítulo ativo — só ele recebe vars de parallax do mouse.
+      // Isso evita GPU compositing em todos os 6 slides simultaneamente.
+      let lastActiveChapter: HTMLElement | null = null
       const apply = () => {
         rafFrame = null
         const mx = (next.x / window.innerWidth) * 100
@@ -444,15 +447,32 @@ export default function WtfilmScripts() {
         root.style.setProperty('--title-y', `${dy * 16}px`)
         root.style.setProperty('--glass-x', `${dx * -28}px`)
         root.style.setProperty('--glass-y', `${dy * -18}px`)
-        root.style.setProperty('--chapter-x', `${dx * 16}px`)
-        root.style.setProperty('--chapter-y', `${dy * 10}px`)
-        root.style.setProperty('--chapter-info-x', `${dx * 38}px`)
-        root.style.setProperty('--chapter-info-y', `${dy * 26}px`)
-        root.style.setProperty('--chapter-visual-x', `${dx * -48}px`)
-        root.style.setProperty('--chapter-visual-y', `${dy * -32}px`)
         root.style.setProperty('--hero-dot-color', dot.color)
         root.style.setProperty('--hero-dot-glow', dot.glow)
         root.style.setProperty('--hero-kicker-color', dot.color)
+
+        // Aplica vars de capítulo APENAS no slide ativo, não em todos os 6
+        const activeChapter = document.querySelector<HTMLElement>('.chapter-slide.chapter.is-snap-target')
+        if (activeChapter !== lastActiveChapter) {
+          // Limpa vars do slide anterior
+          if (lastActiveChapter) {
+            lastActiveChapter.style.removeProperty('--chapter-x')
+            lastActiveChapter.style.removeProperty('--chapter-y')
+            lastActiveChapter.style.removeProperty('--chapter-info-x')
+            lastActiveChapter.style.removeProperty('--chapter-info-y')
+            lastActiveChapter.style.removeProperty('--chapter-visual-x')
+            lastActiveChapter.style.removeProperty('--chapter-visual-y')
+          }
+          lastActiveChapter = activeChapter
+        }
+        if (activeChapter) {
+          activeChapter.style.setProperty('--chapter-x', `${dx * 16}px`)
+          activeChapter.style.setProperty('--chapter-y', `${dy * 10}px`)
+          activeChapter.style.setProperty('--chapter-info-x', `${dx * 38}px`)
+          activeChapter.style.setProperty('--chapter-info-y', `${dy * 26}px`)
+          activeChapter.style.setProperty('--chapter-visual-x', `${dx * -48}px`)
+          activeChapter.style.setProperty('--chapter-visual-y', `${dy * -32}px`)
+        }
       }
       const requestApply = () => { if (!rafFrame) rafFrame = requestAnimationFrame(apply) }
       window.addEventListener('pointermove', (e) => { next = { x: e.clientX, y: e.clientY }; requestApply() }, { signal: sig })
@@ -521,9 +541,12 @@ export default function WtfilmScripts() {
           slide.classList.toggle('is-snap-target', i === idx)
         })
 
-        // Parallax: chapter-visual shifts at ~0.45x the slide scroll rate
+        // Parallax: atualiza apenas slides próximos ao atual (±1)
+        // Slides distantes ficam estáticos — zero custo de compositing
         chapterVisuals.forEach((visual, i) => {
           if (!visual) return
+          const distance = Math.abs(rawIdx - (i + 1))
+          if (distance > 1.5) return  // slide off-screen: pula
           const fraction = rawIdx - (i + 1)
           const py = -(fraction * 44)
           visual.style.setProperty('--parallax-y', `${py.toFixed(1)}px`)
@@ -608,20 +631,21 @@ export default function WtfilmScripts() {
         if (!iframe.src && iframe.dataset.src) iframe.src = iframe.dataset.src
       }
 
+      // Desktop e mobile: lazy loading via IntersectionObserver.
+      // No desktop, rootMargin generoso (100%) pré-carrega 1 slide adjacente.
+      // Isso evita carregar 6 players Vimeo autoplay ao mesmo tempo, que é
+      // a maior causa de lentidão na home (GPU + rede simultâneos).
       const isTouch = navigator.maxTouchPoints > 0
+      const margin = isTouch ? '200% 0px' : '100% 0px'
 
-      if (!isTouch) {
-        // Desktop: carrega todos imediatamente — conexão boa e sem custo de dados
-        iframes.forEach(load)
-        return
-      }
-
-      // Mobile: lazy — carrega 2 slides à frente para economizar dados
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-          if (entry.isIntersecting) load(entry.target as HTMLIFrameElement)
+          if (entry.isIntersecting) {
+            load(entry.target as HTMLIFrameElement)
+            observer.unobserve(entry.target)
+          }
         })
-      }, { root: scroller || null, rootMargin: '200% 0px' })
+      }, { root: scroller || null, rootMargin: margin })
 
       iframes.forEach(iframe => observer.observe(iframe))
     }
