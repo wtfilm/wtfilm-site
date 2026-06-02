@@ -521,6 +521,14 @@ export default function WtfilmScripts() {
           slide.classList.toggle('is-snap-target', i === idx)
         })
 
+        // Crossfade de cor de fundo por categoria
+        const activeChapter = chapters[idx - 1] as HTMLElement | undefined
+        if (isChapter && activeChapter?.dataset.category) {
+          applyRouteTone(activeChapter.dataset.category)
+        } else if (!isChapter) {
+          document.body.style.setProperty('--route-tone-opacity', '0')
+        }
+
         // Parallax: chapter-visual shifts at ~0.45x the slide scroll rate
         chapterVisuals.forEach((visual, i) => {
           if (!visual) return

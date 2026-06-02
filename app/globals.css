@@ -3075,6 +3075,56 @@ body.about-view .page::before {
 .chapter-scroller .chapter-info::after { display: none; }
 .chapter-scroller .chapter p { display: none; }
 
+/* ── Efeitos visuais de snap das lâminas ──────────────────────────────────── */
+
+/* 1. Settle zoom: vídeo começa levemente maior e estabiliza ao snapear */
+.chapter-visual-video {
+  transform: scale(1.06);
+  transition: transform 1.5s cubic-bezier(.16, 1, .3, 1);
+}
+.chapter-scroller .chapter.is-snap-target .chapter-visual-video {
+  transform: scale(1.0);
+}
+
+/* 2. Glow border na lâmina ativa */
+.chapter-scroller .chapter {
+  transition: box-shadow .7s ease;
+}
+.chapter-scroller .chapter.is-snap-target {
+  box-shadow:
+    0 0 0 1px color-mix(in oklch, var(--chapter-accent) 26%, transparent),
+    0 0 80px color-mix(in oklch, var(--chapter-accent) 11%, transparent);
+}
+
+/* 3. Número: flip vertical ao entrar */
+@keyframes chapterNumFlip {
+  0%   { opacity: 0; transform: translateY(-12px) scaleY(1.15); filter: blur(2px); }
+  100% { opacity: 1; transform: none; filter: none; }
+}
+.chapter-scroller .chapter.is-snap-target .chapter-number {
+  animation: chapterNumFlip .46s cubic-bezier(.2, .8, .2, 1) .08s both;
+}
+
+/* 4. Stagger: título entra com delay após o painel */
+.chapter-scroller .chapter-info h2 {
+  transform: translateY(20px);
+  transition: transform .54s cubic-bezier(.16, 1, .3, 1) .16s;
+}
+.chapter-scroller .chapter.is-snap-target .chapter-info h2 {
+  transform: none;
+}
+
+/* 5. Arrow link entra por último com fade */
+.chapter-scroller .chapter-info .chapter-arrow-link {
+  opacity: 0;
+  transition: opacity .38s ease .28s,
+              transform .28s cubic-bezier(.2,.8,.2,1),
+              color .28s ease, border-color .28s ease, box-shadow .28s ease;
+}
+.chapter-scroller .chapter.is-snap-target .chapter-info .chapter-arrow-link {
+  opacity: 1;
+}
+
 .chapter-scroller .chapter-number {
   display: inline-flex;
   margin: 0 0 clamp(14px, 1.8vw, 22px);
