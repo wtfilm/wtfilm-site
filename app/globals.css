@@ -3107,12 +3107,15 @@ body.about-view .page::before {
 .chapter-scroller .chapter-title-link {
   display: inline-block;
   max-width: 100%;
-  transition: color .28s ease, filter .32s ease;
+  transform-origin: left center;
+  transition: transform .32s cubic-bezier(.2,.8,.2,1), color .28s ease, filter .28s ease;
 }
 
-.chapter-scroller .chapter-title-link:hover,
+/* Hover no h2 (zona estável) → scale no link (sem flickering) */
+.chapter-scroller .chapter-info h2:hover .chapter-title-link,
 .chapter-scroller .chapter-title-link:focus-visible {
   color: var(--chapter-accent);
+  transform: scale(1.035);
   filter: drop-shadow(0 0 22px color-mix(in oklch, var(--chapter-accent) 54%, transparent));
 }
 
