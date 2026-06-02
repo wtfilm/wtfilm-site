@@ -652,6 +652,18 @@ export default function WtfilmScripts() {
       update()
     }
 
+    // ── Converte scroll vertical do mouse em horizontal no rail de trabalhos ─
+    function initHorizontalWheelScroll() {
+      const rail = document.querySelector<HTMLElement>('.works-body .grid, .works-rail')
+      if (!rail) return
+      rail.addEventListener('wheel', (e: WheelEvent) => {
+        // Se já é scroll horizontal nativo (trackpad), não interfere
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return
+        e.preventDefault()
+        rail.scrollLeft += e.deltaY * 1.2
+      }, { passive: false, signal: sig })
+    }
+
     function initPlayFeedback() {
       document.querySelectorAll<HTMLElement>('.play-link').forEach((btn) => {
         btn.addEventListener('pointerdown', () => { btn.classList.remove('clicked'); requestAnimationFrame(() => btn.classList.add('clicked')) }, { signal: sig })
@@ -721,6 +733,7 @@ export default function WtfilmScripts() {
     initHomeSequence()
     initLazyVideos()
     initPlayFeedback()
+    initHorizontalWheelScroll()
     initGlassHover()
     initVisualViewportOffset()
 

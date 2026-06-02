@@ -3107,14 +3107,13 @@ body.about-view .page::before {
 .chapter-scroller .chapter-title-link {
   display: inline-block;
   max-width: 100%;
-  transition: transform .32s cubic-bezier(.2,.8,.2,1), color .28s ease, filter .28s ease;
+  transition: color .28s ease, filter .32s ease;
 }
 
 .chapter-scroller .chapter-title-link:hover,
 .chapter-scroller .chapter-title-link:focus-visible {
   color: var(--chapter-accent);
-  transform: scale(1.035);
-  filter: drop-shadow(0 0 18px color-mix(in oklch, var(--chapter-accent) 36%, transparent));
+  filter: drop-shadow(0 0 22px color-mix(in oklch, var(--chapter-accent) 54%, transparent));
 }
 
 .chapter-scroller .chapter-arrow-link {
