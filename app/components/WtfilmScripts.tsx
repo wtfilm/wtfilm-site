@@ -579,11 +579,10 @@ export default function WtfilmScripts() {
           }, delay)
         }
 
-        // Dispara fix após scroll parar (cobre momentum scroll)
-        scroller.addEventListener('scroll', () => snapToNearest(500), { passive: true, signal: sig })
-
-        // Dispara fix logo que o dedo sai da tela (resposta mais rápida)
-        scroller.addEventListener('touchend', () => snapToNearest(120), { passive: true, signal: sig })
+        // Dispara fix 700ms após scroll parar — o CSS snap já completou a essa altura.
+        // NÃO usar touchend: a 120ms o momentum do iOS mal começou, então o
+        // snap-fix via touchend erroneamente voltava para 0 e matava o swipe.
+        scroller.addEventListener('scroll', () => snapToNearest(700), { passive: true, signal: sig })
 
         // Recalcula quando o visualViewport muda (Safari bar aparece/some)
         if (window.visualViewport) {
@@ -679,13 +678,21 @@ export default function WtfilmScripts() {
     function initHorizontalWheelScroll() {
       const rail = document.querySelector<HTMLElement>('.works-body .grid, .works-rail')
       if (!rail) return
-      // passive: true → browser pode usar compositor thread para trackpad (sem jank).
-      // Sem preventDefault: trackpad tem momentum nativo preservado.
-      // scrollLeft += ainda funciona para roda do mouse (só gera deltaY).
+      // passive: true → browser usa compositor thread (trackpad sem jank).
+      // RAF-throttle: bateia múltiplos wheel events num único frame de layout,
+      // evitando layout thrashing que causava o "leve travamento" no trackpad.
+      let rafId: number | null = null
+      let pendingDelta = 0
       rail.addEventListener('wheel', (e: WheelEvent) => {
-        // Se já é scroll horizontal nativo (trackpad diagonal), não interfere
         if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return
-        rail.scrollLeft += e.deltaY * 1.2
+        pendingDelta += e.deltaY * 1.2
+        if (!rafId) {
+          rafId = requestAnimationFrame(() => {
+            rail.scrollLeft += pendingDelta
+            pendingDelta = 0
+            rafId = null
+          })
+        }
       }, { passive: true, signal: sig })
     }
 
