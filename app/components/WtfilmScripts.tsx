@@ -736,18 +736,21 @@ export default function WtfilmScripts() {
 
       const run = () => titles.forEach(fitOne)
 
-      // 3 passagens: rAF, 120ms, 500ms — cobre SSR hydration, fontes web e imagens
-      requestAnimationFrame(run)
-      window.setTimeout(run, 120)
-      window.setTimeout(run, 500)
+      // Sem rAF imediato: o binary search força dezenas de reflows (scrollWidth/offsetWidth
+      // por card) e bloqueia o compositor no primeiro frame, causando jank no primeiro scroll.
+      // Empurrar para 400ms garante que a página já pintou e o usuário ainda não scrollou.
+      window.setTimeout(run, 400)
+      window.setTimeout(run, 900)  // segunda passagem para fontes web lentas
 
-      // Re-ajusta quando os cards redimensionam (filtros, resize, mobile)
-      const ro = new ResizeObserver(run)
-      titles.forEach(h3 => {
-        const card = h3.closest<HTMLElement>('.card')
-        if (card) ro.observe(card)
-      })
-      sig.addEventListener('abort', () => ro.disconnect())
+      // ResizeObserver: só sobe após o primeiro ajuste para não disparar durante o layout inicial
+      window.setTimeout(() => {
+        const ro = new ResizeObserver(run)
+        titles.forEach(h3 => {
+          const card = h3.closest<HTMLElement>('.card')
+          if (card) ro.observe(card)
+        })
+        sig.addEventListener('abort', () => ro.disconnect())
+      }, 1000)
     }
 
     // Ativa classe works-body na página de trabalhos para o rail horizontal
