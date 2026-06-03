@@ -632,11 +632,10 @@ export default function WtfilmScripts() {
       }
 
       // Desktop e mobile: lazy loading via IntersectionObserver.
-      // No desktop, rootMargin generoso (100%) pré-carrega 1 slide adjacente.
-      // Isso evita carregar 6 players Vimeo autoplay ao mesmo tempo, que é
-      // a maior causa de lentidão na home (GPU + rede simultâneos).
+      // 200% pré-carrega 2 slides adjacentes em ambos os casos, garantindo
+      // que o vídeo já esteja rodando quando o usuário chega ao slide.
       const isTouch = navigator.maxTouchPoints > 0
-      const margin = isTouch ? '200% 0px' : '100% 0px'
+      const margin = isTouch ? '200% 0px' : '200% 0px'
 
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -680,12 +679,14 @@ export default function WtfilmScripts() {
     function initHorizontalWheelScroll() {
       const rail = document.querySelector<HTMLElement>('.works-body .grid, .works-rail')
       if (!rail) return
+      // passive: true → browser pode usar compositor thread para trackpad (sem jank).
+      // Sem preventDefault: trackpad tem momentum nativo preservado.
+      // scrollLeft += ainda funciona para roda do mouse (só gera deltaY).
       rail.addEventListener('wheel', (e: WheelEvent) => {
-        // Se já é scroll horizontal nativo (trackpad), não interfere
+        // Se já é scroll horizontal nativo (trackpad diagonal), não interfere
         if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return
-        e.preventDefault()
         rail.scrollLeft += e.deltaY * 1.2
-      }, { passive: false, signal: sig })
+      }, { passive: true, signal: sig })
     }
 
     function initPlayFeedback() {

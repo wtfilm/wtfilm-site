@@ -2966,12 +2966,17 @@ body.about-view .page::before {
 @media (max-width: 760px) {
   .ch-glass { display: none; }
 
-  /* Animação de entrada do card de info: só opacity (sem transform) — mais leve */
+  /* Animação do card de info no mobile: só opacity (sem transform) — mais leve.
+     Saída rápida (.18s) para que a info suma antes do próximo slide aparecer.
+     Entrada com delay (.14s) para esperar o snap completar antes de revelar. */
   .chapter-scroller .chapter-info {
     transform: none;
-    transition: opacity .38s ease;
+    transition: opacity .18s ease;        /* saída: rápida e limpa */
   }
-  .chapter-scroller .chapter.is-snap-target .chapter-info { transform: none; }
+  .chapter-scroller .chapter.is-snap-target .chapter-info {
+    transform: none;
+    transition: opacity .55s cubic-bezier(.2,.8,.2,1) .14s; /* entrada: suave com delay */
+  }
 
   /* chapter-visual sem will-change e sem transition no mobile */
   .chapter-scroller .chapter-visual {
@@ -3762,9 +3767,12 @@ body.about-view .page::before {
     padding: 14px 16px;
     border-radius: 18px;
     transform: none;
-    transition: opacity .3s ease;
+    transition: opacity .18s ease;                                /* saída rápida */
   }
-  .chapter-scroller .chapter.is-snap-target .chapter-info { transform: none; }
+  .chapter-scroller .chapter.is-snap-target .chapter-info {
+    transform: none;
+    transition: opacity .5s cubic-bezier(.2,.8,.2,1) .14s;       /* entrada suave */
+  }
   .chapter-scroller .chapter-number { font-size: 12px; margin-bottom: 6px; }
   .chapter-scroller .chapter h2,
   .chapter-scroller .lab h2,
