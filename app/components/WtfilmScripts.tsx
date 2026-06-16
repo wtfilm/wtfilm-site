@@ -11,6 +11,23 @@ export default function WtfilmScripts() {
     const ac = new AbortController()
     const sig = ac.signal
 
+    // ── Utilitário compartilhado: binary search de font-size ──────────────────
+    // Aumenta ao max, e se ainda não cabe faz busca binária até encontrar o
+    // maior tamanho onde scrollWidth ≤ offsetWidth (sem overflow de 1 linha).
+    // Usado tanto no openOverlay (max=86) quanto em initFitCardTitles (max=42).
+    const fitText = (el: HTMLElement, min: number, max: number) => {
+      el.style.fontSize = max + 'px'
+      if (el.scrollWidth <= el.offsetWidth) { el.style.removeProperty('font-size'); return }
+      let lo = min, hi = max
+      while (hi - lo > 0.5) {
+        const mid = (lo + hi) / 2
+        el.style.fontSize = mid + 'px'
+        if (el.scrollWidth <= el.offsetWidth) lo = mid
+        else hi = mid
+      }
+      el.style.fontSize = Math.floor(lo) + 'px'
+    }
+
     const categoryToneMap: Record<string, string> = {
       campanhas: 'oklch(61% 0.25 18 / .28)',
       ia: 'oklch(61% 0.25 18 / .26)',
@@ -55,9 +72,10 @@ export default function WtfilmScripts() {
       loader.innerHTML = `<div class="loader-core"><img class="loader-logo" src="/logo.png" alt=""><div class="loader-track"></div></div>`
       document.body.prepend(loader)
 
+      let removeTimer: number | null = null
       const finish = () => {
         loader.classList.add('is-done')
-        window.setTimeout(() => loader.remove(), 920)
+        removeTimer = window.setTimeout(() => loader.remove(), 920)
       }
 
       const heroIframe = document.querySelector<HTMLIFrameElement>('.hero-video iframe')
@@ -67,13 +85,24 @@ export default function WtfilmScripts() {
       let minElapsed = false
       let videoReady = false
       const tryFinish = () => { if (minElapsed && videoReady) finish() }
-      window.setTimeout(() => { minElapsed = true; tryFinish() }, 700)
+      const minTimer: number = window.setTimeout(() => { minElapsed = true; tryFinish() }, 700)
 
       // Safety: máximo 6s de espera (rede muito lenta)
-      const safety = window.setTimeout(() => { videoReady = true; minElapsed = true; finish() }, 6000)
+      let safety: number | null = window.setTimeout(
+        () => { videoReady = true; minElapsed = true; finish() }, 6000
+      )
+
+      // Cancela todos os timers pendentes se o componente desmontar
+      sig.addEventListener('abort', () => {
+        clearTimeout(minTimer)
+        if (safety) clearTimeout(safety)
+        if (removeTimer) clearTimeout(removeTimer)
+      })
 
       // Espera o Vimeo Player SDK carregar (está no <script> abaixo no DOM)
+      let pollTimer: number | null = null
       const waitForVimeo = () => {
+        if (sig.aborted) return
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const V = (window as any).Vimeo
         if (V?.Player) {
@@ -81,20 +110,21 @@ export default function WtfilmScripts() {
             const player = new V.Player(heroIframe)
             // 'loaded' dispara quando o vídeo está pronto para reproduzir
             player.on('loaded', () => {
-              clearTimeout(safety)
+              if (safety) { clearTimeout(safety); safety = null }
               videoReady = true
               tryFinish()
             })
           } catch {
             // Fallback se o Player der erro (ex: iframe cross-origin bloqueado)
-            clearTimeout(safety)
+            if (safety) { clearTimeout(safety); safety = null }
             window.setTimeout(finish, 600)
           }
         } else {
           // SDK ainda carregando, tenta novamente em 80ms
-          window.setTimeout(waitForVimeo, 80)
+          pollTimer = window.setTimeout(waitForVimeo, 80)
         }
       }
+      sig.addEventListener('abort', () => { if (pollTimer) clearTimeout(pollTimer) })
       waitForVimeo()
     }
 
@@ -142,7 +172,7 @@ export default function WtfilmScripts() {
           if (grid) grid.scrollTo({ left: 0, behavior: 'smooth' })
         }
 
-        buttons.forEach((btn) => btn.addEventListener('click', () => applyFilter(btn.dataset.filter!), { signal: sig }))
+        buttons.forEach((btn) => btn.addEventListener('click', () => applyFilter(btn.dataset.filter ?? 'todos'), { signal: sig }))
         if (requested && [...buttons].some((b) => b.dataset.filter === requested)) applyFilter(requested)
       })
     }
@@ -334,23 +364,8 @@ export default function WtfilmScripts() {
           const vimeoHash = card.dataset.vimeoHash || '41566b7914'
           if (titleNode) {
             titleNode.textContent = title
-            // Auto-fit: encolhe font-size até caber em 1 linha
-            requestAnimationFrame(() => {
-              const MAX = 86, MIN = 16
-              titleNode.style.fontSize = MAX + 'px'
-              if (titleNode.scrollWidth > titleNode.offsetWidth) {
-                let lo = MIN, hi = MAX
-                while (hi - lo > 0.5) {
-                  const mid = (lo + hi) / 2
-                  titleNode.style.fontSize = mid + 'px'
-                  if (titleNode.scrollWidth <= titleNode.offsetWidth) lo = mid
-                  else hi = mid
-                }
-                titleNode.style.fontSize = Math.floor(lo) + 'px'
-              } else {
-                titleNode.style.removeProperty('font-size')
-              }
-            })
+            // Auto-fit via helper compartilhado fitText (binary search)
+            requestAnimationFrame(() => fitText(titleNode, 16, 86))
           }
           if (categoryNode) categoryNode.textContent = `${labels[category] || 'Projeto'} · ${meta}`
           const descText = card.dataset.description || descriptions[category] || 'Projeto audiovisual wtfilm.'
@@ -408,6 +423,10 @@ export default function WtfilmScripts() {
       }, { signal: sig })
     }
 
+    // Ref compartilhada entre initCinematicMouse e initHomeSequence:
+    // evita querySelector no RAF do mouse (que forçava recalc de estilo por frame)
+    let sharedActiveChapter: HTMLElement | null = null
+
     function initCinematicMouse() {
       const root = document.querySelector<HTMLElement>('.home-site')
       // Não roda em touch devices (hover:none) — causa lag no mobile
@@ -423,8 +442,6 @@ export default function WtfilmScripts() {
         { color: 'oklch(56% 0.25 264)', glow: 'oklch(56% 0.25 264 / .34)' },
         { color: 'oklch(68% 0.20 50)', glow: 'oklch(68% 0.20 50 / .34)' },
       ]
-      // Captura o capítulo ativo — só ele recebe vars de parallax do mouse.
-      // Isso evita GPU compositing em todos os 6 slides simultaneamente.
       let lastActiveChapter: HTMLElement | null = null
       const apply = () => {
         rafFrame = null
@@ -451,10 +468,9 @@ export default function WtfilmScripts() {
         root.style.setProperty('--hero-dot-glow', dot.glow)
         root.style.setProperty('--hero-kicker-color', dot.color)
 
-        // Aplica vars de capítulo APENAS no slide ativo, não em todos os 6
-        const activeChapter = document.querySelector<HTMLElement>('.chapter-slide.chapter.is-snap-target')
+        // Usa ref compartilhada (atualizada por initHomeSequence) — sem querySelector no RAF
+        const activeChapter = sharedActiveChapter
         if (activeChapter !== lastActiveChapter) {
-          // Limpa vars do slide anterior
           if (lastActiveChapter) {
             lastActiveChapter.style.removeProperty('--chapter-x')
             lastActiveChapter.style.removeProperty('--chapter-y')
@@ -475,9 +491,10 @@ export default function WtfilmScripts() {
         }
       }
       const requestApply = () => { if (!rafFrame) rafFrame = requestAnimationFrame(apply) }
+      sig.addEventListener('abort', () => { if (rafFrame) cancelAnimationFrame(rafFrame) })
       window.addEventListener('pointermove', (e) => { next = { x: e.clientX, y: e.clientY }; requestApply() }, { signal: sig })
       document.querySelectorAll<HTMLElement>('.sidebar .nav a').forEach((item, i) => {
-        item.addEventListener('pointerenter', () => { forcedDot = [dotColors[0], dotColors[1], dotColors[2], dotColors[0]][i] || dotColors[0]; requestApply() }, { signal: sig })
+        item.addEventListener('pointerenter', () => { forcedDot = [dotColors[0], dotColors[1], dotColors[2], dotColors[0]][i] ?? dotColors[0]; requestApply() }, { signal: sig })
       })
       const sidebar = document.querySelector('.sidebar')
       if (sidebar) sidebar.addEventListener('pointerleave', () => { forcedDot = null; requestApply() }, { signal: sig })
@@ -518,6 +535,7 @@ export default function WtfilmScripts() {
         }
         if (progressSpan) progressSpan.style.transform = `scaleX(${progressDisplayed.toFixed(4)})`
       }
+      sig.addEventListener('abort', () => { if (progressRaf) cancelAnimationFrame(progressRaf) })
 
       const update = () => {
         const h = scroller.clientHeight || window.innerHeight
@@ -540,6 +558,8 @@ export default function WtfilmScripts() {
         slides.forEach((slide, i) => {
           slide.classList.toggle('is-snap-target', i === idx)
         })
+        // Atualiza ref compartilhada com initCinematicMouse — evita querySelector no RAF do mouse
+        sharedActiveChapter = (idx > 0 && idx <= chapters.length) ? chapters[idx - 1] : null
 
         // Parallax: atualiza apenas slides próximos ao atual (±1)
         // Slides distantes ficam estáticos — zero custo de compositing
@@ -563,13 +583,13 @@ export default function WtfilmScripts() {
       // e o timer interfere com o smooth scroll nativo, causando stuttering.
       const isTouch = navigator.maxTouchPoints > 0
       if (isTouch) {
-        let snapFixTimer: ReturnType<typeof setTimeout> | null = null
+        let snapFixTimer: number | null = null
 
         // Usa visualViewport.height (tamanho real visível) em vez de clientHeight,
         // que pode estar desatualizado durante a transição da barra do Safari.
         const snapToNearest = (delay: number) => {
           if (snapFixTimer) clearTimeout(snapFixTimer)
-          snapFixTimer = setTimeout(() => {
+          snapFixTimer = window.setTimeout(() => {
             const h = window.visualViewport?.height || scroller.clientHeight
             if (h <= 0) return
             const ideal = Math.round(scroller.scrollTop / h) * h
@@ -583,11 +603,12 @@ export default function WtfilmScripts() {
         // NÃO usar touchend: a 120ms o momentum do iOS mal começou, então o
         // snap-fix via touchend erroneamente voltava para 0 e matava o swipe.
         scroller.addEventListener('scroll', () => snapToNearest(700), { passive: true, signal: sig })
+        sig.addEventListener('abort', () => { if (snapFixTimer) clearTimeout(snapFixTimer) })
 
         // Recalcula quando o visualViewport muda (Safari bar aparece/some)
+        // Usa um listener só para evitar dois reflows por evento
         if (window.visualViewport) {
-          window.visualViewport.addEventListener('resize', update, { signal: sig })
-          window.visualViewport.addEventListener('resize', () => snapToNearest(200), { signal: sig })
+          window.visualViewport.addEventListener('resize', () => { update(); snapToNearest(200) }, { signal: sig })
         }
       }
 
@@ -630,12 +651,7 @@ export default function WtfilmScripts() {
         if (!iframe.src && iframe.dataset.src) iframe.src = iframe.dataset.src
       }
 
-      // Desktop e mobile: lazy loading via IntersectionObserver.
-      // 200% pré-carrega 2 slides adjacentes em ambos os casos, garantindo
-      // que o vídeo já esteja rodando quando o usuário chega ao slide.
-      const isTouch = navigator.maxTouchPoints > 0
-      const margin = isTouch ? '200% 0px' : '200% 0px'
-
+      // 200% pré-carrega 2 slides adjacentes — o vídeo já está rodando quando o usuário chega.
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
@@ -643,7 +659,7 @@ export default function WtfilmScripts() {
             observer.unobserve(entry.target)
           }
         })
-      }, { root: scroller || null, rootMargin: margin })
+      }, { root: scroller || null, rootMargin: '200% 0px' })
 
       iframes.forEach(iframe => observer.observe(iframe))
     }
@@ -678,13 +694,17 @@ export default function WtfilmScripts() {
     function initHorizontalWheelScroll() {
       const rail = document.querySelector<HTMLElement>('.works-body .grid, .works-rail')
       if (!rail) return
-      // passive: true → browser usa compositor thread (trackpad sem jank).
-      // RAF-throttle: bateia múltiplos wheel events num único frame de layout,
-      // evitando layout thrashing que causava o "leve travamento" no trackpad.
+      // passive: false é necessário para chamar preventDefault() no mouse wheel.
+      // Para trackpad horizontal (deltaX > deltaY) retornamos imediatamente — o
+      // check leva < 0.1ms, imperceptível. Só chamamos preventDefault() para
+      // scroll puramente vertical (mouse wheel ou trackpad vertical na rail),
+      // impedindo que o browser também role a página verticalmente.
       let rafId: number | null = null
       let pendingDelta = 0
       rail.addEventListener('wheel', (e: WheelEvent) => {
+        // Trackpad horizontal nativo — deixa o browser lidar, sem interferência
         if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return
+        e.preventDefault()
         pendingDelta += e.deltaY * 1.2
         if (!rafId) {
           rafId = requestAnimationFrame(() => {
@@ -693,7 +713,8 @@ export default function WtfilmScripts() {
             rafId = null
           })
         }
-      }, { passive: true, signal: sig })
+      }, { passive: false, signal: sig })
+      sig.addEventListener('abort', () => { if (rafId) cancelAnimationFrame(rafId) })
     }
 
     function initPlayFeedback() {
@@ -705,30 +726,11 @@ export default function WtfilmScripts() {
 
     // ── Auto-fit: encolhe o font-size do título até caber em 1 linha ───────
     function initFitCardTitles() {
-      const MAX = 42, MIN = 13
-
-      function fitOne(h3: HTMLElement) {
-        // Precisa ter layout para medir
-        if (!h3.offsetWidth) return
-
-        // Seta para o máximo e testa: o texto cabe dentro do próprio h3?
-        // (h3 já tem padding-right:44px no CSS → a folga da seta está inclusa no offsetWidth)
-        h3.style.fontSize = MAX + 'px'
-        if (h3.scrollWidth <= h3.offsetWidth) {
-          // Cabe no máximo — deixa o CSS clamp cuidar
-          h3.style.removeProperty('font-size')
-          return
-        }
-
-        // Binary search: maior tamanho onde scrollWidth ≤ offsetWidth
-        let lo = MIN, hi = MAX
-        while (hi - lo > 0.5) {
-          const mid = (lo + hi) / 2
-          h3.style.fontSize = mid + 'px'
-          if (h3.scrollWidth <= h3.offsetWidth) lo = mid
-          else hi = mid
-        }
-        h3.style.fontSize = Math.floor(lo) + 'px'
+      // Usa helper fitText compartilhado — elimina duplicação do binary search do openOverlay
+      // (h3 já tem padding-right:44px no CSS → a folga da seta está inclusa no offsetWidth)
+      const fitOne = (h3: HTMLElement) => {
+        if (!h3.offsetWidth) return  // sem layout ainda — skip
+        fitText(h3, 13, 42)
       }
 
       const titles = Array.from(document.querySelectorAll<HTMLElement>('.card h3'))
