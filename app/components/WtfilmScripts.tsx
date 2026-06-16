@@ -625,6 +625,30 @@ export default function WtfilmScripts() {
           scroller.scrollTo({ top: 0, behavior: 'smooth' })
         }, { signal: sig })
       }
+
+      // ── Fix Windows: wheel sobre sidebar / botões / progress bar ──────────
+      // No Windows, wheel events sobre siblings do chapter-scroller (sidebar,
+      // scroll-cue, chapter-return, progress) sobem pelo DOM mas NUNCA chegam
+      // ao scroller — ele não é ancestor deles. No macOS o OS faz o roteamento
+      // inteligente; no Windows é estritamente cursor → bubbles up ancestors.
+      // Solução: listener passive no window que, para eventos fora do scroller,
+      // faz o snap manualmente. passive:true preserva compositor do scroller.
+      let homeWheelSnap: number | null = null
+      window.addEventListener('wheel', (e: WheelEvent) => {
+        // Evento dentro do scroller: CSS snap cuida — não interfere
+        if (scroller.contains(e.target as Node)) return
+        // Player aberto: não sequestra o scroll do overlay
+        if (document.body.classList.contains('work-player-open')) return
+        // Debounce: ignora eventos enquanto um snap está em andamento
+        if (homeWheelSnap) return
+        const h = scroller.clientHeight || window.innerHeight
+        const currentIdx = Math.round(scroller.scrollTop / h)
+        const newIdx = Math.max(0, Math.min(slides.length - 1, currentIdx + (e.deltaY > 0 ? 1 : -1)))
+        if (newIdx === currentIdx) return
+        homeWheelSnap = window.setTimeout(() => { homeWheelSnap = null }, 700)
+        scroller.scrollTo({ top: newIdx * h, behavior: 'smooth' })
+      }, { passive: true, signal: sig })
+      sig.addEventListener('abort', () => { if (homeWheelSnap) clearTimeout(homeWheelSnap) })
     }
 
     function initGlassHover() {
@@ -694,23 +718,22 @@ export default function WtfilmScripts() {
     function initHorizontalWheelScroll() {
       const rail = document.querySelector<HTMLElement>('.works-body .grid, .works-rail')
       if (!rail) return
-      // Estratégia: distinguir trackpad de mouse wheel pelo tamanho do delta.
-      // Trackpad (macOS): deltaMode=0, deltas contínuos e pequenos (1–30px por evento).
-      // Mouse wheel (macOS): deltaMode=0 mas saltos grandes (≥ 50px/notch), ou deltaMode=1/2.
-      // Trackpad horizontal (deltaX > deltaY): browser já lida — retorna imediatamente.
-      // Trackpad vertical (deltaY pequeno): deixa a PÁGINA rolar — não intercepta.
-      // Mouse wheel: converte deltaY → scrollLeft + preventDefault() para não vazar na página.
+      // Converte scroll vertical → horizontal na rail.
+      // A página de trabalhos tem overflow:hidden no body — não existe scroll vertical.
+      // Logo qualquer deltaY (mouse wheel OU trackpad vertical) deve rolar a rail.
+      // Trackpad horizontal (deltaX > deltaY) já funciona via CSS overflow-x:auto — retorna.
+      // passive:false é necessário para preventDefault() que evita scroll acidental do body.
+      // Não usamos threshold de deltaY: mouses no macOS podem reportar ≈ 10px/notch
+      // (muito abaixo de qualquer threshold seguro).
       let rafId: number | null = null
       let pendingDelta = 0
       rail.addEventListener('wheel', (e: WheelEvent) => {
-        // 1. Trackpad swipe horizontal — browser cuida nativamente
+        // Trackpad swipe horizontal — CSS cuida nativamente (sem interferência JS)
         if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return
-        // 2. Trackpad vertical (pixel mode, delta pequeno) — deixa a página rolar
-        if (e.deltaMode === 0 && Math.abs(e.deltaY) < 50) return
-        // 3. Mouse wheel: deltaMode ≠ 0 (linhas/páginas), ou pixel mode com salto grande
         e.preventDefault()
-        const px = e.deltaMode === 0 ? e.deltaY : e.deltaY * 40
-        pendingDelta += px * 1.2
+        // deltaMode 0 = pixel (padrão Chrome), 1 = linha (~40px), 2 = página (~800px)
+        const px = e.deltaMode === 1 ? e.deltaY * 40 : e.deltaMode === 2 ? e.deltaY * 800 : e.deltaY
+        pendingDelta += px
         if (!rafId) {
           rafId = requestAnimationFrame(() => {
             rail.scrollLeft += pendingDelta
