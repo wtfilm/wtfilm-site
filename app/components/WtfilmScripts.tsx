@@ -694,18 +694,23 @@ export default function WtfilmScripts() {
     function initHorizontalWheelScroll() {
       const rail = document.querySelector<HTMLElement>('.works-body .grid, .works-rail')
       if (!rail) return
-      // passive: false é necessário para chamar preventDefault() no mouse wheel.
-      // Para trackpad horizontal (deltaX > deltaY) retornamos imediatamente — o
-      // check leva < 0.1ms, imperceptível. Só chamamos preventDefault() para
-      // scroll puramente vertical (mouse wheel ou trackpad vertical na rail),
-      // impedindo que o browser também role a página verticalmente.
+      // Estratégia: distinguir trackpad de mouse wheel pelo tamanho do delta.
+      // Trackpad (macOS): deltaMode=0, deltas contínuos e pequenos (1–30px por evento).
+      // Mouse wheel (macOS): deltaMode=0 mas saltos grandes (≥ 50px/notch), ou deltaMode=1/2.
+      // Trackpad horizontal (deltaX > deltaY): browser já lida — retorna imediatamente.
+      // Trackpad vertical (deltaY pequeno): deixa a PÁGINA rolar — não intercepta.
+      // Mouse wheel: converte deltaY → scrollLeft + preventDefault() para não vazar na página.
       let rafId: number | null = null
       let pendingDelta = 0
       rail.addEventListener('wheel', (e: WheelEvent) => {
-        // Trackpad horizontal nativo — deixa o browser lidar, sem interferência
+        // 1. Trackpad swipe horizontal — browser cuida nativamente
         if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return
+        // 2. Trackpad vertical (pixel mode, delta pequeno) — deixa a página rolar
+        if (e.deltaMode === 0 && Math.abs(e.deltaY) < 50) return
+        // 3. Mouse wheel: deltaMode ≠ 0 (linhas/páginas), ou pixel mode com salto grande
         e.preventDefault()
-        pendingDelta += e.deltaY * 1.2
+        const px = e.deltaMode === 0 ? e.deltaY : e.deltaY * 40
+        pendingDelta += px * 1.2
         if (!rafId) {
           rafId = requestAnimationFrame(() => {
             rail.scrollLeft += pendingDelta
