@@ -661,8 +661,15 @@ export default function WtfilmScripts() {
         if (!iframe.src && iframe.dataset.src) iframe.src = iframe.dataset.src
       }
 
-      // Camada 1 — IntersectionObserver: carrega por proximidade (3 slides à frente).
-      // 300% dá mais buffer do que os 200% anteriores.
+      // Respeita preferência "Economizar dados" do sistema operacional
+      const conn = (navigator as any).connection
+      if (conn?.saveData) return
+
+      // No mobile, carrega só 1 slide à frente para não saturar a rede.
+      // No desktop, mantém 2 slides de buffer.
+      const isMobile = window.matchMedia('(max-width: 768px)').matches
+      const rootMargin = isMobile ? '120% 0px' : '200% 0px'
+
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
@@ -670,22 +677,22 @@ export default function WtfilmScripts() {
             observer.unobserve(entry.target)
           }
         })
-      }, { root: scroller || null, rootMargin: '300% 0px' })
+      }, { root: scroller || null, rootMargin })
 
       iframes.forEach(iframe => observer.observe(iframe))
 
-      // Camada 2 — fallback temporal: após 2.5s carrega todo o resto em sequência.
-      // Garante que as lâminas finais já estejam bufferizando antes de o usuário chegar,
-      // mesmo em scroll rápido ou navegação direta pela sidebar.
-      // Espaça 250ms entre cada para não saturar a rede de uma vez.
-      const fallbackTimer = window.setTimeout(() => {
-        observer.disconnect()  // não precisa mais observar, vamos carregar tudo
-        iframes.forEach((iframe, i) => {
-          if (iframe.src) return  // já carregado pelo observer
-          window.setTimeout(() => load(iframe), i * 250)
-        })
-      }, 2500)
-      sig.addEventListener('abort', () => clearTimeout(fallbackTimer))
+      // Fallback temporal: desktop carrega o restante após 4s (espaçado).
+      // Mobile não usa fallback — carrega apenas na demanda do observer.
+      if (!isMobile) {
+        const fallbackTimer = window.setTimeout(() => {
+          observer.disconnect()
+          iframes.forEach((iframe, i) => {
+            if (iframe.src) return
+            window.setTimeout(() => load(iframe), i * 350)
+          })
+        }, 4000)
+        sig.addEventListener('abort', () => clearTimeout(fallbackTimer))
+      }
     }
 
     function initVisualViewportOffset() {
