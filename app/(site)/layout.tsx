@@ -13,7 +13,11 @@ export async function generateMetadata(): Promise<Metadata> {
     title: 'wtfilm - Histórias que não passam',
     description: 'Produzimos filmes que conectam.',
     icons: {
-      icon: config?.favicon?.asset?.url ?? '/favicon.ico',
+      icon: [
+        { url: '/favicon.ico', sizes: 'any' },
+        { url: config?.favicon?.asset?.url ?? '/favicon-512.png', sizes: '512x512', type: 'image/png' },
+      ],
+      apple: config?.favicon?.asset?.url ?? '/favicon-512.png',
     },
   }
 }
