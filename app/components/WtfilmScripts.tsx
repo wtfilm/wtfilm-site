@@ -715,33 +715,39 @@ export default function WtfilmScripts() {
       const rail = document.querySelector<HTMLElement>('.works-body .grid, .works-rail')
       if (!rail) return
 
-      // O rail não deve ter snap — desabilita o scroll-snap-type do CSS de vez.
-      // O CSS tem `scroll-snap-type: x proximity` que revertia o scroll para a
-      // posição anterior quando o delta era pequeno (mouses macOS: ~3-10px/notch).
+      // Sem snap — o CSS tinha scroll-snap-type:x proximity que revertia deltas pequenos.
       rail.style.scrollSnapType = 'none'
 
+      // Easing suave: acumula a posição-alvo e interpola com fricção (expo-out).
+      // Elimina os "soquinhos" de aplicar o delta inteiro num único frame de RAF.
+      let targetLeft = 0
       let rafId: number | null = null
-      let pendingDelta = 0
+
+      const tick = () => {
+        const diff = targetLeft - rail.scrollLeft
+        if (Math.abs(diff) < 0.5) {
+          targetLeft = rail.scrollLeft   // sincroniza ao parar
+          rafId = null
+          return
+        }
+        rail.scrollLeft += diff * 0.18  // 18% por frame → ~170ms para 90% do percurso
+        rafId = requestAnimationFrame(tick)
+      }
 
       rail.addEventListener('wheel', (e: WheelEvent) => {
-        // Trackpad swipe horizontal → overflow-x:auto do CSS já cuida nativamente
+        // Trackpad swipe horizontal → overflow-x:auto nativo cuida
         if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return
         e.preventDefault()
 
-        // deltaMode: 0=pixel (padrão), 1=linha (~40px), 2=página (~800px)
         const rawPx = e.deltaMode === 1 ? e.deltaY * 40 : e.deltaMode === 2 ? e.deltaY * 800 : e.deltaY
-        // Amplifica x5 para mouses com delta pequeno (macOS reporta 3-10px/notch).
-        // Cap em 400px para não disparar em trackpad muito rápido.
-        const px = Math.sign(rawPx) * Math.min(Math.abs(rawPx) * 5, 400)
+        // x8 com cap 300px: macOS mouse (~10px/notch)→80px, Windows (~120px)→300px
+        const px = Math.sign(rawPx) * Math.min(Math.abs(rawPx) * 8, 300)
 
-        pendingDelta += px
-        if (!rafId) {
-          rafId = requestAnimationFrame(() => {
-            rail.scrollLeft += pendingDelta
-            pendingDelta = 0
-            rafId = null
-          })
-        }
+        // Se não está animando, parte da posição atual
+        if (!rafId) targetLeft = rail.scrollLeft
+        targetLeft = Math.max(0, Math.min(rail.scrollWidth - rail.clientWidth, targetLeft + px))
+
+        if (!rafId) rafId = requestAnimationFrame(tick)
       }, { passive: false, signal: sig })
 
       sig.addEventListener('abort', () => { if (rafId) cancelAnimationFrame(rafId) })
