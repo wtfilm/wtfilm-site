@@ -736,15 +736,16 @@ export default function WtfilmScripts() {
 
       rail.addEventListener('wheel', (e: WheelEvent) => {
         if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-          // Trackpad swipe horizontal: para a nossa animação imediatamente.
-          // Sem isso, o tick() briga com o scroll nativo (empurra de volta para
-          // targetLeft enquanto o trackpad tenta ir na direção oposta → travamento).
+          // Trackpad swipe horizontal: para a nossa animação para não brigar com o nativo.
           if (rafId) { cancelAnimationFrame(rafId); rafId = null }
           targetLeft = rail.scrollLeft
           return
         }
-        e.preventDefault()
 
+        // passive:true (abaixo) — sem preventDefault(). O body de trabalhos tem
+        // overflow:hidden, então o scroll vertical da página não acontece de qualquer
+        // forma. Sem passive:false, o compositor não espera nosso código e o trackpad
+        // responde imediatamente ao trocar de mouse → trackpad.
         const rawPx = e.deltaMode === 1 ? e.deltaY * 40 : e.deltaMode === 2 ? e.deltaY * 800 : e.deltaY
         // x8 com cap 300px: macOS mouse (~10px/notch)→80px, Windows (~120px)→300px
         const px = Math.sign(rawPx) * Math.min(Math.abs(rawPx) * 8, 300)
@@ -754,7 +755,7 @@ export default function WtfilmScripts() {
         targetLeft = Math.max(0, Math.min(rail.scrollWidth - rail.clientWidth, targetLeft + px))
 
         if (!rafId) rafId = requestAnimationFrame(tick)
-      }, { passive: false, signal: sig })
+      }, { passive: true, signal: sig })
 
       sig.addEventListener('abort', () => { if (rafId) cancelAnimationFrame(rafId) })
     }
