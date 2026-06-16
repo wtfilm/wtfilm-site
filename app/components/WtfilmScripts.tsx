@@ -389,7 +389,11 @@ export default function WtfilmScripts() {
           if (titleNode) titleNode.textContent = 'Demo reel'
           if (categoryNode) categoryNode.textContent = 'wtfilm · seleção de filmes'
           if (descriptionNode) descriptionNode.innerHTML = '<p>Uma síntese visual do olhar da wtfilm.</p>'
-          if (video) video.innerHTML = `<iframe src="https://player.vimeo.com/video/699221144?h=41566b7914&badge=0&autopause=0&app_id=58479&autoplay=1&player_id=home-reel" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" title="Demo reel wtfilm"></iframe>`
+          // ID e hash vêm do data-attribute preenchido pelo Sanity (page.tsx)
+          const reelId   = btn.dataset.reelId   || '699221144'
+          const reelHash = btn.dataset.reelHash  || '41566b7914'
+          const hashParam = reelHash ? `?h=${reelHash}&` : '?'
+          if (video) video.innerHTML = `<iframe src="https://player.vimeo.com/video/${reelId}${hashParam}badge=0&autopause=0&app_id=58479&autoplay=1&player_id=home-reel" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" title="Demo reel wtfilm"></iframe>`
           document.body.classList.add('work-player-open')
           overlay!.classList.add('open')
           overlay!.classList.remove('info-open', 'mode-moodboard')

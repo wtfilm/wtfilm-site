@@ -58,11 +58,14 @@ export default async function HomePage() {
   const sanity = await client.fetch(homePageQuery).catch(() => null)
 
   const hero = {
-    kicker:   sanity?.heroKicker   ?? fallbackHero.heroKicker,
-    titulo:   sanity?.heroTitulo   ?? fallbackHero.heroTitulo,
-    ctaLabel: sanity?.heroCtaLabel ?? fallbackHero.heroCtaLabel,
-    vimeoId:  sanity?.heroVimeoId  ?? fallbackHero.heroVimeoId,
-    vimeoHash: sanity?.heroVimeoHash ?? fallbackHero.heroVimeoHash,
+    kicker:      sanity?.heroKicker      ?? fallbackHero.heroKicker,
+    titulo:      sanity?.heroTitulo      ?? fallbackHero.heroTitulo,
+    ctaLabel:    sanity?.heroCtaLabel    ?? fallbackHero.heroCtaLabel,
+    vimeoId:     sanity?.heroVimeoId     ?? fallbackHero.heroVimeoId,
+    vimeoHash:   sanity?.heroVimeoHash   ?? fallbackHero.heroVimeoHash,
+    // Vídeo do reel (abre ao clicar no botão) — vem do Sanity, fallback = hero
+    reelVimeoId:   sanity?.heroReelVimeoId   ?? fallbackHero.heroVimeoId,
+    reelVimeoHash: sanity?.heroReelVimeoHash ?? fallbackHero.heroVimeoHash,
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -159,7 +162,13 @@ export default async function HomePage() {
                 <span key={i}>{linha}{i < arr.length - 1 && <br />}</span>
               ))}<span className="dot">.</span>
             </h1>
-            <a className="play-link" href="#reel" data-reel-player>
+            <a
+              className="play-link"
+              href="#reel"
+              data-reel-player
+              data-reel-id={hero.reelVimeoId}
+              data-reel-hash={hero.reelVimeoHash}
+            >
               <span aria-hidden="true" />
               <strong>{hero.ctaLabel}</strong>
             </a>
