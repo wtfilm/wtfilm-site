@@ -18,7 +18,15 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-export default function SiteLayout({ children }: { children: React.ReactNode }) {
+export default async function SiteLayout({ children }: { children: React.ReactNode }) {
+  const config = await client.fetch(globalConfigQuery).catch(() => null)
+
+  const social = {
+    instagram: config?.instagram ?? 'https://instagram.com/wtfilm',
+    vimeo:     config?.vimeo     ?? 'https://vimeo.com/wtfilm',
+    linkedin:  config?.linkedin  ?? 'https://linkedin.com/company/wtfilm',
+  }
+
   return (
     <>
       <aside className="sidebar">
@@ -30,13 +38,13 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
         </div>
         <div>
           <div className="social">
-            <a href="https://instagram.com/wtfilm" aria-label="Instagram" target="_blank" rel="noopener">
+            <a href={social.instagram} aria-label="Instagram" target="_blank" rel="noopener">
               <Image src="/assets/icons/social-instagram.svg" alt="" width={18} height={18} />
             </a>
-            <a href="https://vimeo.com/wtfilm" aria-label="Vimeo" target="_blank" rel="noopener">
+            <a href={social.vimeo} aria-label="Vimeo" target="_blank" rel="noopener">
               <Image src="/assets/icons/social-vimeo.svg" alt="" width={18} height={18} />
             </a>
-            <a href="https://linkedin.com/company/wtfilm" aria-label="LinkedIn" target="_blank" rel="noopener">
+            <a href={social.linkedin} aria-label="LinkedIn" target="_blank" rel="noopener">
               <Image src="/assets/icons/social-linkedin.svg" alt="" width={18} height={18} />
             </a>
           </div>
