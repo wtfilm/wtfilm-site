@@ -714,74 +714,37 @@ export default function WtfilmScripts() {
     function initHorizontalWheelScroll() {
       const rail = document.querySelector<HTMLElement>('.works-body .grid, .works-rail')
       if (!rail) return
-      // Raiz do problema anterior: o rail tem scroll-snap-type:x proximity.
-      // Com scrollLeft += smallDelta (ex: 10px de notch no macOS), o delta não
-      // ultrapassa o ponto médio do card (~195px) e o CSS snap reverte imediatamente.
-      // Solução em duas etapas:
-      //   1. Desabilitar o snap via inline style enquanto o usuário está scrollando.
-      //   2. Após 80ms de silêncio, calcular card-alvo e scrollTo lá com behavior:'smooth'.
-      //      Mínimo de 1 card de deslocamento para qualquer deltaY → mouse e trackpad funcionam.
-      //   3. Reabilitar snap 600ms depois (após a animação smooth completar).
-      // Trackpad horizontal (deltaX > deltaY) → CSS cuida nativamente — não interferimos.
 
-      let snapTimer: number | null = null
-      let snapRestoreTimer: number | null = null
-      let totalDelta = 0
-      let startScrollLeft = 0
-      let startCard = 0
+      // O rail não deve ter snap — desabilita o scroll-snap-type do CSS de vez.
+      // O CSS tem `scroll-snap-type: x proximity` que revertia o scroll para a
+      // posição anterior quando o delta era pequeno (mouses macOS: ~3-10px/notch).
+      rail.style.scrollSnapType = 'none'
 
-      const getSnapUnit = () => {
-        const card = rail.querySelector<HTMLElement>('.card')
-        if (!card || !card.offsetWidth) return 320
-        const gap = parseFloat(getComputedStyle(rail).columnGap) || 16
-        return card.offsetWidth + gap
-      }
+      let rafId: number | null = null
+      let pendingDelta = 0
 
       rail.addEventListener('wheel', (e: WheelEvent) => {
-        // Trackpad swipe horizontal → CSS cuida nativamente
+        // Trackpad swipe horizontal → overflow-x:auto do CSS já cuida nativamente
         if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return
         e.preventDefault()
 
-        // deltaMode 0=pixel, 1=linha(~40px), 2=página(~800px)
-        const px = e.deltaMode === 1 ? e.deltaY * 40 : e.deltaMode === 2 ? e.deltaY * 800 : e.deltaY
+        // deltaMode: 0=pixel (padrão), 1=linha (~40px), 2=página (~800px)
+        const rawPx = e.deltaMode === 1 ? e.deltaY * 40 : e.deltaMode === 2 ? e.deltaY * 800 : e.deltaY
+        // Amplifica x5 para mouses com delta pequeno (macOS reporta 3-10px/notch).
+        // Cap em 400px para não disparar em trackpad muito rápido.
+        const px = Math.sign(rawPx) * Math.min(Math.abs(rawPx) * 5, 400)
 
-        if (!snapTimer) {
-          // Início de gesto: registra posição de partida e zera acumulador
-          const unit = getSnapUnit()
-          startCard = Math.round(rail.scrollLeft / unit)
-          startScrollLeft = startCard * unit
-          totalDelta = 0
-          // Cancela qualquer restauração de snap em andamento
-          if (snapRestoreTimer) { clearTimeout(snapRestoreTimer); snapRestoreTimer = null }
+        pendingDelta += px
+        if (!rafId) {
+          rafId = requestAnimationFrame(() => {
+            rail.scrollLeft += pendingDelta
+            pendingDelta = 0
+            rafId = null
+          })
         }
-        totalDelta += px
-
-        // Feedback visual imediato: desabilita snap e move livremente
-        rail.style.scrollSnapType = 'none'
-        rail.scrollLeft = startScrollLeft + totalDelta
-
-        if (snapTimer) clearTimeout(snapTimer)
-        snapTimer = window.setTimeout(() => {
-          const unit = getSnapUnit()
-          const maxCard = Math.max(0, Math.floor((rail.scrollWidth - rail.clientWidth) / unit))
-          const dir = Math.sign(totalDelta)
-          // Garante deslocamento mínimo de 1 card se houve qualquer input direcional
-          const numCards = dir !== 0 ? Math.max(1, Math.round(Math.abs(totalDelta) / unit)) : 0
-          const targetCard = Math.max(0, Math.min(maxCard, startCard + dir * numCards))
-          rail.scrollTo({ left: targetCard * unit, behavior: 'smooth' })
-          // Reabilita snap após animação smooth (~500ms)
-          snapRestoreTimer = window.setTimeout(() => {
-            rail.style.removeProperty('scroll-snap-type')
-            snapRestoreTimer = null
-          }, 600)
-          snapTimer = null
-        }, 80)
       }, { passive: false, signal: sig })
 
-      sig.addEventListener('abort', () => {
-        if (snapTimer) clearTimeout(snapTimer)
-        if (snapRestoreTimer) clearTimeout(snapRestoreTimer)
-      })
+      sig.addEventListener('abort', () => { if (rafId) cancelAnimationFrame(rafId) })
     }
 
     function initPlayFeedback() {
