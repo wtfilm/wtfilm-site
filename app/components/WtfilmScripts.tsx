@@ -675,7 +675,8 @@ export default function WtfilmScripts() {
         if (!iframe.src && iframe.dataset.src) iframe.src = iframe.dataset.src
       }
 
-      // 200% pré-carrega 2 slides adjacentes — o vídeo já está rodando quando o usuário chega.
+      // Camada 1 — IntersectionObserver: carrega por proximidade (3 slides à frente).
+      // 300% dá mais buffer do que os 200% anteriores.
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
@@ -683,9 +684,22 @@ export default function WtfilmScripts() {
             observer.unobserve(entry.target)
           }
         })
-      }, { root: scroller || null, rootMargin: '200% 0px' })
+      }, { root: scroller || null, rootMargin: '300% 0px' })
 
       iframes.forEach(iframe => observer.observe(iframe))
+
+      // Camada 2 — fallback temporal: após 2.5s carrega todo o resto em sequência.
+      // Garante que as lâminas finais já estejam bufferizando antes de o usuário chegar,
+      // mesmo em scroll rápido ou navegação direta pela sidebar.
+      // Espaça 250ms entre cada para não saturar a rede de uma vez.
+      const fallbackTimer = window.setTimeout(() => {
+        observer.disconnect()  // não precisa mais observar, vamos carregar tudo
+        iframes.forEach((iframe, i) => {
+          if (iframe.src) return  // já carregado pelo observer
+          window.setTimeout(() => load(iframe), i * 250)
+        })
+      }, 2500)
+      sig.addEventListener('abort', () => clearTimeout(fallbackTimer))
     }
 
     function initVisualViewportOffset() {

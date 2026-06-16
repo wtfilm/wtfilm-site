@@ -36,9 +36,6 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
             <a href="https://vimeo.com/wtfilm" aria-label="Vimeo" target="_blank" rel="noopener">
               <Image src="/assets/icons/social-vimeo.svg" alt="" width={18} height={18} />
             </a>
-            <a href="https://youtube.com/@wtfilm" aria-label="YouTube" target="_blank" rel="noopener">
-              <Image src="/assets/icons/social-youtube.svg" alt="" width={18} height={18} />
-            </a>
             <a href="https://linkedin.com/company/wtfilm" aria-label="LinkedIn" target="_blank" rel="noopener">
               <Image src="/assets/icons/social-linkedin.svg" alt="" width={18} height={18} />
             </a>
