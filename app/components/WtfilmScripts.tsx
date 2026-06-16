@@ -735,8 +735,14 @@ export default function WtfilmScripts() {
       }
 
       rail.addEventListener('wheel', (e: WheelEvent) => {
-        // Trackpad swipe horizontal → overflow-x:auto nativo cuida
-        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+          // Trackpad swipe horizontal: para a nossa animação imediatamente.
+          // Sem isso, o tick() briga com o scroll nativo (empurra de volta para
+          // targetLeft enquanto o trackpad tenta ir na direção oposta → travamento).
+          if (rafId) { cancelAnimationFrame(rafId); rafId = null }
+          targetLeft = rail.scrollLeft
+          return
+        }
         e.preventDefault()
 
         const rawPx = e.deltaMode === 1 ? e.deltaY * 40 : e.deltaMode === 2 ? e.deltaY * 800 : e.deltaY
