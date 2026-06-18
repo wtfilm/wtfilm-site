@@ -2701,7 +2701,11 @@ body.about-view .page::before {
   height: 100%;
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
-  overscroll-behavior: contain;
+  /* none em vez de contain — elimina resistência no trackpad ao chegar no 1º/último slide.
+     contain criava parede dura; none deixa o OS dar o feedback nativo sem travar. */
+  overscroll-behavior: none;
+  /* pan-y garante que o browser capture o gesto vertical aqui e não no body (fix mobile) */
+  touch-action: pan-y;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -3450,8 +3454,9 @@ body.about-view .page::before {
   .chapter-scroller .chapter { grid-template-columns: minmax(230px, .9fr) minmax(0, 1.1fr); }
   .chapter-scroller .chapter-visual { inset: 0; border-radius: inherit; }
   .chapter-scroller .chapter-info { margin: 0 0 28px 24px; width: min(88%, 410px); }
-  .chapter-scroller .chapter h2 { font-size: clamp(26px, 4.2vw, 48px); line-height: .9; }
-  .chapter-scroller .animation h2 { max-width: 360px; font-size: clamp(24px, 3.8vw, 44px); }
+  /* Títulos das lâminas: white-space nowrap + fitText via JS garantem 1 linha sempre */
+  .chapter-scroller .chapter h2 { font-size: clamp(20px, 3.4vw, 44px); line-height: .9; white-space: nowrap; }
+  .chapter-scroller .animation h2 { max-width: 360px; font-size: clamp(20px, 3.2vw, 42px); white-space: nowrap; }
 
   .works-body .site { width: calc(100vw - var(--sidebar)); max-width: calc(100vw - var(--sidebar)); margin-left: var(--sidebar); overflow: hidden; }
   .works-body .works-page { --page-pad: clamp(14px, 2.4vw, 24px); width: 100%; max-width: 100%; padding-inline: var(--page-pad); overflow: hidden; }

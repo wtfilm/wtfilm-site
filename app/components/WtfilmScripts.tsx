@@ -746,25 +746,25 @@ export default function WtfilmScripts() {
       }
 
       rail.addEventListener('wheel', (e: WheelEvent) => {
-        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-          // Trackpad swipe horizontal: para a nossa animação para não brigar com o nativo.
+        // Qualquer componente horizontal (trackpad) → nativo cuida, só cancela o nosso RAF.
+        // Threshold 2px evita falsos positivos em mice com scroll-wheel diagonal.
+        if (Math.abs(e.deltaX) > 2) {
           if (rafId) { cancelAnimationFrame(rafId); rafId = null }
           targetLeft = rail.scrollLeft
           return
         }
 
-        // passive:true (abaixo) — sem preventDefault(). O body de trabalhos tem
-        // overflow:hidden, então o scroll vertical da página não acontece de qualquer
-        // forma. Sem passive:false, o compositor não espera nosso código e o trackpad
-        // responde imediatamente ao trocar de mouse → trackpad.
+        // A partir daqui só chegam eventos verticais puros (mouse wheel ou trackpad vertical).
+        // Distingue trackpad (deltaMode=0, delta pequeno <25px) de mouse wheel (delta maior).
+        // Trackpad: multiplica pouco (natural); Mouse wheel: multiplica bastante (low-res).
         const rawPx = e.deltaMode === 1 ? e.deltaY * 40 : e.deltaMode === 2 ? e.deltaY * 800 : e.deltaY
-        // x8 com cap 300px: macOS mouse (~10px/notch)→80px, Windows (~120px)→300px
-        const px = Math.sign(rawPx) * Math.min(Math.abs(rawPx) * 8, 300)
+        const isTrackpad = e.deltaMode === 0 && Math.abs(rawPx) < 25
+        const multiplier = isTrackpad ? 2 : 8
+        const cap       = isTrackpad ? 100 : 300
+        const px = Math.sign(rawPx) * Math.min(Math.abs(rawPx) * multiplier, cap)
 
-        // Se não está animando, parte da posição atual
         if (!rafId) targetLeft = rail.scrollLeft
         targetLeft = Math.max(0, Math.min(rail.scrollWidth - rail.clientWidth, targetLeft + px))
-
         if (!rafId) rafId = requestAnimationFrame(tick)
       }, { passive: true, signal: sig })
 
@@ -827,6 +827,16 @@ export default function WtfilmScripts() {
     initHorizontalWheelScroll()
     initGlassHover()
     initVisualViewportOffset()
+
+    // Tablet: ajusta font-size dos títulos das lâminas para caber em 1 linha
+    function initChapterTitleFit() {
+      if (!window.matchMedia('(min-width: 761px) and (max-width: 1023px)').matches) return
+      document.querySelectorAll<HTMLElement>('.chapter-scroller .chapter h2').forEach(h2 => {
+        fitText(h2, 16, 44)
+      })
+    }
+    initChapterTitleFit()
+    window.addEventListener('resize', initChapterTitleFit, { signal: sig })
 
     return () => {
       ac.abort()
