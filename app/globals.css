@@ -362,8 +362,8 @@ body::after {
   height: max(100svh, 56.25vw);
   transform: translate(-50%, -50%) scale(1.04);
   border: 0;
-  opacity: .58;
-  filter: saturate(1.08) contrast(1.08) brightness(.72);
+  opacity: .72;
+  filter: saturate(1.08) contrast(1.05) brightness(.82);
   pointer-events: none;
 }
 .hero-video::after {
