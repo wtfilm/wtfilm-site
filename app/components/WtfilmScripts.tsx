@@ -509,6 +509,10 @@ export default function WtfilmScripts() {
       const scroller = document.querySelector<HTMLElement>('[data-chapter-scroller]')
       if (!scroller || !experience) return
 
+      // Trava body/html para o iOS não capturar swipes no body em vez do scroller
+      document.body.classList.add('home-body')
+      sig.addEventListener('abort', () => document.body.classList.remove('home-body'))
+
       const slides = [...scroller.querySelectorAll<HTMLElement>('.chapter-slide')]
       const chapters = [...scroller.querySelectorAll<HTMLElement>('.chapter-slide.chapter')]
       // Cache chapter visuals upfront — evita querySelector dentro do scroll handler

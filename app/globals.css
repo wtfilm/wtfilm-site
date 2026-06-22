@@ -3306,6 +3306,8 @@ body.about-view .page::before {
 }
 
 .works-body { overflow: hidden; }
+/* Home: trava o body para o iOS não capturar o gesto no body em vez do chapter-scroller */
+.home-body { overflow: hidden; touch-action: none; }
 .works-body .site { height: 100svh; overflow: hidden; }
 .works-body .works-page {
   height: 100svh;
@@ -3556,7 +3558,7 @@ body.about-view .page::before {
   .works-body .pill[data-filter="todos"] { grid-column: 1 / -1; }
   .works-body .works-rail,
   .works-body .works-page .grid,
-  .works-body .works-page .grid.is-filtered { --rail-card: min(82vw, 330px); width: 100%; max-width: 100%; padding: 12px 0; gap: 12px; grid-template-rows: 1fr; }
+  .works-body .works-page .grid.is-filtered { --rail-card: min(82vw, 330px); width: 100%; max-width: 100%; padding: 12px 14px; scroll-padding-inline-start: 14px; gap: 12px; grid-template-rows: 1fr; }
   .works-body .works-page .grid .card,
   .works-body .works-page .grid .card.wide,
   .works-body .works-page .grid .card.mid,
